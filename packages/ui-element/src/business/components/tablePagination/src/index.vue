@@ -45,12 +45,14 @@
 </template>
 
 <script setup lang="ts" generic="Row extends GaTableRow = GaTableRow">
-import { GaPagination } from '../../pagination'
-import { GaTable } from '../../table'
+import {
+  GaPagination,
+  GaTable,
+} from '../../../../base/index'
 import type {
   GaTableCellScope,
   GaTableRow,
-} from '../../table'
+} from '../../../../base/index'
 
 import type { GaTablePaginationProps } from './props'
 

@@ -1,25 +1,40 @@
-import { GaPagination as PaginationBarrel } from '../components/pagination'
-import { GaTable as TableBarrel } from '../components/table'
+import { describe, expect, it } from 'vitest'
+
+import { GaPagination as PaginationBarrel } from '../base/components/pagination'
+import { GaTable as TableBarrel } from '../base/components/table'
 import {
   GaTablePagination as TablePaginationBarrel,
-} from '../components/tablePagination'
+} from '../business/components/tablePagination'
 import type {
   GaPaginationProps,
   GaTableColumn,
-  GaTablePaginationProps,
   GaTableProps,
+} from '../base'
+import type { GaTablePaginationProps } from '../business'
+import type {
+  GaPaginationProps as RootGaPaginationProps,
+  GaTableColumn as RootGaTableColumn,
+  GaTablePaginationProps as RootGaTablePaginationProps,
+  GaTableProps as RootGaTableProps,
 } from '../index'
-import { describe, expect, it } from 'vitest'
 
-type RootTypeContract = [
+type BaseTypeContract = [
   GaTableProps,
   GaTableColumn,
   GaPaginationProps,
-  GaTablePaginationProps,
 ]
 
+type RootTypeContract = [
+  RootGaTableProps,
+  RootGaTableColumn,
+  RootGaPaginationProps,
+  RootGaTablePaginationProps,
+]
+
+const baseTypeContract: BaseTypeContract | undefined = undefined
 const rootTypeContract: RootTypeContract | undefined = undefined
 
+void baseTypeContract
 void rootTypeContract
 
 const flatTablePaginationProps: GaTablePaginationProps<{ id: number }> = {
@@ -59,7 +74,23 @@ void legacyHeight
 void legacyMaxHeight
 
 describe('library exports', () => {
-  it('exports the table, pagination, and composite barrel components', async () => {
+  it('exports only base components from the base entry', async () => {
+    const base = await import('../base')
+
+    expect(base.GaTable).toBe(TableBarrel)
+    expect(base.GaPagination).toBe(PaginationBarrel)
+    expect(base).not.toHaveProperty('GaTablePagination')
+  })
+
+  it('exports only business components from the business entry', async () => {
+    const business = await import('../business')
+
+    expect(business.GaTablePagination).toBe(TablePaginationBarrel)
+    expect(business).not.toHaveProperty('GaTable')
+    expect(business).not.toHaveProperty('GaPagination')
+  })
+
+  it('exports base and business components from the root entry', async () => {
     const library = await import('../index')
 
     expect(library.GaTable).toBe(TableBarrel)

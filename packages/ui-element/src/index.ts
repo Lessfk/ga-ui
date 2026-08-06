@@ -1,3 +1,2 @@
-export * from './components/table'
-export * from './components/pagination'
-export * from './components/tablePagination'
+export * from './base/index'
+export * from './business/index'
