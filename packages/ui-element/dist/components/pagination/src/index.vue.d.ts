@@ -17,6 +17,7 @@ declare const _default: import('vue').DefineComponent<GaPaginationProps, {}, {},
     pageSize: number;
     total: number;
     pageSizes: number[];
+    position: "left" | "center" | "right";
 }, {}, {}, {}, string, import('vue').ComponentProvideOptions, false, {}, any>;
 export default _default;
 //# sourceMappingURL=index.vue.d.ts.map

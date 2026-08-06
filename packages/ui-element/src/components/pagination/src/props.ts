@@ -8,4 +8,5 @@ export interface GaPaginationProps {
   size?: ComponentSize
   layout?: string
   background?: boolean
+  position?: 'left' | 'center' | 'right'
 }

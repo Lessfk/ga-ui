@@ -2,11 +2,14 @@
   <main class="playground-page">
     <h1>GaTable 配置列示例</h1>
 
-    <section class="table-layout">
-      <GaTable
-        height="100%"
+    <section class="table-area">
+      <GaTablePagination
         :data="rows"
         :columns="columns"
+        v-model:current-page="currentPage"
+        v-model:page-size="pageSize"
+        :total="100"
+        position="left"
       >
         <template #column-prepend>
           <ElTableColumn
@@ -55,14 +58,12 @@
             </ElButton>
           </template>
         </ElTableColumn>
-      </GaTable>
-
-      <GaPagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :total="total"
-      />
+      </GaTablePagination>
     </section>
+
+     <h1>GaTable 配置列示例</h1>
+
+     <GaPagination position="center"></GaPagination>
   </main>
 </template>
 
@@ -77,8 +78,8 @@ import {
 } from 'element-plus'
 
 import {
+  GaTablePagination,
   GaPagination,
-  GaTable,
   type GaTableColumn,
 } from 'ga-ui-element'
 
@@ -91,7 +92,6 @@ interface UserRow {
 
 const currentPage = ref(1)
 const pageSize = ref(10)
-const total = ref(100)
 
 const columns: GaTableColumn<UserRow>[] = [
   {
@@ -152,14 +152,9 @@ function viewUser(row: Record<string, unknown>) {
   min-height: 0;
 }
 
-.table-layout {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) 50px;
+.table-area {
   flex: 1;
-  min-height: 0;
-}
-
-.table-layout > .ga-table {
+  min-width: 0;
   min-height: 0;
 }
 

@@ -1,8 +1,10 @@
 {
   "name": "ga-ui-element",
-  "version": "1.0.0",
+  "version": "0.1.0",
+  "author": "lemonmon",
+  "license": "MIT",
+  "description": "基于 Element Plus 二次封装的 Vue 3 组件库",
   "type": "module",
-  "preview": true,
   "files": [
     "dist"
   ],
@@ -15,24 +17,36 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./style.css": "./dist/style.css"
   },
   "scripts": {
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "build": "vite build",
+    "test": "pnpm run test:type && vitest run",
+    "test:type": "vue-tsc --noEmit -p tsconfig.type-tests.json",
+    "test:watch": "vitest",
+    "prepublishOnly": "pnpm run test && pnpm run build"
   },
   "peerDependencies": {
     "element-plus": "^2.14.3",
     "vue": "^3.5.40"
   },
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "vue",
+    "vue3",
+    "element-plus",
+    "components",
+    "ui"
+  ],
   "devDependencies": {
     "@vue/test-utils": "^2.4.11",
     "happy-dom": "^18.0.1",
     "vitest": "^3.2.7"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }
