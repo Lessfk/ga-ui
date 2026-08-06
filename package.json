@@ -1,0 +1,24 @@
+{
+  "name": "ga-ui-workspace",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "preview": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.4",
+    "@vue/compiler-sfc": "^3.5.40",
+    "element-plus": "^2.14.3",
+    "sass": "^1.102.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.4.3",
+    "vite-plugin-dts": "^4.5.4",
+    "vue": "^3.5.40",
+    "vue-tsc": "^3.3.9"
+  }
+}

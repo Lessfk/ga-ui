@@ -1,0 +1,48 @@
+.ga-table-container {
+    width: 100%;
+
+    &.is-auto-height {
+        height: 100%;
+        min-height: 0;
+        overflow: hidden;
+
+        > .ga-table {
+            min-height: 0;
+        }
+    }
+
+}
+
+.el-table.ga-table {
+    --el-table-bg-color: #ffffff;
+    --el-table-tr-bg-color: #ffffff;
+    --el-table-text-color: #303133;
+
+    --el-table-header-bg-color: #f6f6f6;
+    --el-table-header-text-color: #2b3b5e;
+
+    --el-table-border-color: #e5e7eb;
+    --el-table-border: 1px solid var(--el-table-border-color);
+
+    --el-table-row-hover-bg-color: #f6f6f6;
+    --el-table-current-row-bg-color: #ecf5ff;
+
+    --el-table-expanded-cell-bg-color: #fafafa;
+
+    --el-table-fixed-left-column:
+        inset 10px 0 10px -10px rgb(0 0 0 / 15%);
+
+    --el-table-fixed-right-column:
+        inset -10px 0 10px -10px rgb(0 0 0 / 15%);
+
+
+    .el-table__header-wrapper {
+        th.el-table__cell {
+            .cell {
+                font-size: 14px;
+                font-weight: 600;
+            }
+        }
+    }
+}
+

@@ -1,0 +1,38 @@
+{
+  "name": "ga-ui-element",
+  "version": "1.0.0",
+  "type": "module",
+  "preview": true,
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "peerDependencies": {
+    "element-plus": "^2.14.3",
+    "vue": "^3.5.40"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@vue/test-utils": "^2.4.11",
+    "happy-dom": "^18.0.1",
+    "vitest": "^3.2.7"
+  }
+}
