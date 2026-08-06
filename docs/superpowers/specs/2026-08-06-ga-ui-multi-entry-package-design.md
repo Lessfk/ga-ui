@@ -30,6 +30,7 @@ import { GaTablePagination } from 'ga-ui/business'
 - 不拆分为 `ga-ui-base` 和 `ga-ui-business` 两个 npm 包。
 - 不为基础组件和业务组件维护独立版本。
 - 不在本次调整中改变组件功能或视觉表现。
+- 不实现或导出当前仍为空壳的 `GaDialog`。
 - 不增加全量 `app.use()` 插件注册能力。
 - 不拆分基础样式和业务样式。
 
@@ -43,8 +44,7 @@ packages/ui-element/
     ├── base/
     │   ├── components/
     │   │   ├── table/
-    │   │   ├── pagination/
-    │   │   └── dialog/
+    │   │   └── pagination/
     │   └── index.ts
     ├── business/
     │   ├── components/
@@ -55,7 +55,7 @@ packages/ui-element/
 
 组件归属如下：
 
-- 基础组件：`GaTable`、`GaPagination`、`GaDialog`。
+- 基础组件：`GaTable`、`GaPagination`。
 - 业务组件：`GaTablePagination`。
 
 后续新增组件必须先明确归属。通用、无业务语义的组件进入 `base`；由多个基础组件组合且承载业务交互的组件进入 `business`。
@@ -68,7 +68,6 @@ packages/ui-element/
 // src/base/index.ts
 export * from './components/table'
 export * from './components/pagination'
-export * from './components/dialog'
 ```
 
 业务入口只导出业务组件及其公开类型：
@@ -248,7 +247,7 @@ import 'ga-ui/style.css'
 
 测试必须确认：
 
-- `src/base/index.ts` 导出 `GaTable`、`GaPagination` 和 `GaDialog`。
+- `src/base/index.ts` 导出 `GaTable` 和 `GaPagination`。
 - `src/base/index.ts` 不导出 `GaTablePagination`。
 - `src/business/index.ts` 导出 `GaTablePagination`。
 - `src/business/index.ts` 不导出基础组件。
