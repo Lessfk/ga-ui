@@ -342,6 +342,7 @@ Expected: no Dialog files and no unrelated documentation files are staged.
 **Files:**
 
 - Create: `packages/ui-element/scripts/verify-build.mjs`
+- Modify: `.gitignore`
 - Modify: `packages/ui-element/.gitignore`
 - Modify: `packages/ui-element/vite.config.ts`
 - Modify: `packages/ui-element/package.json`
@@ -419,15 +420,45 @@ Do not remove or duplicate the existing `<style lang="scss">` blocks in `GaTable
 
 - [ ] **Step 4: Stop ignoring generated package artifacts**
 
+In the root `.gitignore`, anchor the repository-level build output rule by changing `dist` to `/dist`, leaving the file as:
+
+```gitignore
+node_modules
+.pnpm-store
+/dist
+.worktrees/
+```
+
 In `packages/ui-element/.gitignore`, remove only the `dist` entry so the file contains:
 
 ```gitignore
 node_modules
 ```
 
-Expected: existing tracked artifacts remain tracked, and the new `dist/base/**` and `dist/business/**` files generated later in this task are visible to Git and can be staged normally.
+Expected: the repository-root `dist` directory remains ignored, existing package artifacts remain tracked, and the new `packages/ui-element/dist/base/**` and `packages/ui-element/dist/business/**` files generated later in this task are no longer ignored.
 
-- [ ] **Step 5: Replace the Vite library configuration with the multi-entry build**
+- [ ] **Step 5: Verify the new package artifacts are not ignored**
+
+Run from the repository root. `git check-ignore` uses exit code 1 to mean no ignore pattern matched, so capture and validate that expected native exit code explicitly instead of treating it as a task failure:
+
+```powershell
+git check-ignore -v --no-index packages/ui-element/dist/base/index.js
+$ignoreExit = $LASTEXITCODE
+
+if ($ignoreExit -eq 0) {
+  throw 'packages/ui-element/dist/base/index.js is still ignored'
+}
+
+if ($ignoreExit -ne 1) {
+  exit $ignoreExit
+}
+
+Write-Host 'Verified package dist artifacts are not ignored'
+```
+
+Expected: `git check-ignore` prints no matching rule, `$ignoreExit` is 1, and the final confirmation message is printed. Do not build or stage the new base/business artifacts until this check passes.
+
+- [ ] **Step 6: Replace the Vite library configuration with the multi-entry build**
 
 Replace `packages/ui-element/vite.config.ts` with:
 
@@ -497,7 +528,7 @@ export default defineConfig({
 })
 ```
 
-- [ ] **Step 6: Make the package build run the artifact verifier**
+- [ ] **Step 7: Make the package build run the artifact verifier**
 
 In `packages/ui-element/package.json`, change only these scripts at this stage:
 
@@ -514,7 +545,7 @@ In `packages/ui-element/package.json`, change only these scripts at this stage:
 }
 ```
 
-- [ ] **Step 7: Build and verify all artifacts**
+- [ ] **Step 8: Build and verify all artifacts**
 
 Run:
 
@@ -524,7 +555,7 @@ pnpm.cmd --dir packages/ui-element build
 
 Expected: Vite emits all seven required files, then the verifier prints `Verified ga-ui multi-entry build artifacts`.
 
-- [ ] **Step 8: Re-run tests after centralizing styles**
+- [ ] **Step 9: Re-run tests after centralizing styles**
 
 Run:
 
@@ -534,17 +565,17 @@ pnpm.cmd --dir packages/ui-element test
 
 Expected: all type and component tests pass; no component behavior changed.
 
-- [ ] **Step 9: Commit the build changes**
+- [ ] **Step 10: Commit the build changes**
 
 ```powershell
-git add -- packages/ui-element/.gitignore packages/ui-element/scripts/verify-build.mjs packages/ui-element/vite.config.ts packages/ui-element/package.json packages/ui-element/dist
+git add -- .gitignore packages/ui-element/.gitignore packages/ui-element/scripts/verify-build.mjs packages/ui-element/vite.config.ts packages/ui-element/package.json packages/ui-element/dist
 git diff --cached --name-status
 git commit -m "build: add ga-ui multi-entry output"
 ```
 
-Expected: the commit contains the `.gitignore` update, build configuration, verifier, and regenerated dist only. Existing SFC style blocks remain unchanged.
+Expected: the commit contains both `.gitignore` updates, build configuration, verifier, and regenerated dist only. Existing SFC style blocks remain unchanged.
 
-- [ ] **Step 10: Prove the committed artifacts are reproducible**
+- [ ] **Step 11: Prove the committed artifacts are reproducible**
 
 Run the build again after committing, then require no generated diff:
 
