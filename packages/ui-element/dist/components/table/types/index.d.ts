@@ -45,13 +45,4 @@ export interface GaTableCellScope<Row extends GaTableRow = GaTableRow> {
 export interface GaTableExpose {
     tableRef: TableInstance | undefined;
 }
-export interface GaPagination {
-    currentPage?: number;
-    pageSize?: number;
-    total?: number;
-    pageSizes?: number[];
-    size?: 'default' | 'small' | 'large';
-    layout?: string;
-    background?: boolean;
-}
 //# sourceMappingURL=index.d.ts.map

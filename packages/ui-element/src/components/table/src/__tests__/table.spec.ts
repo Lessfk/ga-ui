@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { ElTable as RealElTable } from 'element-plus'
-import { defineComponent, h, nextTick } from 'vue'
+import { defineComponent, h } from 'vue'
 import { describe, expect, it } from 'vitest'
 
 import GaTable from '../index.vue'
@@ -124,24 +123,6 @@ function mountTable(options: Parameters<typeof mount>[1] = {}) {
   })
 }
 
-function mountRealElementPlusTable(
-  props: {
-    autoHeight: boolean
-    height?: number
-    maxHeight?: number
-    style?: Record<string, string>
-  },
-) {
-  return mount(GaTable, {
-    props,
-    global: {
-      stubs: {
-        ElPagination: ElPaginationStub,
-      },
-    },
-  })
-}
-
 describe('GaTable', () => {
   it('passes the approved defaults to ElTable', () => {
     const wrapper = mountTable()
@@ -158,188 +139,29 @@ describe('GaTable', () => {
     })
   })
 
-  it('does not enable auto height by default', () => {
+  it('renders ElTable as its root without an autoHeight API', () => {
     const wrapper = mountTable()
-    const container = wrapper.find('.ga-table-container')
+    const table = wrapper.findComponent(ElTableStub)
+    const runtimeProps = (
+      GaTable as unknown as { props?: Record<string, unknown> }
+    ).props
 
-    expect(container.exists()).toBe(true)
-    expect(container.classes()).not.toContain(
-      'is-auto-height',
-    )
-    expect(wrapper.findComponent(ElTableStub).props('height')).toBeUndefined()
+    expect(wrapper.element).toBe(table.element)
+    expect(runtimeProps).not.toHaveProperty('autoHeight')
   })
 
-  it('fills the parent when autoHeight is enabled', () => {
+  it('forwards explicit zero height and maxHeight to ElTable', () => {
     const wrapper = mountTable({
       props: {
-        autoHeight: true,
-      },
-    })
-    const container = wrapper.find('.ga-table-container')
-
-    expect(container.exists()).toBe(true)
-    expect(container.classes()).toContain(
-      'is-auto-height',
-    )
-    expect(wrapper.findComponent(ElTableStub).props('height')).toBe('100%')
-  })
-
-  it('lets an explicit height override autoHeight', () => {
-    const wrapper = mountTable({
-      props: {
-        autoHeight: true,
-        height: 420,
-      },
-    })
-    const container = wrapper.find('.ga-table-container')
-
-    expect(container.exists()).toBe(true)
-    expect(container.classes()).not.toContain(
-      'is-auto-height',
-    )
-    expect(wrapper.findComponent(ElTableStub).props('height')).toBe(420)
-  })
-
-  it('treats height zero as an explicit height that overrides autoHeight', () => {
-    const wrapper = mountTable({
-      props: {
-        autoHeight: true,
         height: 0,
-      },
-    })
-    const container = wrapper.find('.ga-table-container')
-
-    expect(container.exists()).toBe(true)
-    expect(container.classes()).not.toContain(
-      'is-auto-height',
-    )
-    expect(wrapper.findComponent(ElTableStub).props('height')).toBe(0)
-  })
-
-  it('lets an explicit maxHeight override autoHeight', () => {
-    const wrapper = mountTable({
-      props: {
-        autoHeight: true,
-        maxHeight: 520,
-      },
-    })
-    const container = wrapper.find('.ga-table-container')
-
-    expect(container.exists()).toBe(true)
-    expect(container.classes()).not.toContain(
-      'is-auto-height',
-    )
-    expect(wrapper.findComponent(ElTableStub).props('height')).toBeUndefined()
-    expect(wrapper.findComponent(ElTableStub).props('maxHeight')).toBe(520)
-  })
-
-  it('treats maxHeight zero as an explicit maxHeight that overrides autoHeight', () => {
-    const wrapper = mountTable({
-      props: {
-        autoHeight: true,
         maxHeight: 0,
       },
     })
-    const container = wrapper.find('.ga-table-container')
 
-    expect(container.exists()).toBe(true)
-    expect(container.classes()).not.toContain(
-      'is-auto-height',
-    )
-    expect(wrapper.findComponent(ElTableStub).props('height')).toBeUndefined()
-    expect(wrapper.findComponent(ElTableStub).props('maxHeight')).toBe(0)
-  })
-
-  it('clears the real ElTable inline height when autoHeight is disabled at runtime', async () => {
-    const wrapper = mountRealElementPlusTable({
-      autoHeight: true,
+    expect(wrapper.findComponent(ElTableStub).props()).toMatchObject({
+      height: 0,
+      maxHeight: 0,
     })
-
-    await nextTick()
-    const table = wrapper.find('.el-table')
-
-    expect(table.exists()).toBe(true)
-    expect((table.element as HTMLElement).style.height).toBe('100%')
-
-    await wrapper.setProps({ autoHeight: false })
-    await nextTick()
-
-    expect((table.element as HTMLElement).style.height).toBe('')
-  })
-
-  it('restores the consumer ElTable height when autoHeight is disabled at runtime', async () => {
-    const wrapper = mountRealElementPlusTable({
-      autoHeight: true,
-      style: { height: '240px' },
-    })
-
-    await nextTick()
-    const table = wrapper.find('.el-table')
-
-    expect(table.exists()).toBe(true)
-    expect((table.element as HTMLElement).style.height).toBe('100%')
-
-    await wrapper.setProps({ autoHeight: false })
-    await nextTick()
-
-    expect((table.element as HTMLElement).style.height).toBe('240px')
-  })
-
-  it('preserves a consumer 100% ElTable height when autoHeight is disabled at runtime', async () => {
-    const wrapper = mountRealElementPlusTable({
-      autoHeight: true,
-      style: { height: '100%' },
-    })
-
-    await nextTick()
-    const table = wrapper.find('.el-table')
-
-    expect(table.exists()).toBe(true)
-    expect((table.element as HTMLElement).style.height).toBe('100%')
-
-    await wrapper.setProps({ autoHeight: false })
-    await nextTick()
-
-    expect((table.element as HTMLElement).style.height).toBe('100%')
-  })
-
-  it('clears the real ElTable inline height when maxHeight is set at runtime', async () => {
-    const wrapper = mountRealElementPlusTable({
-      autoHeight: true,
-    })
-
-    await nextTick()
-    const table = wrapper.find('.el-table')
-
-    expect(table.exists()).toBe(true)
-    expect((table.element as HTMLElement).style.height).toBe('100%')
-
-    await wrapper.setProps({ maxHeight: 320 })
-    await nextTick()
-
-    expect((table.element as HTMLElement).style.height).toBe('')
-    expect(wrapper.findComponent(RealElTable).props()).toMatchObject({
-      height: undefined,
-      maxHeight: 320,
-    })
-  })
-
-  it('preserves an explicit real ElTable height set after autoHeight', async () => {
-    const wrapper = mountRealElementPlusTable({
-      autoHeight: true,
-    })
-
-    await nextTick()
-    const table = wrapper.find('.el-table')
-
-    expect(table.exists()).toBe(true)
-    expect((table.element as HTMLElement).style.height).toBe('100%')
-
-    await wrapper.setProps({ height: 320 })
-    await nextTick()
-
-    expect((table.element as HTMLElement).style.height).toBe('320px')
-    expect(wrapper.findComponent(RealElTable).props('height')).toBe(320)
   })
 
   it('renders ElEmpty as the default empty slot content', () => {

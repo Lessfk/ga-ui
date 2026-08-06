@@ -2,9 +2,9 @@
   <main class="playground-page">
     <h1>GaTable 配置列示例</h1>
 
-    <section class="table-area">
+    <section class="table-layout">
       <GaTable
-        auto-height
+        height="100%"
         :data="rows"
         :columns="columns"
       >
@@ -56,11 +56,19 @@
           </template>
         </ElTableColumn>
       </GaTable>
+
+      <GaPagination
+        v-model:current-page="currentPage"
+        v-model:page-size="pageSize"
+        :total="total"
+      />
     </section>
   </main>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
 import {
   ElButton,
   ElTableColumn,
@@ -69,6 +77,7 @@ import {
 } from 'element-plus'
 
 import {
+  GaPagination,
   GaTable,
   type GaTableColumn,
 } from 'ga-ui-element'
@@ -79,6 +88,10 @@ interface UserRow {
   address: string
   status: 'enabled' | 'disabled'
 }
+
+const currentPage = ref(1)
+const pageSize = ref(10)
+const total = ref(100)
 
 const columns: GaTableColumn<UserRow>[] = [
   {
@@ -139,8 +152,14 @@ function viewUser(row: Record<string, unknown>) {
   min-height: 0;
 }
 
-.table-area {
+.table-layout {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 50px;
   flex: 1;
+  min-height: 0;
+}
+
+.table-layout > .ga-table {
   min-height: 0;
 }
 

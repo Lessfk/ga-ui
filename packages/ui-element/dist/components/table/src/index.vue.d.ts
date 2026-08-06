@@ -2,10 +2,7 @@ import { TableInstance } from 'element-plus';
 import { GaTableProps } from './props';
 import { GaTableRow } from '../types';
 declare const _default: <Row extends GaTableRow = GaTableRow>(__VLS_props: NonNullable<Awaited<typeof __VLS_setup>>["props"], __VLS_ctx?: __VLS_PrettifyLocal<Pick<NonNullable<Awaited<typeof __VLS_setup>>, "attrs" | "emit" | "slots">>, __VLS_expose?: NonNullable<Awaited<typeof __VLS_setup>>["expose"], __VLS_setup?: Promise<{
-    props: __VLS_PrettifyLocal<Pick<Partial<{}> & Omit<{
-        readonly "onCurrent-change"?: ((currentPage: number) => any) | undefined;
-        readonly "onSize-change"?: ((pageSize: number) => any) | undefined;
-    } & import('vue').VNodeProps & import('vue').AllowedComponentProps & import('vue').ComponentCustomProps, never>, "onCurrent-change" | "onSize-change"> & GaTableProps<Row> & Partial<{}>> & import('vue').PublicProps;
+    props: __VLS_PrettifyLocal<Pick<Partial<{}> & Omit<{} & import('vue').VNodeProps & import('vue').AllowedComponentProps & import('vue').ComponentCustomProps, never>, never> & GaTableProps<Row> & Partial<{}>> & import('vue').PublicProps;
     expose(exposed: import('vue').ShallowUnwrapRef<{
         tableRef: import('vue').Ref<TableInstance | undefined, TableInstance | undefined>;
     }>): void;
@@ -20,7 +17,7 @@ declare const _default: <Row extends GaTableRow = GaTableRow>(__VLS_props: NonNu
         append?(_: {}): any;
         empty?(_: {}): any;
     };
-    emit: ((evt: "current-change", currentPage: number) => void) & ((evt: "size-change", pageSize: number) => void);
+    emit: {};
 }>) => import('vue').VNode & {
     __ctx?: Awaited<typeof __VLS_setup>;
 };

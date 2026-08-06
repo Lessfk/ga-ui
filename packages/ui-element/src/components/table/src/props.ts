@@ -12,7 +12,6 @@ export type GaTableRowKey<Row extends GaTableRow> =
 export interface GaTableProps<Row extends GaTableRow = GaTableRow> {
   data?: Row[]
   columns?: GaTableColumn<Row>[]
-  autoHeight?: boolean
   height?: string | number
   maxHeight?: string | number
   rowKey?: GaTableRowKey<Row>
