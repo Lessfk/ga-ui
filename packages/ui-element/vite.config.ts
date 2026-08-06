@@ -32,12 +32,17 @@ export default defineConfig({
 
     build: {
         lib: {
-            entry: resolveFile('./src/index.ts'),
+            entry: {
+                index: resolveFile('./src/index.ts'),
+                'base/index': resolveFile('./src/base/index.ts'),
+                'business/index': resolveFile('./src/business/index.ts'),
+            },
             formats: ['es'],
-            fileName: 'index',
+            fileName: (_format, entryName) => `${entryName}.js`,
             cssFileName: 'style',
         },
 
+        cssCodeSplit: false,
         sourcemap: true,
         emptyOutDir: true,
 
@@ -49,6 +54,9 @@ export default defineConfig({
                     id === 'element-plus' ||
                     id.startsWith('element-plus/')
                 )
+            },
+            output: {
+                sourcemapExcludeSources: true,
             },
         },
     },

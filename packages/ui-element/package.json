@@ -23,7 +23,8 @@
     "./style.css": "./dist/style.css"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && pnpm run verify:build",
+    "verify:build": "node ./scripts/verify-build.mjs",
     "test": "pnpm run test:type && vitest run",
     "test:type": "vue-tsc --noEmit -p tsconfig.type-tests.json",
     "test:watch": "vitest",
