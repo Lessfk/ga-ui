@@ -342,6 +342,7 @@ Expected: no Dialog files and no unrelated documentation files are staged.
 **Files:**
 
 - Create: `packages/ui-element/scripts/verify-build.mjs`
+- Modify: `packages/ui-element/.gitignore`
 - Modify: `packages/ui-element/vite.config.ts`
 - Modify: `packages/ui-element/package.json`
 
@@ -416,7 +417,17 @@ Expected: FAIL with `ENOENT` for `dist/base/index.js` or `dist/business/index.js
 
 Do not remove or duplicate the existing `<style lang="scss">` blocks in `GaTable`, `GaPagination`, or `GaTablePagination`. The three Vite entries already reach all three SFC modules; `cssCodeSplit: false` will collect their CSS into one `dist/style.css` without adding stylesheet imports to generated declaration files.
 
-- [ ] **Step 4: Replace the Vite library configuration with the multi-entry build**
+- [ ] **Step 4: Stop ignoring generated package artifacts**
+
+In `packages/ui-element/.gitignore`, remove only the `dist` entry so the file contains:
+
+```gitignore
+node_modules
+```
+
+Expected: existing tracked artifacts remain tracked, and the new `dist/base/**` and `dist/business/**` files generated later in this task are visible to Git and can be staged normally.
+
+- [ ] **Step 5: Replace the Vite library configuration with the multi-entry build**
 
 Replace `packages/ui-element/vite.config.ts` with:
 
@@ -470,6 +481,9 @@ export default defineConfig({
     emptyOutDir: true,
 
     rollupOptions: {
+      output: {
+        sourcemapExcludeSources: true,
+      },
       external: (id) => {
         return (
           id === 'vue' ||
@@ -483,7 +497,7 @@ export default defineConfig({
 })
 ```
 
-- [ ] **Step 5: Make the package build run the artifact verifier**
+- [ ] **Step 6: Make the package build run the artifact verifier**
 
 In `packages/ui-element/package.json`, change only these scripts at this stage:
 
@@ -500,7 +514,7 @@ In `packages/ui-element/package.json`, change only these scripts at this stage:
 }
 ```
 
-- [ ] **Step 6: Build and verify all artifacts**
+- [ ] **Step 7: Build and verify all artifacts**
 
 Run:
 
@@ -510,7 +524,7 @@ pnpm.cmd --dir packages/ui-element build
 
 Expected: Vite emits all seven required files, then the verifier prints `Verified ga-ui multi-entry build artifacts`.
 
-- [ ] **Step 7: Re-run tests after centralizing styles**
+- [ ] **Step 8: Re-run tests after centralizing styles**
 
 Run:
 
@@ -520,15 +534,27 @@ pnpm.cmd --dir packages/ui-element test
 
 Expected: all type and component tests pass; no component behavior changed.
 
-- [ ] **Step 8: Commit the build changes**
+- [ ] **Step 9: Commit the build changes**
 
 ```powershell
-git add -- packages/ui-element/scripts/verify-build.mjs packages/ui-element/vite.config.ts packages/ui-element/package.json packages/ui-element/dist
+git add -- packages/ui-element/.gitignore packages/ui-element/scripts/verify-build.mjs packages/ui-element/vite.config.ts packages/ui-element/package.json packages/ui-element/dist
 git diff --cached --name-status
 git commit -m "build: add ga-ui multi-entry output"
 ```
 
-Expected: the commit contains the build configuration, verifier, and regenerated dist only. Existing SFC style blocks remain unchanged.
+Expected: the commit contains the `.gitignore` update, build configuration, verifier, and regenerated dist only. Existing SFC style blocks remain unchanged.
+
+- [ ] **Step 10: Prove the committed artifacts are reproducible**
+
+Run the build again after committing, then require no generated diff:
+
+```powershell
+pnpm.cmd --dir packages/ui-element build
+git diff --exit-code -- packages/ui-element/dist
+git status --short packages/ui-element/dist
+```
+
+Expected: the build and verifier pass, `git diff --exit-code` exits 0, and `git status --short packages/ui-element/dist` prints nothing. `sourcemapExcludeSources: true` prevents platform-specific CRLF/LF changes in source-map `sourcesContent` from dirtying `dist/index.js.map`.
 
 ---
 
@@ -1004,7 +1030,17 @@ git log -5 --oneline
 
 Expected: implementation commits are visible; unrelated pre-existing files remain unchanged or untracked exactly as intended.
 
-- [ ] **Step 6: Hand off publishing without executing it**
+- [ ] **Step 6: Re-check the registry name immediately before handoff**
+
+Run:
+
+```powershell
+npm.cmd view ga-ui name version --registry=https://registry.npmjs.org/
+```
+
+Expected: npm still returns `E404`, matching the Task 1 availability check. If package metadata is returned or availability/ownership otherwise differs from Task 1, stop the release-readiness handoff and re-establish that the current npm user controls `ga-ui`; do not provide or run a publish command.
+
+- [ ] **Step 7: Hand off publishing without executing it**
 
 Do not run `npm publish` in this task. Report that release readiness passed and provide the separately authorized publish command:
 
