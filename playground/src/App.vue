@@ -77,11 +77,8 @@ import {
   ElEmpty,
 } from 'element-plus'
 
-import {
-  GaTablePagination,
-  GaPagination,
-  type GaTableColumn,
-} from 'ga-ui-element'
+import { GaPagination, type GaTableColumn } from 'ga-ui/base'
+import { GaTablePagination } from 'ga-ui/business'
 
 interface UserRow {
   id: number

@@ -1,5 +1,5 @@
 {
-  "name": "ga-ui-element",
+  "name": "ga-ui",
   "version": "0.1.0",
   "author": "lemonmon",
   "license": "MIT",
@@ -20,15 +20,26 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./base": {
+      "types": "./dist/base/index.d.ts",
+      "import": "./dist/base/index.js",
+      "default": "./dist/base/index.js"
+    },
+    "./business": {
+      "types": "./dist/business/index.d.ts",
+      "import": "./dist/business/index.js",
+      "default": "./dist/business/index.js"
+    },
     "./style.css": "./dist/style.css"
   },
   "scripts": {
     "build": "vite build && pnpm run verify:build",
     "verify:build": "node ./scripts/verify-build.mjs",
+    "verify:exports": "node ./scripts/verify-exports.mjs",
     "test": "pnpm run test:type && vitest run",
     "test:type": "vue-tsc --noEmit -p tsconfig.type-tests.json",
     "test:watch": "vitest",
-    "prepublishOnly": "pnpm run test && pnpm run build"
+    "prepublishOnly": "pnpm run test && pnpm run build && pnpm run verify:exports"
   },
   "peerDependencies": {
     "element-plus": "^2.14.3",

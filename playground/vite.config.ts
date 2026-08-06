@@ -3,6 +3,9 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
+const resolveWorkspaceFile = (path: string) =>
+  fileURLToPath(new URL(path, import.meta.url))
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -16,14 +19,20 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    alias: {
-      'ga-ui-element': fileURLToPath(
-        new URL(
-          '../packages/ui-element/src/index.ts',
-          import.meta.url,
-        ),
-      ),
-    },
+    alias: [
+      {
+        find: /^ga-ui\/base$/,
+        replacement: resolveWorkspaceFile('../packages/ui-element/src/base/index.ts'),
+      },
+      {
+        find: /^ga-ui\/business$/,
+        replacement: resolveWorkspaceFile('../packages/ui-element/src/business/index.ts'),
+      },
+      {
+        find: /^ga-ui$/,
+        replacement: resolveWorkspaceFile('../packages/ui-element/src/index.ts'),
+      },
+    ],
   },
   server: {
     port: 5555,
