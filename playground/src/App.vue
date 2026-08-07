@@ -61,6 +61,58 @@
       </GaTablePagination>
     </section>
 
+    <section class="dialog-area">
+      <h1>GaDialog 通用弹窗示例</h1>
+
+      <ElButton
+        type="primary"
+        @click="dialogVisible = true"
+      >
+        打开通用弹窗
+      </ElButton>
+
+      <GaDialog
+        v-model="dialogVisible"
+        width="520px"
+        destroy-on-close
+        modal-class="ga-dialog-demo-modal"
+        :before-close="handleDialogBeforeClose"
+      >
+        <template #header="{ close, titleId, titleClass }">
+          <div class="dialog-header">
+            <span
+              :id="titleId"
+              :class="titleClass"
+            >
+              通用弹窗标题
+            </span>
+            <ElButton
+              link
+              @click="close"
+            >
+              关闭
+            </ElButton>
+          </div>
+        </template>
+
+        <p>
+          GaDialog 组件不内置任何按钮，footer 插槽中的操作按钮完全由使用方提供。
+        </p>
+
+        <template #footer>
+          <ElButton @click="dialogVisible = false">
+            取消
+          </ElButton>
+          <ElButton
+            type="primary"
+            @click="handleDialogConfirm"
+          >
+            确认
+          </ElButton>
+        </template>
+      </GaDialog>
+    </section>
+
      <h1>GaTable 配置列示例</h1>
 
      <GaPagination position="center"></GaPagination>
@@ -71,13 +123,14 @@
 import { ref } from 'vue'
 
 import {
+  type DialogBeforeCloseFn,
   ElButton,
   ElTableColumn,
   ElTag,
   ElEmpty,
 } from 'element-plus'
 
-import { GaPagination, type GaTableColumn } from 'ga-ui-plus/base'
+import { GaDialog, GaPagination, type GaTableColumn } from 'ga-ui-plus/base'
 import { GaTablePagination } from 'ga-ui-plus/business'
 
 interface UserRow {
@@ -89,6 +142,7 @@ interface UserRow {
 
 const currentPage = ref(1)
 const pageSize = ref(10)
+const dialogVisible = ref(false)
 
 const columns: GaTableColumn<UserRow>[] = [
   {
@@ -138,6 +192,14 @@ const rows: UserRow[] = [
 function viewUser(row: Record<string, unknown>) {
   console.info('查看用户', row)
 }
+
+const handleDialogBeforeClose: DialogBeforeCloseFn = (done) => {
+  if (window.confirm('确定关闭通用弹窗吗？')) done()
+}
+
+function handleDialogConfirm() {
+  dialogVisible.value = false
+}
 </script>
 
 <style scoped lang="scss">
@@ -153,6 +215,17 @@ function viewUser(row: Record<string, unknown>) {
   flex: 1;
   min-width: 0;
   min-height: 0;
+}
+
+.dialog-area {
+  flex: none;
+  padding-block: 16px;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 h1 {
