@@ -45,7 +45,7 @@ pnpm install
 pnpm --dir playground dev
 ```
 
-Playground 的 Vite server 配置端口为 `5555`，默认可访问 `http://localhost:5555`。根 `package.json` 没有提供可用的 `dev` 脚本。
+Playground 的 Vite server 配置端口为 `5555`，默认可访问 `http://localhost:5555`。开发服务器通过 Vite 源码 alias 直接解析 `packages/ui/src`，不需要预先构建组件包。根 `package.json` 没有提供可用的 `dev` 脚本。
 
 ## 测试与类型检查
 
@@ -81,7 +81,7 @@ pnpm --dir packages/ui verify:exports
 pnpm --dir playground build
 ```
 
-建议在组件包构建完成后运行 Playground build，以便解析 workspace 包的 `dist` 类型声明。
+在干净环境中，必须先运行 `pnpm --dir packages/ui build`，再运行 `pnpm --dir playground build`。Playground production build 的 `vue-tsc` 会通过 package exports 解析组件包的 `dist` 类型声明，因此构建 Playground 前必须已经生成 `packages/ui/dist`。
 
 ## 构建产物与公开入口
 
@@ -124,9 +124,14 @@ pnpm --dir packages/ui publish
 ## 新增组件检查清单
 
 - 在正确的 `base` 或 `business` 路径新增实现、style 入口以及公开 Props/类型。
-- 从组件的本地 `index.ts` 和所属 category barrel 导出公共内容。
+- 普通新增组件通常沿用已有的 `base` 或 `business` npm 子路径，只需从组件的本地 `index.ts` 和所属 category barrel 导出公共内容，不需要新增 library entry 或 package exports。
 - 新增单元测试；公共表面发生变化时同步更新 `src/__tests__/exports.spec.ts`。
-- 只有新增公共包子路径时，才更新 Vite library entries。
+- 只有确实新增 npm 公共包子路径时，才必须同步维护以下位置：
+  - `packages/ui/vite.config.ts` 的 library entry。
+  - `packages/ui/package.json` 的 `exports` 映射。
+  - `packages/ui/scripts/verify-build.mjs`。
+  - `packages/ui/scripts/verify-exports.mjs`。
+  - `packages/ui/scripts/fixtures/node-next-consumer/index.ts`，确保 NodeNext 消费类型检查覆盖新入口。
 - 构建产物或导出发生变化时，更新 `scripts/verify-build.mjs` 和 `scripts/verify-exports.mjs`。
 - 更新 `packages/ui/README.md` 中的组件使用文档。
 - 发布前依次运行：
