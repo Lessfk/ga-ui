@@ -22,15 +22,15 @@ export default defineConfig({
     alias: [
       {
         find: /^ga-ui\/base$/,
-        replacement: resolveWorkspaceFile('../packages/ui-element/src/base/index.ts'),
+        replacement: resolveWorkspaceFile('../packages/ui/src/base/index.ts'),
       },
       {
         find: /^ga-ui\/business$/,
-        replacement: resolveWorkspaceFile('../packages/ui-element/src/business/index.ts'),
+        replacement: resolveWorkspaceFile('../packages/ui/src/business/index.ts'),
       },
       {
         find: /^ga-ui$/,
-        replacement: resolveWorkspaceFile('../packages/ui-element/src/index.ts'),
+        replacement: resolveWorkspaceFile('../packages/ui/src/index.ts'),
       },
     ],
   },
