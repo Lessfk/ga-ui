@@ -431,6 +431,8 @@ function saveUser() {
 
 `GaDialog` 将未声明的 `$attrs` 绑定到内部 `ElDialog`，因此可以继续使用 `lock-scroll`、`modal-class` 等 Element Plus 属性。`beforeClose` 会原样交给 Element Plus；`GaDialog` 不捕获回调抛出的异常，也不会代替消费方调用 `done`。消费方需要自行处理异常，并只在允许关闭时调用 `done()`。
 
+Element Plus（以及 `GaDialog`）会在由 `handleClose` 驱动的关闭路径中调用 `beforeClose`，包括右上角关闭按钮、点击遮罩、按 Escape、`header` 插槽的 `close()`，以及暴露实例的 `dialogRef.handleClose()`。直接将 `v-model` 绑定状态设为 `false` 会绕过 `beforeClose`。如果 `footer` 或其他程序化操作也需要相同的关闭守卫，请复用同一套确认逻辑，或调用 `dialogInstance.value?.dialogRef?.handleClose()`，不要直接修改模型状态。
+
 ```vue
 <template>
   <GaDialog
@@ -482,7 +484,7 @@ const handleBeforeClose: DialogBeforeCloseFn = (done) => {
 | `showClose` | `boolean` | `true` | 是否显示右上角关闭按钮 |
 | `closeOnClickModal` | `boolean` | `true` | 是否允许点击遮罩关闭 |
 | `closeOnPressEscape` | `boolean` | `true` | 是否允许按 Escape 关闭 |
-| `beforeClose` | `DialogBeforeCloseFn` | `undefined` | 关闭前回调；消费方调用 `done()` 后才继续关闭 |
+| `beforeClose` | `DialogBeforeCloseFn` | `undefined` | `handleClose` 路径的关闭前回调；调用 `done()` 才继续，直接修改 `v-model` 不触发 |
 
 ### GaDialog Events
 
@@ -934,7 +936,7 @@ void getStatusText
 
 ## 属性透传与当前限制
 
-- `GaDialog` 显式转发 `v-model` 更新与对话框生命周期事件，并将其他 `$attrs` 绑定到内部 `ElDialog`；组件不内置 `footer` 内容或确认、取消按钮，`beforeClose` 的异常处理与 `done` 回调调用由消费方负责。
+- `GaDialog` 显式转发 `v-model` 更新与对话框生命周期事件，并将其他 `$attrs` 绑定到内部 `ElDialog`；组件不内置 `footer` 内容或确认、取消按钮，`beforeClose` 的异常处理与 `done` 回调调用由消费方负责，直接将 `v-model` 状态改为 `false` 会绕过 `beforeClose`。
 - `GaTable` 使用 `inheritAttrs: false`，并将普通 `$attrs` 直接绑定到内部 `ElTable`；未声明的 Element Plus 表格事件也随监听器一起透传。
 - `GaPagination` 使用相同策略，将普通 `$attrs` 绑定到内部 `ElPagination`。组件当前不转发分页插槽。
 - `GaTablePagination` 的普通 `$attrs` 绑定在根 `<div>`，包括 `class`、`style`、`id` 和普通监听器；它们不会自动分发给内部表格或分页。组件只转发明确声明的四个分页事件，不会透传 `selection-change` 等表格事件；选择列只展示选择 UI。需要读取选择结果时，请使用 `GaTable` 与 `GaPagination` 组合。
