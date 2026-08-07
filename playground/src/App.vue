@@ -62,7 +62,7 @@
     </section>
 
     <section class="dialog-area">
-      <h1>GaDialog 通用弹窗示例</h1>
+      <h2>GaDialog 通用弹窗示例</h2>
 
       <ElButton
         type="primary"
@@ -72,6 +72,7 @@
       </ElButton>
 
       <GaDialog
+        ref="dialogInstance"
         v-model="dialogVisible"
         width="520px"
         destroy-on-close
@@ -96,11 +97,17 @@
         </template>
 
         <p>
-          GaDialog 组件不内置任何按钮，footer 插槽中的操作按钮完全由使用方提供。
+          GaDialog 组件不内置任何按钮，footer 插槽中的操作按钮完全由使用方提供。取消按钮通过
+          handleClose() 触发 beforeClose 确认；确认按钮代表业务操作已完成，因此刻意直接更新
+          v-model。
+        </p>
+
+        <p>
+          modal-class 会通过 $attrs 透传给 Element Plus Dialog，本示例用它标记遮罩层。
         </p>
 
         <template #footer>
-          <ElButton @click="dialogVisible = false">
+          <ElButton @click="handleDialogCancel">
             取消
           </ElButton>
           <ElButton
@@ -130,7 +137,12 @@ import {
   ElEmpty,
 } from 'element-plus'
 
-import { GaDialog, GaPagination, type GaTableColumn } from 'ga-ui-plus/base'
+import {
+  GaDialog,
+  GaPagination,
+  type GaDialogExpose,
+  type GaTableColumn,
+} from 'ga-ui-plus/base'
 import { GaTablePagination } from 'ga-ui-plus/business'
 
 interface UserRow {
@@ -143,6 +155,7 @@ interface UserRow {
 const currentPage = ref(1)
 const pageSize = ref(10)
 const dialogVisible = ref(false)
+const dialogInstance = ref<GaDialogExpose>()
 
 const columns: GaTableColumn<UserRow>[] = [
   {
@@ -197,6 +210,10 @@ const handleDialogBeforeClose: DialogBeforeCloseFn = (done) => {
   if (window.confirm('确定关闭通用弹窗吗？')) done()
 }
 
+function handleDialogCancel() {
+  dialogInstance.value?.dialogRef?.handleClose()
+}
+
 function handleDialogConfirm() {
   dialogVisible.value = false
 }
@@ -228,7 +245,8 @@ function handleDialogConfirm() {
   justify-content: space-between;
 }
 
-h1 {
+h1,
+h2 {
   flex: none;
   font-size: 24px;
 }
