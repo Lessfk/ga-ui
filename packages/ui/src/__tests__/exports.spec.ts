@@ -9,15 +9,19 @@ import {
 import type {
   GaDialogEmits,
   GaDialogExpose,
+  GaDialogHeaderSlotProps,
   GaDialogProps,
   GaPaginationProps,
   GaTableColumn,
   GaTableProps,
 } from '../base'
+// @ts-expect-error GaDialog public types are not exported from the business entry
+import type { GaDialogProps as BusinessGaDialogProps } from '../business'
 import type { GaTablePaginationProps } from '../business'
 import type {
   GaDialogEmits as RootGaDialogEmits,
   GaDialogExpose as RootGaDialogExpose,
+  GaDialogHeaderSlotProps as RootGaDialogHeaderSlotProps,
   GaDialogProps as RootGaDialogProps,
   GaPaginationProps as RootGaPaginationProps,
   GaTableColumn as RootGaTableColumn,
@@ -29,6 +33,7 @@ type BaseTypeContract = [
   GaDialogProps,
   GaDialogEmits,
   GaDialogExpose,
+  GaDialogHeaderSlotProps,
   GaTableProps,
   GaTableColumn,
   GaPaginationProps,
@@ -38,17 +43,23 @@ type RootTypeContract = [
   RootGaDialogProps,
   RootGaDialogEmits,
   RootGaDialogExpose,
+  RootGaDialogHeaderSlotProps,
   RootGaTableProps,
   RootGaTableColumn,
   RootGaPaginationProps,
   RootGaTablePaginationProps,
 ]
 
+type BusinessDialogTypeContract = BusinessGaDialogProps
+
 const baseTypeContract: BaseTypeContract | undefined = undefined
 const rootTypeContract: RootTypeContract | undefined = undefined
+const businessDialogTypeContract: BusinessDialogTypeContract | undefined =
+  undefined
 
 void baseTypeContract
 void rootTypeContract
+void businessDialogTypeContract
 
 const flatTablePaginationProps: GaTablePaginationProps<{ id: number }> = {
   data: [{ id: 1 }],
