@@ -5,6 +5,8 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 
+import { rewriteDeclarationSpecifiers } from './scripts/rewrite-declaration-specifiers.mjs'
+
 const resolveFile = (path: string) => {
     return fileURLToPath(new URL(path, import.meta.url))
 }
@@ -27,6 +29,7 @@ export default defineConfig({
                 'src/**/*.spec.ts',
                 'src/**/__tests__/**',
             ],
+            afterBuild: rewriteDeclarationSpecifiers,
         }),
     ],
 

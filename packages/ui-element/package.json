@@ -35,7 +35,8 @@
   "scripts": {
     "build": "vite build && pnpm run verify:build",
     "verify:build": "node ./scripts/verify-build.mjs",
-    "verify:exports": "node ./scripts/verify-exports.mjs",
+    "verify:exports": "node ./scripts/verify-exports.mjs && pnpm run verify:types",
+    "verify:types": "node ./scripts/verify-types.mjs",
     "test": "pnpm run test:type && vitest run",
     "test:type": "vue-tsc --noEmit -p tsconfig.type-tests.json",
     "test:watch": "vitest",
@@ -55,6 +56,7 @@
   "devDependencies": {
     "@vue/test-utils": "^2.4.11",
     "happy-dom": "^18.0.1",
+    "typescript": "5.8.3",
     "vitest": "^3.2.7"
   },
   "publishConfig": {

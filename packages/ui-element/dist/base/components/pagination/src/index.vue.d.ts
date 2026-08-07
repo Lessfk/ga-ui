@@ -1,4 +1,4 @@
-import { GaPaginationProps } from './props';
+import { GaPaginationProps } from './props.js';
 declare const _default: import('vue').DefineComponent<GaPaginationProps, {}, {}, {}, {}, import('vue').ComponentOptionsMixin, import('vue').ComponentOptionsMixin, {
     "current-change": (currentPage: number) => any;
     "update:current-page": (currentPage: number) => any;

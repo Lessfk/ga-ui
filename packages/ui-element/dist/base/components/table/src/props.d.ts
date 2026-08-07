@@ -1,5 +1,5 @@
 import { ComponentSize } from 'element-plus';
-import { GaTableColumn, GaTableRow } from '../types';
+import { GaTableColumn, GaTableRow } from '../types/index.js';
 export type GaTableRowKey<Row extends GaTableRow> = string | ((row: Row) => string);
 export interface GaTableProps<Row extends GaTableRow = GaTableRow> {
     data?: Row[];

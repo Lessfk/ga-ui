@@ -1,5 +1,5 @@
-import { GaTableCellScope, GaTableRow } from '../../../../base/index';
-import { GaTablePaginationProps } from './props';
+import { GaTableCellScope, GaTableRow } from '../../../../base/index.js';
+import { GaTablePaginationProps } from './props.js';
 declare const _default: <Row extends GaTableRow = GaTableRow>(__VLS_props: NonNullable<Awaited<typeof __VLS_setup>>["props"], __VLS_ctx?: __VLS_PrettifyLocal<Pick<NonNullable<Awaited<typeof __VLS_setup>>, "attrs" | "emit" | "slots">>, __VLS_expose?: NonNullable<Awaited<typeof __VLS_setup>>["expose"], __VLS_setup?: Promise<{
     props: __VLS_PrettifyLocal<Pick<Partial<{}> & Omit<{
         readonly "onCurrent-change"?: ((currentPage: number) => any) | undefined;
