@@ -1,11 +1,12 @@
 # ga-ui-plus
 
-ga-ui-plus 是一个基于 Vue 3 与 Element Plus 的 ESM 组件库，提供表格、分页以及表格分页组合组件。本文档面向通过 npm 包消费组件的项目，是当前公开 API 的使用指南。
+ga-ui-plus 是一个基于 Vue 3 与 Element Plus 的 ESM 组件库，提供通用对话框、表格、分页以及表格分页组合组件。本文档面向通过 npm 包消费组件的项目，是当前公开 API 的使用指南。
 
 ## 特性
 
 - 使用 Vue 3 `<script setup>` 与 TypeScript 类型构建。
 - 在 Element Plus 之上提供常用默认值、配置式表格列和分页对齐能力。
+- `GaDialog` 不内置按钮，保留 Element Plus 默认交互，并支持属性透传。
 - 同时支持配置式 `GaTableColumn` 与手写 `ElTableColumn`。
 - 提供 `GaTablePagination`，用扁平 Props 组合表格和分页。
 - 按基础组件、业务组件和聚合入口导出，便于按需组织依赖。
@@ -41,15 +42,15 @@ import 'ga-ui-plus/style.css'
 
 | 导出路径 | 运行时导出 | 类型导出 |
 | --- | --- | --- |
-| `ga-ui-plus/base` | `GaTable`、`GaPagination` | 对应的表格、列、实例与分页类型 |
+| `ga-ui-plus/base` | `GaDialog`、`GaTable`、`GaPagination` | 对应的对话框、表格、列、实例与分页类型 |
 | `ga-ui-plus/business` | `GaTablePagination` | `GaTablePaginationProps` |
-| `ga-ui-plus` | 上述三个组件 | 上述全部公开类型；这是聚合入口 |
+| `ga-ui-plus` | 上述四个组件 | 上述全部公开类型；这是聚合入口 |
 | `ga-ui-plus/style.css` | 样式文件 | 不适用 |
 
 按职责导入：
 
 ```ts
-import { GaPagination, GaTable } from 'ga-ui-plus/base'
+import { GaDialog, GaPagination, GaTable } from 'ga-ui-plus/base'
 import { GaTablePagination } from 'ga-ui-plus/business'
 ```
 
@@ -57,6 +58,7 @@ import { GaTablePagination } from 'ga-ui-plus/business'
 
 ```ts
 import {
+  GaDialog,
   GaPagination,
   GaTable,
   GaTablePagination,
@@ -353,6 +355,190 @@ function clearSelection() {
 | `[column.slot]` | `GaTableCellScope<Row>` | 配置列的动态命名插槽，含 `row`、`column`、`$index` |
 | `empty` | 无 | 替换默认的 `ElEmpty` |
 | `append` | 无 | 转发到 `ElTable` 的 `append` 插槽 |
+
+## GaDialog
+
+`GaDialog` 是一个由 `v-model` 控制的轻量 `ElDialog` 包装器，明确提供常用 Props、全部对话框生命周期事件，以及默认、`header`、`footer` 插槽。组件不内置确认或取消按钮，底部操作及其业务行为均由消费方提供。
+
+### 基础用法
+
+```vue
+<template>
+  <ElButton type="primary" @click="dialogVisible = true">
+    打开对话框
+  </ElButton>
+
+  <GaDialog
+    v-model="dialogVisible"
+    title="编辑用户"
+    width="520px"
+  >
+    <p>在这里放置对话框内容。</p>
+  </GaDialog>
+</template>
+
+<script setup lang="ts">
+import { ElButton } from 'element-plus'
+import { ref } from 'vue'
+import { GaDialog } from 'ga-ui-plus/base'
+
+const dialogVisible = ref(false)
+</script>
+```
+
+### 自定义标题和底部操作
+
+`header` 插槽提供 `close`、`titleId` 和 `titleClass`。使用 `titleId` 与 `titleClass` 可保留 Element Plus 为标题建立的可访问性关联；`footer` 插槽只渲染消费方传入的内容，不会补充默认按钮。
+
+```vue
+<template>
+  <GaDialog v-model="editorVisible" width="640px">
+    <template #header="{ close, titleId, titleClass }">
+      <div class="dialog-header">
+        <span :id="titleId" :class="titleClass">编辑用户</span>
+        <ElButton link @click="close">关闭</ElButton>
+      </div>
+    </template>
+
+    <p>用户表单由业务组件自行渲染。</p>
+
+    <template #footer>
+      <ElButton @click="cancelEdit">取消</ElButton>
+      <ElButton type="primary" @click="saveUser">保存</ElButton>
+    </template>
+  </GaDialog>
+</template>
+
+<script setup lang="ts">
+import { ElButton } from 'element-plus'
+import { ref } from 'vue'
+import { GaDialog } from 'ga-ui-plus/base'
+
+const editorVisible = ref(true)
+
+function cancelEdit() {
+  editorVisible.value = false
+}
+
+function saveUser() {
+  console.info('保存用户')
+  editorVisible.value = false
+}
+</script>
+```
+
+### beforeClose 与属性透传
+
+`GaDialog` 将未声明的 `$attrs` 绑定到内部 `ElDialog`，因此可以继续使用 `lock-scroll`、`modal-class` 等 Element Plus 属性。`beforeClose` 会原样交给 Element Plus；`GaDialog` 不捕获回调抛出的异常，也不会代替消费方调用 `done`。消费方需要自行处理异常，并只在允许关闭时调用 `done()`。
+
+```vue
+<template>
+  <GaDialog
+    v-model="dialogVisible"
+    title="有未保存的修改"
+    :before-close="handleBeforeClose"
+    :lock-scroll="false"
+    modal-class="editor-dialog-modal"
+  >
+    <p>关闭前会由业务代码确认。</p>
+  </GaDialog>
+</template>
+
+<script setup lang="ts">
+import type { DialogBeforeCloseFn } from 'element-plus'
+import { ref } from 'vue'
+import { GaDialog } from 'ga-ui-plus/base'
+
+const dialogVisible = ref(true)
+
+const handleBeforeClose: DialogBeforeCloseFn = (done) => {
+  try {
+    if (window.confirm('确定放弃未保存的修改吗？')) {
+      done()
+    }
+  } catch (error) {
+    console.error('关闭确认失败', error)
+  }
+}
+</script>
+```
+
+### GaDialog Props
+
+`GaDialogProps` 只声明下表中的常用属性，不表示继承完整的 Element Plus `DialogProps`。其他受底层支持的属性可以通过 `$attrs` 透传。
+
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `modelValue` | `boolean` | `false` | 对话框是否可见；支持 `v-model` |
+| `title` | `string` | `''` | 对话框标题 |
+| `width` | `string \| number` | Element Plus 默认行为（`50%`） | 对话框宽度 |
+| `top` | `string` | Element Plus 默认行为（`15vh`） | 对话框上边距 |
+| `fullscreen` | `boolean` | `false` | 是否全屏显示 |
+| `appendToBody` | `boolean` | `false` | 是否将对话框挂载到 `body` |
+| `destroyOnClose` | `boolean` | `false` | 关闭时是否销毁插槽内容 |
+| `center` | `boolean` | `false` | 是否让标题和底部区域居中 |
+| `alignCenter` | `boolean` | `undefined`，遵循 Element Plus 配置 | 是否让对话框水平、垂直居中 |
+| `draggable` | `boolean` | `undefined`，遵循 Element Plus 配置 | 是否允许拖动对话框 |
+| `showClose` | `boolean` | `true` | 是否显示右上角关闭按钮 |
+| `closeOnClickModal` | `boolean` | `true` | 是否允许点击遮罩关闭 |
+| `closeOnPressEscape` | `boolean` | `true` | 是否允许按 Escape 关闭 |
+| `beforeClose` | `DialogBeforeCloseFn` | `undefined` | 关闭前回调；消费方调用 `done()` 后才继续关闭 |
+
+### GaDialog Events
+
+| 事件 | 参数 | 触发时机 |
+| --- | --- | --- |
+| `update:modelValue` | `(value: boolean)` | 可见状态变化；用于 `v-model` |
+| `open` | 无 | 对话框开始打开 |
+| `opened` | 无 | 对话框打开动画结束 |
+| `close` | 无 | 对话框开始关闭 |
+| `closed` | 无 | 对话框关闭动画结束 |
+| `open-auto-focus` | 无 | 打开后完成自动聚焦 |
+| `close-auto-focus` | 无 | 关闭后完成自动聚焦恢复 |
+
+### GaDialog Slots
+
+| 插槽 | 作用域 | 说明 |
+| --- | --- | --- |
+| `default` | 无 | 对话框主体内容 |
+| `header` | `{ close, titleId, titleClass }` | 自定义标题；可调用 `close()` 并复用标题的可访问性属性 |
+| `footer` | 无 | 自定义底部内容；组件不提供默认按钮 |
+
+### 访问底层对话框实例
+
+`GaDialogExpose` 的 `dialogRef` 类型为 `DialogInstance | undefined`。高级消费方可以在组件挂载后调用 Element Plus 实例的 `handleClose()`、`resetPosition()` 等方法。
+
+```vue
+<template>
+  <ElButton @click="closeDialog">通过实例关闭</ElButton>
+  <ElButton @click="resetDialogPosition">重置位置</ElButton>
+  <GaDialog
+    ref="dialogInstance"
+    v-model="dialogVisible"
+    title="实例方法"
+    draggable
+  />
+</template>
+
+<script setup lang="ts">
+import { ElButton } from 'element-plus'
+import { ref } from 'vue'
+import { GaDialog, type GaDialogExpose } from 'ga-ui-plus/base'
+
+const dialogVisible = ref(true)
+const dialogInstance = ref<GaDialogExpose>()
+
+function closeDialog() {
+  dialogInstance.value?.dialogRef?.handleClose()
+}
+
+function resetDialogPosition() {
+  dialogInstance.value?.dialogRef?.resetPosition()
+}
+</script>
+```
+
+更多底层行为与透传属性请参见 [Element Plus Dialog 中文文档](https://element-plus.org/zh-CN/component/dialog.html)。
 
 ## GaPagination
 
@@ -667,6 +853,10 @@ function viewUser(row: UserRow) {
 
 | 类型 | 用途 |
 | --- | --- |
+| `GaDialogProps` | `GaDialog` 明确声明的常用 Props 子集 |
+| `GaDialogEmits` | `GaDialog` 的模型更新与生命周期事件签名 |
+| `GaDialogHeaderSlotProps` | `header` 插槽作用域，包含 `close`、`titleId`、`titleClass` |
+| `GaDialogExpose` | `GaDialog` 暴露实例类型，包含 `DialogInstance \| undefined` 的 `dialogRef` |
 | `GaTableProps<Row>` | `GaTable` Props |
 | `GaTableRowKey<Row>` | `rowKey` 的字符串或函数类型 |
 | `GaTableColumn<Row>` | 配置式列定义 |
@@ -744,6 +934,7 @@ void getStatusText
 
 ## 属性透传与当前限制
 
+- `GaDialog` 显式转发 `v-model` 更新与对话框生命周期事件，并将其他 `$attrs` 绑定到内部 `ElDialog`；组件不内置 `footer` 内容或确认、取消按钮，`beforeClose` 的异常处理与 `done` 回调调用由消费方负责。
 - `GaTable` 使用 `inheritAttrs: false`，并将普通 `$attrs` 直接绑定到内部 `ElTable`；未声明的 Element Plus 表格事件也随监听器一起透传。
 - `GaPagination` 使用相同策略，将普通 `$attrs` 绑定到内部 `ElPagination`。组件当前不转发分页插槽。
 - `GaTablePagination` 的普通 `$attrs` 绑定在根 `<div>`，包括 `class`、`style`、`id` 和普通监听器；它们不会自动分发给内部表格或分页。组件只转发明确声明的四个分页事件，不会透传 `selection-change` 等表格事件；选择列只展示选择 UI。需要读取选择结果时，请使用 `GaTable` 与 `GaPagination` 组合。
