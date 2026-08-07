@@ -60,7 +60,7 @@ importers:
 
   playground:
     dependencies:
-      ga-ui:
+      ga-ui-plus:
         specifier: workspace:*
         version: link:../packages/ui
       vue:
