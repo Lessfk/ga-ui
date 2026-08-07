@@ -358,7 +358,7 @@ function clearSelection() {
 
 ## GaDialog
 
-`GaDialog` 是一个由 `v-model` 控制的轻量 `ElDialog` 包装器，明确提供常用 Props、全部对话框生命周期事件，以及默认、`header`、`footer` 插槽。组件不内置确认或取消按钮，底部操作及其业务行为均由消费方提供。
+`GaDialog` 是一个由 `v-model` 控制的轻量 `ElDialog` 包装器，明确提供常用 Props、全部对话框生命周期事件，以及默认、`header`、`footer` 插槽。组件不内置确认或取消按钮，底部操作及其业务行为均由消费方提供。组件不提供命令式弹窗服务。
 
 ### 基础用法
 
