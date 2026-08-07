@@ -4,16 +4,16 @@ import {
   GaTablePagination,
   type GaTableColumn,
   type GaTablePaginationProps,
-} from 'ga-ui'
+} from 'ga-ui-plus'
 import {
   GaPagination as BasePagination,
   GaTable as BaseTable,
   type GaTableColumn as BaseTableColumn,
-} from 'ga-ui/base'
+} from 'ga-ui-plus/base'
 import {
   GaTablePagination as BusinessTablePagination,
   type GaTablePaginationProps as BusinessTablePaginationProps,
-} from 'ga-ui/business'
+} from 'ga-ui-plus/business'
 
 type Row = {
   id: number

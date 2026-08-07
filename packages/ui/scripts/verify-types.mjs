@@ -59,4 +59,4 @@ if (diagnostics.length > 0) {
   process.exit(1)
 }
 
-console.log('Verified ga-ui NodeNext declarations with TypeScript 5.8.3')
+console.log('Verified ga-ui-plus NodeNext declarations with TypeScript 5.8.3')

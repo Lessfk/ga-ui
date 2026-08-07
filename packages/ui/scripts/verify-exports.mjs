@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 
 const [root, base, business] = await Promise.all([
-  import('ga-ui'),
-  import('ga-ui/base'),
-  import('ga-ui/business'),
+  import('ga-ui-plus'),
+  import('ga-ui-plus/base'),
+  import('ga-ui-plus/business'),
 ])
 
 assert.ok('GaTable' in base)
@@ -18,4 +18,4 @@ assert.ok('GaTable' in root)
 assert.ok('GaPagination' in root)
 assert.ok('GaTablePagination' in root)
 
-console.log('Verified ga-ui package exports')
+console.log('Verified ga-ui-plus package exports')
