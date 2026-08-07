@@ -8,14 +8,17 @@ const [root, base, business] = await Promise.all([
 
 assert.ok('GaTable' in base)
 assert.ok('GaPagination' in base)
+assert.ok('GaDialog' in base)
 assert.ok(!('GaTablePagination' in base))
 
 assert.ok('GaTablePagination' in business)
+assert.ok(!('GaDialog' in business))
 assert.ok(!('GaTable' in business))
 assert.ok(!('GaPagination' in business))
 
 assert.ok('GaTable' in root)
 assert.ok('GaPagination' in root)
+assert.ok('GaDialog' in root)
 assert.ok('GaTablePagination' in root)
 
 console.log('Verified ga-ui-plus package exports')

@@ -30,6 +30,7 @@ await Promise.all(
 const css = await readFile(new URL('style.css', distUrl), 'utf8')
 assert.ok(css.trim().length > 0, 'dist/style.css must not be empty')
 for (const selector of [
+  /\.el-dialog\.ga-dialog/,
   /\.el-table\.ga-table/,
   /\.el-pagination\.ga-pagination/,
   /\.ga-table-pagination/,
@@ -136,9 +137,10 @@ const [base, business, root] = await Promise.all([
   import(new URL('index.js', distUrl)),
 ])
 
-assert.deepEqual(Object.keys(base).sort(), ['GaPagination', 'GaTable'])
+assert.deepEqual(Object.keys(base).sort(), ['GaDialog', 'GaPagination', 'GaTable'])
 assert.deepEqual(Object.keys(business).sort(), ['GaTablePagination'])
 assert.deepEqual(Object.keys(root).sort(), [
+  'GaDialog',
   'GaPagination',
   'GaTable',
   'GaTablePagination',

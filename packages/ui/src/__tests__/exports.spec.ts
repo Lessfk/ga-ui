@@ -1,17 +1,24 @@
 import { describe, expect, it } from 'vitest'
 
+import { GaDialog as DialogBarrel } from '../base/components/dialog'
 import { GaPagination as PaginationBarrel } from '../base/components/pagination'
 import { GaTable as TableBarrel } from '../base/components/table'
 import {
   GaTablePagination as TablePaginationBarrel,
 } from '../business/components/tablePagination'
 import type {
+  GaDialogEmits,
+  GaDialogExpose,
+  GaDialogProps,
   GaPaginationProps,
   GaTableColumn,
   GaTableProps,
 } from '../base'
 import type { GaTablePaginationProps } from '../business'
 import type {
+  GaDialogEmits as RootGaDialogEmits,
+  GaDialogExpose as RootGaDialogExpose,
+  GaDialogProps as RootGaDialogProps,
   GaPaginationProps as RootGaPaginationProps,
   GaTableColumn as RootGaTableColumn,
   GaTablePaginationProps as RootGaTablePaginationProps,
@@ -19,12 +26,18 @@ import type {
 } from '../index'
 
 type BaseTypeContract = [
+  GaDialogProps,
+  GaDialogEmits,
+  GaDialogExpose,
   GaTableProps,
   GaTableColumn,
   GaPaginationProps,
 ]
 
 type RootTypeContract = [
+  RootGaDialogProps,
+  RootGaDialogEmits,
+  RootGaDialogExpose,
   RootGaTableProps,
   RootGaTableColumn,
   RootGaPaginationProps,
@@ -77,6 +90,7 @@ describe('library exports', () => {
   it('exports only base components from the base entry', async () => {
     const base = await import('../base')
 
+    expect(base.GaDialog).toBe(DialogBarrel)
     expect(base.GaTable).toBe(TableBarrel)
     expect(base.GaPagination).toBe(PaginationBarrel)
     expect(base).not.toHaveProperty('GaTablePagination')
@@ -86,6 +100,7 @@ describe('library exports', () => {
     const business = await import('../business')
 
     expect(business.GaTablePagination).toBe(TablePaginationBarrel)
+    expect(business).not.toHaveProperty('GaDialog')
     expect(business).not.toHaveProperty('GaTable')
     expect(business).not.toHaveProperty('GaPagination')
   })
@@ -93,6 +108,7 @@ describe('library exports', () => {
   it('exports base and business components from the root entry', async () => {
     const library = await import('../index')
 
+    expect(library.GaDialog).toBe(DialogBarrel)
     expect(library.GaTable).toBe(TableBarrel)
     expect(library.GaPagination).toBe(PaginationBarrel)
     expect(library.GaTablePagination).toBe(TablePaginationBarrel)
