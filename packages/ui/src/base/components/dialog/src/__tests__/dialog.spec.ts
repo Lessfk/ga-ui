@@ -23,11 +23,11 @@ const ElDialogStub = defineComponent({
     center: Boolean,
     alignCenter: {
       type: Boolean,
-      default: false,
+      default: undefined,
     },
     draggable: {
       type: Boolean,
-      default: false,
+      default: undefined,
     },
     showClose: Boolean,
     closeOnClickModal: Boolean,
@@ -96,15 +96,18 @@ describe('GaDialog', () => {
     expect(wrapper.findComponent(ElDialogStub).props()).toMatchObject({
       modelValue: false,
       title: '',
+      width: undefined,
+      top: undefined,
       fullscreen: false,
       appendToBody: false,
       destroyOnClose: false,
       center: false,
-      alignCenter: false,
-      draggable: false,
+      alignCenter: undefined,
+      draggable: undefined,
       showClose: true,
       closeOnClickModal: true,
       closeOnPressEscape: true,
+      beforeClose: undefined,
     })
   })
 
