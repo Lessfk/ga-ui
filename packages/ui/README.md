@@ -124,6 +124,7 @@ const rows: UserRow[] = [
 ]
 
 const columns: GaTableColumn<UserRow>[] = [
+  { key: 'selection', type: 'selection', width: 48 },
   { key: 'name', prop: 'name', label: '姓名', minWidth: 160 },
   { key: 'status', prop: 'status', label: '状态', width: 120 },
 ]
@@ -184,6 +185,8 @@ const columns: GaTableColumn<UserRow>[] = [
 
 `column-prepend` 插槽位于所有配置列之前；默认插槽位于所有配置列之后。可以用它们增加选择列、展开列或包含复杂模板的操作列。
 
+以下模板片段接续上一节“配置式列与自定义单元格”的完整 SFC 示例。需要新增导入 `ElTableColumn`、`ElButton`，并定义 `viewUser` 处理函数。
+
 ```vue
 <GaTable :data="rows" :columns="columns">
   <template #column-prepend>
@@ -200,11 +203,23 @@ const columns: GaTableColumn<UserRow>[] = [
 </GaTable>
 ```
 
+将下面的导入与函数合并到上一节示例已有的 `<script setup lang="ts">` 中：
+
+```ts
+import { ElButton, ElTableColumn } from 'element-plus'
+
+function viewUser(row: UserRow) {
+  console.info('查看用户', row)
+}
+```
+
 最终列顺序为：`column-prepend` 插槽内容、`columns` 配置列、默认插槽内容。
 
 ### 空状态和追加内容
 
 未提供 `empty` 插槽时，`GaTable` 会渲染一个描述文本来自 `emptyText` 的 `ElEmpty`。`append` 插槽对应 Element Plus 表格的追加内容区域。
+
+以下模板片段同样接续“配置式列与自定义单元格”的完整 SFC 示例。需要新增导入 `ElEmpty`、`ElButton`，并定义 `reload` 处理函数。
 
 ```vue
 <GaTable :data="rows" :columns="columns" empty-text="暂无用户数据">
@@ -218,6 +233,16 @@ const columns: GaTableColumn<UserRow>[] = [
     <div>已加载 {{ rows.length }} 条数据</div>
   </template>
 </GaTable>
+```
+
+将下面的导入与函数合并到该完整示例已有的 `<script setup lang="ts">` 中：
+
+```ts
+import { ElButton, ElEmpty } from 'element-plus'
+
+function reload() {
+  console.info('重新加载用户数据')
+}
 ```
 
 ### 访问底层表格实例
@@ -398,6 +423,58 @@ function handleSizeChange(size: number) {
 
 `GaTablePagination` 将 `GaTable` 与 `GaPagination` 组合为一个两行 Grid。它使用扁平 Props：`GaTableProps<Row>`（排除 `height`、`maxHeight`）与 `GaPaginationProps` 的交集，不需要 `tableProps` 或 `paginationProps` 对象。
 
+### 基础用法
+
+父容器需要提供明确高度，组件才能将剩余空间分配给内部表格：
+
+```vue
+<template>
+  <section class="table-pagination-basic">
+    <GaTablePagination
+      :data="rows"
+      :columns="columns"
+      row-key="id"
+      v-model:current-page="currentPage"
+      v-model:page-size="pageSize"
+      :total="total"
+    />
+  </section>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import {
+  GaTablePagination,
+  type GaTableColumn,
+} from 'ga-ui-plus'
+
+interface UserRow {
+  id: number
+  name: string
+}
+
+const currentPage = ref(1)
+const pageSize = ref(10)
+const total = 2
+
+const rows: UserRow[] = [
+  { id: 1, name: '张三' },
+  { id: 2, name: '李四' },
+]
+
+const columns: GaTableColumn<UserRow>[] = [
+  { key: 'name', prop: 'name', label: '姓名', minWidth: 160 },
+]
+</script>
+
+<style scoped>
+.table-pagination-basic {
+  height: 400px;
+  min-height: 0;
+}
+</style>
+```
+
 ### 完整用法
 
 下面的示例包含配置列、选择列、空状态、追加内容、手写操作列、页码与页大小模型及事件。承载组件的父容器提供了明确高度。
@@ -518,6 +595,7 @@ function loadUsers(page: number) {
 
 function handlePageSizeChange(size: number) {
   currentPage.value = 1
+  loadUsers(1)
   console.info('新的每页条数', size)
 }
 
