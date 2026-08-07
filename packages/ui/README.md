@@ -37,11 +37,14 @@ import 'ga-ui-plus/style.css'
 
 ## 导出入口
 
+下表同时覆盖 JavaScript/TypeScript 模块入口与 CSS 样式入口：
+
 | 导出路径 | 运行时导出 | 类型导出 |
 | --- | --- | --- |
 | `ga-ui-plus/base` | `GaTable`、`GaPagination` | 对应的表格、列、实例与分页类型 |
 | `ga-ui-plus/business` | `GaTablePagination` | `GaTablePaginationProps` |
 | `ga-ui-plus` | 上述三个组件 | 上述全部公开类型；这是聚合入口 |
+| `ga-ui-plus/style.css` | 样式文件 | 不适用 |
 
 按职责导入：
 
@@ -337,6 +340,8 @@ function clearSelection() {
 | `filterMultiple` | `boolean` | 是否允许多选筛选 |
 | `index` | `number \| ((index: number) => number)` | 索引列起始值或索引计算函数 |
 
+`filterMethod` 需要特别说明：当前源码中的公开类型签名返回 `void`，该函数会原样透传给 Element Plus。实际筛选判断应按照 Element Plus `filter-method` 的用法，提供返回布尔值的谓词。TypeScript 允许把有返回值的函数赋给返回 `void` 的回调类型，但这里的 `void` 是当前公共类型表达的限制，并不表示实际筛选谓词不需要布尔返回值。
+
 配置列的 Vue key 按 `key`、`prop`、最后是 `type + index` 的顺序生成。其他列能力可通过默认插槽手写 `ElTableColumn`，无需在 `GaTableColumn` 中复制完整 Element Plus API。
 
 ### GaTable Slots
@@ -478,6 +483,8 @@ const columns: GaTableColumn<UserRow>[] = [
 ### 完整用法
 
 下面的示例包含配置列、选择列、空状态、追加内容、手写操作列、页码与页大小模型及事件。承载组件的父容器提供了明确高度。
+
+示例保留选择列用于展示选择 UI；`GaTablePagination` 当前不会透传 `selection-change` 等表格事件，也不暴露 `tableRef`。如果业务需要读取选择结果或访问表格实例，请改用 `GaTable` 与 `GaPagination` 组合。
 
 ```vue
 <template>
@@ -648,6 +655,8 @@ function viewUser(row: UserRow) {
 | `current-change` | `(currentPage: number)` | 当前页变化事件 |
 | `size-change` | `(pageSize: number)` | 每页条数变化事件 |
 
+以上四项是组合组件当前明确声明的全部事件。`selection-change`、`row-click`、`sort-change` 等表格事件不会从内部 `GaTable` 透传；选择列可以显示并交互，但业务无法通过 `GaTablePagination` 读取选择结果。需要这些事件时，请使用 `GaTable` 与 `GaPagination` 组合。
+
 ### GaTablePagination Slots
 
 组合组件会把收到的所有插槽及其作用域转发给内部 `GaTable`，因此可使用 `GaTable` 的 `column-prepend`、默认插槽、配置列命名插槽、`empty` 和 `append`。这些插槽不会转发给分页组件。
@@ -670,15 +679,23 @@ function viewUser(row: UserRow) {
 | `GaPaginationProps` | `GaPagination` Props |
 | `GaTablePaginationProps<Row>` | 扁平的表格分页组合 Props |
 
-```ts
+```vue
+<template>
+  <ElButton @click="clearSelection">清空选择</ElButton>
+  <GaTable ref="tableInstance" v-bind="tableProps" />
+</template>
+
+<script setup lang="ts">
+import { ElButton } from 'element-plus'
 import { ref } from 'vue'
-import type {
-  GaPaginationProps,
-  GaTableCellScope,
-  GaTableColumn,
-  GaTableExpose,
-  GaTablePaginationProps,
-  GaTableProps,
+import {
+  GaTable,
+  type GaPaginationProps,
+  type GaTableCellScope,
+  type GaTableColumn,
+  type GaTableExpose,
+  type GaTablePaginationProps,
+  type GaTableProps,
 } from 'ga-ui-plus'
 
 interface UserRow {
@@ -713,17 +730,23 @@ function getStatusText(scope: GaTableCellScope<UserRow>) {
 }
 
 const tableInstance = ref<GaTableExpose>()
-tableInstance.value?.tableRef?.clearSelection()
+
+function clearSelection() {
+  tableInstance.value?.tableRef?.clearSelection()
+}
 
 void combinedProps
 void getStatusText
+</script>
 ```
+
+`tableInstance` 只有在 `GaTable` 挂载后才可用，因此应像示例一样通过按钮或其他用户事件调用 `clearSelection`，不要在 `<script setup>` 初始化的顶层直接调用实例方法。
 
 ## 属性透传与当前限制
 
 - `GaTable` 使用 `inheritAttrs: false`，并将普通 `$attrs` 直接绑定到内部 `ElTable`；未声明的 Element Plus 表格事件也随监听器一起透传。
 - `GaPagination` 使用相同策略，将普通 `$attrs` 绑定到内部 `ElPagination`。组件当前不转发分页插槽。
-- `GaTablePagination` 的普通 `$attrs` 绑定在根 `<div>`，包括 `class`、`style`、`id` 和普通监听器；它们不会自动分发给内部表格或分页。因此不应假定底层表格事件会自动透传，应使用组合组件明确声明的分页事件。
-- `GaTablePagination` 当前不暴露底层 `tableRef`。需要调用 `clearSelection`、`doLayout` 等表格实例方法时，请直接使用 `GaTable`。
+- `GaTablePagination` 的普通 `$attrs` 绑定在根 `<div>`，包括 `class`、`style`、`id` 和普通监听器；它们不会自动分发给内部表格或分页。组件只转发明确声明的四个分页事件，不会透传 `selection-change` 等表格事件；选择列只展示选择 UI。需要读取选择结果时，请使用 `GaTable` 与 `GaPagination` 组合。
+- `GaTablePagination` 当前不暴露底层 `tableRef`。需要调用 `clearSelection`、`doLayout` 等表格实例方法时，请使用 `GaTable` 与 `GaPagination` 组合。
 - `GaTablePagination` 不接受 `height`、`maxHeight`、`tableProps` 或 `paginationProps`；内部表格高度由组件固定，其他能力通过扁平 Props 和表格插槽提供。
 - `GaTableColumn` 只覆盖当前类型文件声明的列字段。需要其他 Element Plus 列能力时，可在 `column-prepend` 或默认插槽中直接使用 `ElTableColumn`。

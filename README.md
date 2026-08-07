@@ -21,7 +21,7 @@
 
 ## 环境要求
 
-根 `package.json` 通过 `packageManager` 固定使用 `pnpm@10.34.5`。仓库当前没有通过 `engines` 或版本文件固定精确的 Node.js 版本，请使用兼容 pnpm 10 与 Vite 6 的 Node.js 环境。
+根 `package.json` 通过 `packageManager` 固定使用 `pnpm@10.34.5`。运行 `pnpm --version` 时应输出 `10.34.5`。仓库当前没有通过 `engines` 或版本文件固定精确的 Node.js 版本，请使用兼容 pnpm 10 与 Vite 6 的 Node.js 环境。
 
 ## 安装依赖
 
@@ -85,15 +85,15 @@ pnpm --dir playground build
 
 ## 构建产物与公开入口
 
-组件包构建生成以下主要文件：
+组件包构建生成以下主要文件；下列路径均相对于 workspace 根目录：
 
-- `dist/index.js`
-- `dist/index.d.ts`
-- `dist/base/index.js`
-- `dist/base/index.d.ts`
-- `dist/business/index.js`
-- `dist/business/index.d.ts`
-- `dist/style.css`
+- `packages/ui/dist/index.js`
+- `packages/ui/dist/index.d.ts`
+- `packages/ui/dist/base/index.js`
+- `packages/ui/dist/base/index.d.ts`
+- `packages/ui/dist/business/index.js`
+- `packages/ui/dist/business/index.d.ts`
+- `packages/ui/dist/style.css`
 
 包为 ESM-only，并提供多个公开入口：
 
@@ -113,7 +113,16 @@ Vue 和 Element Plus 被标记为 external，不会打入组件包。组件样�
 - `peerDependencies.vue`：`^3.3.7`
 - `peerDependencies.element-plus`：`^2.14.3`
 
-发布钩子 `prepublishOnly` 会依次执行 `test` → `build` → `verify:exports`。确认版本、变更内容、npm 登录状态和验证结果后，可从 workspace 根目录运行：
+发布前必须从 workspace 根目录手动依次运行完整检查，唯一顺序为 `test` → `build` → `verify:exports` → Playground build：
+
+```bash
+pnpm --dir packages/ui test
+pnpm --dir packages/ui build
+pnpm --dir packages/ui verify:exports
+pnpm --dir playground build
+```
+
+执行 publish 时，`prepublishOnly` 会自动重复前三项 `test` → `build` → `verify:exports` 作为安全门。Playground build 不在发布钩子内，因此仍必须在发布前按上面的完整顺序手动完成。随后可从 workspace 根目录运行：
 
 ```bash
 pnpm --dir packages/ui publish
@@ -123,25 +132,24 @@ pnpm --dir packages/ui publish
 
 ## 新增组件检查清单
 
-- 在正确的 `base` 或 `business` 路径新增实现、style 入口以及公开 Props/类型。
-- 普通新增组件通常沿用已有的 `base` 或 `business` npm 子路径，只需从组件的本地 `index.ts` 和所属 category barrel 导出公共内容，不需要新增 library entry 或 package exports。
-- 新增单元测试；公共表面发生变化时同步更新 `src/__tests__/exports.spec.ts`。
-- 只有确实新增 npm 公共包子路径时，才必须同步维护以下位置：
+- 先确定组件分类和导出层级：
+  - `base`：通用、可独立复用的基础组件。源码放在 `packages/ui/src/base/components/<component>`，所属 category barrel 是 `packages/ui/src/base/index.ts`。
+  - `business`：组合多个基础能力的业务组件。源码放在 `packages/ui/src/business/components/<component>`，所属 category barrel 是 `packages/ui/src/business/index.ts`。
+  - “local index”是组件目录内的 `index.ts`，即 `packages/ui/src/<category>/components/<component>/index.ts`。
+- 在对应组件目录新增实现、style 入口以及公开 Props/类型，并新增单元测试。
+- 普通组件通常沿用已有的 `base` 或 `business` npm 子路径。若只改变现有 barrel 的导出成员，从 local index 和所属 category barrel 导出公共内容，并更新 `packages/ui/src/__tests__/exports.spec.ts`；不需要新增 Vite library entry 或 package exports。
+- 只有当构建产物清单、npm 包子路径或验证所期望的运行时导出集合发生变化时，才按实际变化同步 `packages/ui/scripts/verify-build.mjs`、`packages/ui/scripts/verify-exports.mjs` 与 `packages/ui/scripts/fixtures/node-next-consumer/index.ts` 中的断言或消费用例。
+- 只有确实新增 npm 公共子路径时，才必须同步维护以下位置：
   - `packages/ui/vite.config.ts` 的 library entry。
   - `packages/ui/package.json` 的 `exports` 映射。
   - `packages/ui/scripts/verify-build.mjs`。
   - `packages/ui/scripts/verify-exports.mjs`。
   - `packages/ui/scripts/fixtures/node-next-consumer/index.ts`，确保 NodeNext 消费类型检查覆盖新入口。
-- 构建产物或导出发生变化时，更新 `scripts/verify-build.mjs` 和 `scripts/verify-exports.mjs`。
-- 更新 `packages/ui/README.md` 中的组件使用文档。
-- 发布前依次运行：
-
-  ```bash
-  pnpm --dir packages/ui test
-  pnpm --dir packages/ui build
-  pnpm --dir packages/ui verify:exports
-  pnpm --dir playground build
-  ```
+  - 根 `README.md` 的“构建产物与公开入口”列表。
+  - `packages/ui/README.md` 的“导出入口”表和新子路径的对应用法。
+  - 若需要在 Playground 演示或消费新子路径，再同步 `playground/vite.config.ts` 的源码 alias 与相应 `playground/src` 导入；这不是无条件必改项。
+- 更新 `packages/ui/README.md` 中的组件用法、API 与限制说明。
+- 发布前检查按“发布流程”中的唯一顺序手动执行。
 
 ## 组件使用文档
 
