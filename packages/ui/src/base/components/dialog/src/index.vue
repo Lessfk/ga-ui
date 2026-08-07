@@ -41,6 +41,7 @@
 import { ElDialog } from 'element-plus'
 import type { DialogInstance } from 'element-plus'
 import { ref, useSlots } from 'vue'
+import type { Slots } from 'vue'
 
 import type { GaDialogEmits, GaDialogProps } from '../types/index'
 
@@ -64,7 +65,7 @@ const props = withDefaults(defineProps<GaDialogProps>(), {
 })
 
 const emit = defineEmits<GaDialogEmits>()
-const slots = useSlots()
+const slots: Slots = useSlots()
 const dialogRef = ref<DialogInstance>()
 
 defineExpose({
