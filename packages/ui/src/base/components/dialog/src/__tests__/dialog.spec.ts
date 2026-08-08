@@ -1,8 +1,19 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
 
+import dialogStyles from '../../style/index.scss?raw'
 import GaDialog from '../index.vue'
+
+const dialogStyleSource =
+  dialogStyles ||
+  readFileSync(
+    resolve(process.cwd(), 'src/base/components/dialog/style/index.scss'),
+    'utf8',
+  )
 
 const titleId = 'el-dialog-title'
 const titleClass = 'el-dialog__title'
@@ -249,14 +260,32 @@ describe('GaDialog', () => {
     expect(wrapper.find('button.ga-dialog__fullscreenbtn').exists()).toBe(false)
   })
 
+  it('moves the fullscreen control to the right when close is hidden', () => {
+    const wrapper = mountDialog({ props: { showClose: false } })
+    const dialog = wrapper.findComponent(ElDialogStub)
+
+    expect(dialog.classes()).toContain('ga-dialog--fullscreenable')
+    expect(dialog.classes()).toContain('ga-dialog--without-close')
+  })
+
+  it('scopes fullscreen header actions to direct dialog children', () => {
+    expect(dialogStyleSource).toContain('> .el-dialog__header')
+    expect(dialogStyleSource).toContain(
+      '> .el-dialog__header > .ga-dialog__fullscreenbtn',
+    )
+  })
+
   it('toggles fullscreen and emits update:fullscreen', async () => {
     const wrapper = mountDialog()
     const fullscreenButton = wrapper.find('button.ga-dialog__fullscreenbtn')
+
+    expect(wrapper.find('.ga-dialog__fullscreen-icon--expand').exists()).toBe(true)
 
     await fullscreenButton.trigger('click')
 
     expect(wrapper.findComponent(ElDialogStub).props('fullscreen')).toBe(true)
     expect(wrapper.emitted('update:fullscreen')).toEqual([[true]])
+    expect(wrapper.find('.ga-dialog__fullscreen-icon--restore').exists()).toBe(true)
     expect(fullscreenButton.attributes('title')).toBe('退出全屏')
     expect(fullscreenButton.attributes('aria-label')).toBe('退出全屏')
 

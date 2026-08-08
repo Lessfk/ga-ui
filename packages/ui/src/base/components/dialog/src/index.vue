@@ -2,7 +2,13 @@
   <ElDialog
     ref="dialogRef"
     v-bind="$attrs"
-    class="ga-dialog"
+    :class="[
+      'ga-dialog',
+      {
+        'ga-dialog--fullscreenable': props.showFullscreen,
+        'ga-dialog--without-close': !props.showClose,
+      },
+    ]"
     :model-value="props.modelValue"
     :title="props.title"
     :width="props.width"
@@ -43,7 +49,30 @@
         :title="fullscreenLabel"
         :aria-label="fullscreenLabel"
         @click="toggleFullscreen"
-      ></button>
+      >
+        <svg
+          v-if="!currentFullscreen"
+          class="ga-dialog__fullscreen-icon ga-dialog__fullscreen-icon--expand"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+          <path d="M16 3h3a2 2 0 0 1 2 2v3" />
+          <path d="M8 21H5a2 2 0 0 1-2-2v-3" />
+          <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+        </svg>
+        <svg
+          v-else
+          class="ga-dialog__fullscreen-icon ga-dialog__fullscreen-icon--restore"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path d="M8 3v3a2 2 0 0 1-2 2H3" />
+          <path d="M16 3v3a2 2 0 0 0 2 2h3" />
+          <path d="M8 21v-3a2 2 0 0 0-2-2H3" />
+          <path d="M16 21v-3a2 2 0 0 1 2-2h3" />
+        </svg>
+      </button>
     </template>
 
     <slot />
