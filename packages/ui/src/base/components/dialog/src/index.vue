@@ -54,14 +54,14 @@ const props = withDefaults(defineProps<GaDialogProps>(), {
   modelValue: false,
   title: '',
   fullscreen: false,
-  appendToBody: false,
-  destroyOnClose: false,
+  appendToBody: true,
+  destroyOnClose: true,
   center: false,
-  alignCenter: undefined,
-  draggable: undefined,
+  alignCenter: true,
+  draggable: true,
   showClose: true,
-  closeOnClickModal: true,
-  closeOnPressEscape: true,
+  closeOnClickModal: false,
+  closeOnPressEscape: false,
 })
 
 const emit = defineEmits<GaDialogEmits>()

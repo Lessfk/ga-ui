@@ -78,8 +78,9 @@
         destroy-on-close
         modal-class="ga-dialog-demo-modal"
         :before-close="handleDialogBeforeClose"
+        :title="'通用弹窗示例'"
       >
-        <template #header="{ close, titleId, titleClass }">
+        <!-- <template #header="{ close, titleId, titleClass }">
           <div class="dialog-header">
             <span
               :id="titleId"
@@ -94,7 +95,7 @@
               关闭
             </ElButton>
           </div>
-        </template>
+        </template> -->
 
         <p>
           GaDialog 组件不内置任何按钮，footer 插槽中的操作按钮完全由使用方提供。取消按钮通过
@@ -107,6 +108,12 @@
         </p>
 
         <template #footer>
+           <ElButton
+              link
+              @click="handleDialogCancel"
+            >
+              关闭
+            </ElButton>
           <ElButton @click="handleDialogCancel">
             取消
           </ElButton>

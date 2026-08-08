@@ -476,14 +476,14 @@ const handleBeforeClose: DialogBeforeCloseFn = (done) => {
 | `width` | `string \| number` | Element Plus 默认行为（`50%`） | 对话框宽度 |
 | `top` | `string` | Element Plus 默认行为（`15vh`） | 对话框上边距 |
 | `fullscreen` | `boolean` | `false` | 是否全屏显示 |
-| `appendToBody` | `boolean` | `false` | 是否将对话框挂载到 `body` |
-| `destroyOnClose` | `boolean` | `false` | 关闭时是否销毁插槽内容 |
+| `appendToBody` | `boolean` | `true` | 是否将对话框挂载到 `body` |
+| `destroyOnClose` | `boolean` | `true` | 关闭时是否销毁插槽内容 |
 | `center` | `boolean` | `false` | 是否让标题和底部区域居中 |
-| `alignCenter` | `boolean` | `undefined`，遵循 Element Plus 配置 | 是否让对话框水平、垂直居中 |
-| `draggable` | `boolean` | `undefined`，遵循 Element Plus 配置 | 是否允许拖动对话框 |
+| `alignCenter` | `boolean` | `true` | 是否让对话框水平、垂直居中 |
+| `draggable` | `boolean` | `true` | 是否允许拖动对话框 |
 | `showClose` | `boolean` | `true` | 是否显示右上角关闭按钮 |
-| `closeOnClickModal` | `boolean` | `true` | 是否允许点击遮罩关闭 |
-| `closeOnPressEscape` | `boolean` | `true` | 是否允许按 Escape 关闭 |
+| `closeOnClickModal` | `boolean` | `false` | 是否允许点击遮罩关闭 |
+| `closeOnPressEscape` | `boolean` | `false` | 是否允许按 Escape 关闭 |
 | `beforeClose` | `DialogBeforeCloseFn` | `undefined` | `handleClose` 路径的关闭前回调；调用 `done()` 才继续，直接修改 `v-model` 不触发 |
 
 ### GaDialog Events
