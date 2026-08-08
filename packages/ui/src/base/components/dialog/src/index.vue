@@ -7,7 +7,7 @@
     :title="props.title"
     :width="props.width"
     :top="props.top"
-    :fullscreen="props.fullscreen"
+    :fullscreen="currentFullscreen"
     :append-to-body="props.appendToBody"
     :destroy-on-close="props.destroyOnClose"
     :center="props.center"
@@ -21,7 +21,7 @@
     @open="emit('open')"
     @opened="emit('opened')"
     @close="emit('close')"
-    @closed="emit('closed')"
+    @closed="handleClosed"
     @open-auto-focus="emit('open-auto-focus')"
     @close-auto-focus="emit('close-auto-focus')"
   >
@@ -37,10 +37,12 @@
         {{ props.title }}
       </span>
       <button
+        v-if="props.showFullscreen"
         type="button"
         class="ga-dialog__fullscreenbtn"
-        title="全屏"
-        aria-label="全屏"
+        :title="fullscreenLabel"
+        :aria-label="fullscreenLabel"
+        @click="toggleFullscreen"
       ></button>
     </template>
 
@@ -55,7 +57,7 @@
 <script setup lang="ts">
 import { ElDialog } from 'element-plus'
 import type { DialogInstance } from 'element-plus'
-import { computed, ref, useAttrs, useSlots } from 'vue'
+import { computed, ref, useAttrs, useSlots, watch } from 'vue'
 import type { Slots } from 'vue'
 
 import type { GaDialogEmits, GaDialogProps } from '../types/index'
@@ -91,6 +93,33 @@ const headerAriaLevel = computed(() => {
 const emit = defineEmits<GaDialogEmits>()
 const slots: Slots = useSlots()
 const dialogRef = ref<DialogInstance>()
+const currentFullscreen = ref(props.fullscreen)
+const fullscreenLabel = computed(() =>
+  currentFullscreen.value ? '退出全屏' : '全屏',
+)
+
+watch(
+  () => props.fullscreen,
+  (value) => {
+    currentFullscreen.value = value
+  },
+)
+
+const setFullscreen = (value: boolean) => {
+  if (currentFullscreen.value === value) return
+
+  currentFullscreen.value = value
+  emit('update:fullscreen', value)
+}
+
+const toggleFullscreen = () => {
+  setFullscreen(!currentFullscreen.value)
+}
+
+const handleClosed = () => {
+  setFullscreen(props.fullscreen)
+  emit('closed')
+}
 
 defineExpose({
   dialogRef,

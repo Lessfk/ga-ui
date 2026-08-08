@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
 
 import GaDialog from '../index.vue'
@@ -242,6 +242,58 @@ describe('GaDialog', () => {
     expect(fullscreenButton.attributes('aria-label')).toBe('全屏')
     expect(wrapper.find('.dialog-content').text()).toBe('Dialog body')
     expect(wrapper.find('.el-dialog__footer').exists()).toBe(false)
+  })
+
+  it('hides the fullscreen control when showFullscreen is false', () => {
+    const wrapper = mountDialog({ props: { showFullscreen: false } })
+    expect(wrapper.find('button.ga-dialog__fullscreenbtn').exists()).toBe(false)
+  })
+
+  it('toggles fullscreen and emits update:fullscreen', async () => {
+    const wrapper = mountDialog()
+    const fullscreenButton = wrapper.find('button.ga-dialog__fullscreenbtn')
+
+    await fullscreenButton.trigger('click')
+
+    expect(wrapper.findComponent(ElDialogStub).props('fullscreen')).toBe(true)
+    expect(wrapper.emitted('update:fullscreen')).toEqual([[true]])
+    expect(fullscreenButton.attributes('title')).toBe('退出全屏')
+    expect(fullscreenButton.attributes('aria-label')).toBe('退出全屏')
+
+    await fullscreenButton.trigger('click')
+
+    expect(wrapper.findComponent(ElDialogStub).props('fullscreen')).toBe(false)
+    expect(wrapper.emitted('update:fullscreen')).toEqual([[true], [false]])
+  })
+
+  it('synchronizes external fullscreen changes', async () => {
+    const wrapper = mountDialog({ props: { fullscreen: false } })
+
+    await wrapper.setProps({ fullscreen: true })
+
+    expect(wrapper.findComponent(ElDialogStub).props('fullscreen')).toBe(true)
+    expect(wrapper.find('button.ga-dialog__fullscreenbtn').attributes('title')).toBe(
+      '退出全屏',
+    )
+  })
+
+  it('restores the external fullscreen value after closed', async () => {
+    const wrapper = mountDialog({ props: { fullscreen: false } })
+    const dialog = wrapper.findComponent(ElDialogStub)
+
+    await wrapper.find('button.ga-dialog__fullscreenbtn').trigger('click')
+    expect(dialog.props('fullscreen')).toBe(true)
+
+    dialog.vm.$emit('close')
+    await nextTick()
+    expect(dialog.props('fullscreen')).toBe(true)
+
+    dialog.vm.$emit('closed')
+    await nextTick()
+
+    expect(dialog.props('fullscreen')).toBe(false)
+    expect(wrapper.emitted('update:fullscreen')).toEqual([[true], [false]])
+    expect(wrapper.emitted('closed')).toEqual([[]])
   })
 
   it('exposes the underlying ElDialog instance', () => {
