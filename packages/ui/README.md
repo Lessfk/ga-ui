@@ -6,7 +6,7 @@ ga-ui-plus 是一个基于 Vue 3 与 Element Plus 的 ESM 组件库，提供通�
 
 - 使用 Vue 3 `<script setup>` 与 TypeScript 类型构建。
 - 在 Element Plus 之上提供常用默认值、配置式表格列和分页对齐能力。
-- `GaDialog` 不内置按钮，保留 Element Plus 默认交互，并支持属性透传。
+- `GaDialog` 默认提供全屏/还原工具按钮；确认、取消等 footer 业务按钮仍由使用方提供，并支持属性透传。
 - 同时支持配置式 `GaTableColumn` 与手写 `ElTableColumn`。
 - 提供 `GaTablePagination`，用扁平 Props 组合表格和分页。
 - 按基础组件、业务组件和聚合入口导出，便于按需组织依赖。
@@ -358,7 +358,7 @@ function clearSelection() {
 
 ## GaDialog
 
-`GaDialog` 是一个由 `v-model` 控制的轻量 `ElDialog` 包装器，明确提供常用 Props、全部对话框生命周期事件，以及默认、`header`、`footer` 插槽。组件不内置确认或取消按钮，底部操作及其业务行为均由消费方提供。组件不提供命令式弹窗服务。
+`GaDialog` 是一个由 `v-model` 控制的轻量 `ElDialog` 包装器，明确提供常用 Props、全部对话框生命周期事件，以及默认、`header`、`footer` 插槽。默认标题栏在关闭按钮左侧提供全屏/还原工具按钮，但组件不内置确认、取消或 footer 业务按钮；底部操作及其业务行为均由消费方提供。组件不提供命令式弹窗服务。
 
 ### 基础用法
 
@@ -386,9 +386,40 @@ const dialogVisible = ref(false)
 </script>
 ```
 
+### 全屏切换
+
+默认情况下，标题栏会在关闭按钮左侧显示全屏/还原按钮。无需绑定即可使用，组件会在内部维护全屏状态；需要读取或主动控制该状态时，使用 `v-model:fullscreen`。
+
+```vue
+<template>
+  <ElButton type="primary" @click="dialogVisible = true">
+    打开对话框
+  </ElButton>
+
+  <GaDialog
+    v-model="dialogVisible"
+    v-model:fullscreen="dialogFullscreen"
+    title="全屏切换示例"
+  >
+    <p>{{ dialogFullscreen ? '当前为全屏状态' : '当前为普通状态' }}</p>
+  </GaDialog>
+</template>
+
+<script setup lang="ts">
+import { ElButton } from 'element-plus'
+import { ref } from 'vue'
+import { GaDialog } from 'ga-ui-plus/base'
+
+const dialogVisible = ref(false)
+const dialogFullscreen = ref(false)
+</script>
+```
+
+将 `:show-fullscreen="false"` 传给组件可隐藏该工具按钮。对话框关闭后，未绑定 `v-model:fullscreen` 时内部全屏状态会恢复为当前 `fullscreen` Prop 的值；绑定后，外部 `v-model:fullscreen` 的值会作为下次打开时的状态来源。
+
 ### 自定义标题和底部操作
 
-`header` 插槽提供 `close`、`titleId` 和 `titleClass`。使用 `titleId` 与 `titleClass` 可保留 Element Plus 为标题建立的可访问性关联；`footer` 插槽只渲染消费方传入的内容，不会补充默认按钮。
+`header` 插槽提供 `close`、`titleId` 和 `titleClass`。使用 `titleId` 与 `titleClass` 可保留 Element Plus 为标题建立的可访问性关联；`footer` 插槽只渲染消费方传入的内容，不会补充确认、取消等业务按钮。
 
 ```vue
 <template>
@@ -476,6 +507,7 @@ const handleBeforeClose: DialogBeforeCloseFn = (done) => {
 | `width` | `string \| number` | Element Plus 默认行为（`50%`） | 对话框宽度 |
 | `top` | `string` | Element Plus 默认行为（`15vh`） | 对话框上边距 |
 | `fullscreen` | `boolean` | `false` | 是否全屏显示 |
+| `showFullscreen` | `boolean` | `true` | 是否显示右上角全屏/还原按钮 |
 | `appendToBody` | `boolean` | `true` | 是否将对话框挂载到 `body` |
 | `destroyOnClose` | `boolean` | `true` | 关闭时是否销毁插槽内容 |
 | `center` | `boolean` | `false` | 是否让标题和底部区域居中 |
@@ -491,6 +523,7 @@ const handleBeforeClose: DialogBeforeCloseFn = (done) => {
 | 事件 | 参数 | 触发时机 |
 | --- | --- | --- |
 | `update:modelValue` | `(value: boolean)` | 可见状态变化；用于 `v-model` |
+| `update:fullscreen` | `(value: boolean)` | 点击全屏/还原按钮或关闭后恢复内部状态；用于 `v-model:fullscreen` |
 | `open` | 无 | 对话框开始打开 |
 | `opened` | 无 | 对话框打开动画结束 |
 | `close` | 无 | 对话框开始关闭 |
@@ -504,7 +537,7 @@ const handleBeforeClose: DialogBeforeCloseFn = (done) => {
 | --- | --- | --- |
 | `default` | 无 | 对话框主体内容 |
 | `header` | `{ close, titleId, titleClass }` | 自定义标题；可调用 `close()` 并复用标题的可访问性属性 |
-| `footer` | 无 | 自定义底部内容；组件不提供默认按钮 |
+| `footer` | 无 | 自定义底部内容；组件不提供默认确认、取消等 footer 业务按钮 |
 
 ### 访问底层对话框实例
 
@@ -936,7 +969,7 @@ void getStatusText
 
 ## 属性透传与当前限制
 
-- `GaDialog` 显式转发 `v-model` 更新与对话框生命周期事件，并将其他 `$attrs` 绑定到内部 `ElDialog`；组件不内置 `footer` 内容或确认、取消按钮，`beforeClose` 的异常处理与 `done` 回调调用由消费方负责，直接将 `v-model` 状态改为 `false` 会绕过 `beforeClose`。
+- `GaDialog` 显式转发 `v-model`、全屏状态更新与对话框生命周期事件，并将其他 `$attrs` 绑定到内部 `ElDialog`；默认标题栏提供全屏/还原工具按钮，但组件不内置 `footer` 内容或确认、取消等业务按钮。`beforeClose` 的异常处理与 `done` 回调调用由消费方负责，直接将 `v-model` 状态改为 `false` 会绕过 `beforeClose`。
 - `GaTable` 使用 `inheritAttrs: false`，并将普通 `$attrs` 直接绑定到内部 `ElTable`；未声明的 Element Plus 表格事件也随监听器一起透传。
 - `GaPagination` 使用相同策略，将普通 `$attrs` 绑定到内部 `ElPagination`。组件当前不转发分页插槽。
 - `GaTablePagination` 的普通 `$attrs` 绑定在根 `<div>`，包括 `class`、`style`、`id` 和普通监听器；它们不会自动分发给内部表格或分页。组件只转发明确声明的四个分页事件，不会透传 `selection-change` 等表格事件；选择列只展示选择 UI。需要读取选择结果时，请使用 `GaTable` 与 `GaPagination` 组合。

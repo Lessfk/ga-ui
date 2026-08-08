@@ -74,11 +74,12 @@
       <GaDialog
         ref="dialogInstance"
         v-model="dialogVisible"
+        v-model:fullscreen="dialogFullscreen"
         width="520px"
         destroy-on-close
         modal-class="ga-dialog-demo-modal"
         :before-close="handleDialogBeforeClose"
-        :title="'通用弹窗示例'"
+        title="通用弹窗示例"
       >
         <!-- <template #header="{ close, titleId, titleClass }">
           <div class="dialog-header">
@@ -98,9 +99,8 @@
         </template> -->
 
         <p>
-          GaDialog 组件不内置任何按钮，footer 插槽中的操作按钮完全由使用方提供。取消按钮通过
-          handleClose() 触发 beforeClose 确认；确认按钮代表业务操作已完成，因此刻意直接更新
-          v-model。
+          GaDialog 默认在关闭按钮左侧提供全屏/还原按钮，并通过
+          v-model:fullscreen 同步状态。组件不内置 footer 业务按钮，底部操作仍由使用方提供。
         </p>
 
         <p>
@@ -162,6 +162,7 @@ interface UserRow {
 const currentPage = ref(1)
 const pageSize = ref(10)
 const dialogVisible = ref(false)
+const dialogFullscreen = ref(false)
 const dialogInstance = ref<GaDialogExpose>()
 
 const columns: GaTableColumn<UserRow>[] = [
