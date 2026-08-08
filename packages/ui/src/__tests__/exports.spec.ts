@@ -97,6 +97,18 @@ void legacyPaginationProps
 void legacyHeight
 void legacyMaxHeight
 
+const fullscreenDialogProps: GaDialogProps = {
+  modelValue: true,
+  showFullscreen: true,
+}
+
+function checkDialogFullscreenEmit(emit: GaDialogEmits) {
+  emit('update:fullscreen', true)
+}
+
+void fullscreenDialogProps
+void checkDialogFullscreenEmit
+
 describe('library exports', () => {
   it('exports only base components from the base entry', async () => {
     const base = await import('../base')

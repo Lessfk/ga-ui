@@ -209,6 +209,7 @@ describe('GaDialog', () => {
     expect(wrapper.find('.dialog-content').text()).toBe('Profile fields')
     expect(wrapper.find('.custom-header').text()).toBe(titleId)
     expect(wrapper.find('.custom-footer').text()).toBe('Footer content')
+    expect(wrapper.find('button.ga-dialog__fullscreenbtn').exists()).toBe(true)
     expect(receivedScopes[0]).toEqual({
       close: handleClose,
       titleId,
@@ -216,20 +217,31 @@ describe('GaDialog', () => {
     })
   })
 
-  it('preserves the native title fallback and adds no footer or buttons by default', () => {
+  it('renders an accessible fullscreen control with the default title', () => {
     const wrapper = mountDialog({
       props: {
         title: 'Native dialog title',
+      },
+      attrs: {
+        'header-aria-level': '3',
       },
       slots: {
         default: () => h('p', { class: 'dialog-content' }, 'Dialog body'),
       },
     })
 
-    expect(wrapper.find('.native-title').text()).toBe('Native dialog title')
+    const title = wrapper.find('#el-dialog-title')
+    const fullscreenButton = wrapper.find('button.ga-dialog__fullscreenbtn')
+
+    expect(title.text()).toBe('Native dialog title')
+    expect(title.classes()).toContain(titleClass)
+    expect(title.attributes('role')).toBe('heading')
+    expect(title.attributes('aria-level')).toBe('3')
+    expect(fullscreenButton.attributes('type')).toBe('button')
+    expect(fullscreenButton.attributes('title')).toBe('全屏')
+    expect(fullscreenButton.attributes('aria-label')).toBe('全屏')
     expect(wrapper.find('.dialog-content').text()).toBe('Dialog body')
     expect(wrapper.find('.el-dialog__footer').exists()).toBe(false)
-    expect(wrapper.find('button').exists()).toBe(false)
   })
 
   it('exposes the underlying ElDialog instance', () => {

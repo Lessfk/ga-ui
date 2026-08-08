@@ -25,8 +25,23 @@
     @open-auto-focus="emit('open-auto-focus')"
     @close-auto-focus="emit('close-auto-focus')"
   >
-    <template v-if="slots.header" #header="scope">
-      <slot name="header" v-bind="scope" />
+    <template #header="scope">
+      <slot v-if="slots.header" name="header" v-bind="scope" />
+      <span
+        v-else
+        :id="scope.titleId"
+        :class="scope.titleClass"
+        role="heading"
+        :aria-level="headerAriaLevel"
+      >
+        {{ props.title }}
+      </span>
+      <button
+        type="button"
+        class="ga-dialog__fullscreenbtn"
+        title="全屏"
+        aria-label="全屏"
+      ></button>
     </template>
 
     <slot />
@@ -40,7 +55,7 @@
 <script setup lang="ts">
 import { ElDialog } from 'element-plus'
 import type { DialogInstance } from 'element-plus'
-import { ref, useSlots } from 'vue'
+import { computed, ref, useAttrs, useSlots } from 'vue'
 import type { Slots } from 'vue'
 
 import type { GaDialogEmits, GaDialogProps } from '../types/index'
@@ -54,6 +69,7 @@ const props = withDefaults(defineProps<GaDialogProps>(), {
   modelValue: false,
   title: '',
   fullscreen: false,
+  showFullscreen: true,
   appendToBody: true,
   destroyOnClose: true,
   center: false,
@@ -62,6 +78,14 @@ const props = withDefaults(defineProps<GaDialogProps>(), {
   showClose: true,
   closeOnClickModal: false,
   closeOnPressEscape: false,
+})
+
+const attrs = useAttrs()
+const headerAriaLevel = computed(() => {
+  const value = attrs['header-aria-level'] ?? attrs.headerAriaLevel
+  return typeof value === 'string' || typeof value === 'number'
+    ? String(value)
+    : '2'
 })
 
 const emit = defineEmits<GaDialogEmits>()

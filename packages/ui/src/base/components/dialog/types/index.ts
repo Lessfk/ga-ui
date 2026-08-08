@@ -16,10 +16,13 @@ export type GaDialogProps = Pick<
   | 'closeOnClickModal'
   | 'closeOnPressEscape'
   | 'beforeClose'
->
+> & {
+  showFullscreen?: boolean
+}
 
 export interface GaDialogEmits {
   (event: 'update:modelValue', value: boolean): void
+  (event: 'update:fullscreen', value: boolean): void
   (
     event:
       | 'open'
