@@ -275,6 +275,15 @@ describe('GaDialog', () => {
     )
   })
 
+  it('scopes close control styles to the direct dialog header', () => {
+    expect(dialogStyleSource).toContain(
+      '> .el-dialog__header > .el-dialog__headerbtn > .el-dialog__close',
+    )
+    expect(dialogStyleSource).toContain(
+      '> .el-dialog__header > .el-dialog__headerbtn:focus-visible > .el-dialog__close',
+    )
+  })
+
   it('toggles fullscreen and emits update:fullscreen', async () => {
     const wrapper = mountDialog()
     const fullscreenButton = wrapper.find('button.ga-dialog__fullscreenbtn')
