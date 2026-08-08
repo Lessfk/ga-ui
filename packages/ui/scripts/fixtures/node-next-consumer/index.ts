@@ -39,10 +39,12 @@ const rootDialogProps: GaDialogProps = {
   modelValue: false,
   title: 'NodeNext Dialog',
   width: 480,
+  showFullscreen: true,
 }
 const baseDialogProps: BaseDialogProps = {
   closeOnClickModal: true,
   closeOnPressEscape: true,
+  showFullscreen: false,
 }
 const rootDialogHeaderScope: GaDialogHeaderSlotProps = {
   close: () => undefined,
@@ -57,6 +59,7 @@ const baseDialogHeaderScope: BaseDialogHeaderSlotProps = {
 
 function checkRootDialogEmits(emit: GaDialogEmits) {
   emit('update:modelValue', false)
+  emit('update:fullscreen', true)
   emit('open')
   emit('opened')
   emit('close')
@@ -67,6 +70,7 @@ function checkRootDialogEmits(emit: GaDialogEmits) {
 
 function checkBaseDialogEmits(emit: BaseDialogEmits) {
   emit('update:modelValue', false)
+  emit('update:fullscreen', true)
   emit('open')
   emit('opened')
   emit('close')
