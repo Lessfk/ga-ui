@@ -47,7 +47,7 @@
           >
             <svg
               v-if="!currentFullscreen"
-              class="ga-dialog__header-icon ga-dialog__fullscreen-icon"
+              class="ga-dialog__fullscreen-icon ga-dialog__fullscreen-icon--expand"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
@@ -67,7 +67,7 @@
 
             <svg
               v-else
-              class="ga-dialog__header-icon ga-dialog__fullscreen-icon"
+              class="ga-dialog__fullscreen-icon ga-dialog__fullscreen-icon--restore"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
@@ -91,10 +91,10 @@
             class="ga-dialog__closebtn"
             title="关闭"
             aria-label="关闭"
-            @click="handleClosed"
+            @click="toggleFullscreen"
           >
             <svg
-              class="ga-dialog__header-icon ga-dialog__close-icon"
+              class="ga-dialog__fullscreen-icon ga-dialog__fullscreen-icon--restore"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
               height="24"
@@ -109,10 +109,24 @@
               <path d="M18 6l-12 12" />
               <path d="M6 6l12 12" />
             </svg>
+            <!-- <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="ga-dialog__fullscreen-icon ga-dialog__fullscreen-icon--restore"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path
+                d="M6.707 5.293l5.293 5.292l5.293 -5.292a1 1 0 0 1 1.414 1.414l-5.292 5.293l5.292 5.293a1 1 0 0 1 -1.414 1.414l-5.293 -5.292l-5.293 5.292a1 1 0 1 1 -1.414 -1.414l5.292 -5.293l-5.292 -5.293a1 1 0 0 1 1.414 -1.414"
+              />
+            </svg> -->
           </button>
         </div>
       </div>
     </template>
+
     <slot />
 
     <template v-if="slots.footer" #footer>
@@ -120,22 +134,23 @@
     </template>
   </ElDialog>
 </template>
-<script setup lang="ts">
-import { ElDialog } from 'element-plus'
-import type { DialogInstance } from 'element-plus'
-import { computed, ref, useAttrs, useSlots, watch } from 'vue'
-import type { Slots } from 'vue'
 
-import type { GaDialogEmits, GaDialogProps } from '../types/index'
+<script setup lang="ts">
+import { ElDialog } from "element-plus";
+import type { DialogInstance } from "element-plus";
+import { computed, ref, useAttrs, useSlots, watch } from "vue";
+import type { Slots } from "vue";
+
+// import type { GaDialogEmits, GaDialogProps } from '../types/index'
 
 defineOptions({
-  name: 'GaDialog',
+  name: "GaDialog",
   inheritAttrs: false,
-})
+});
 
 const props = withDefaults(defineProps<GaDialogProps>(), {
   modelValue: false,
-  title: '',
+  title: "",
   fullscreen: false,
   showFullscreen: true,
   appendToBody: true,
@@ -146,53 +161,52 @@ const props = withDefaults(defineProps<GaDialogProps>(), {
   showClose: true,
   closeOnClickModal: false,
   closeOnPressEscape: false,
-})
+});
 
-const attrs = useAttrs()
+const attrs = useAttrs();
 const headerAriaLevel = computed(() => {
-  const value = attrs['header-aria-level'] ?? attrs.headerAriaLevel
-  return typeof value === 'string' || typeof value === 'number'
+  const value = attrs["header-aria-level"] ?? attrs.headerAriaLevel;
+  return typeof value === "string" || typeof value === "number"
     ? String(value)
-    : '2'
-})
+    : "2";
+});
 
-const emit = defineEmits<GaDialogEmits>()
-const slots: Slots = useSlots()
-const dialogRef = ref<DialogInstance>()
-const currentFullscreen = ref(props.fullscreen)
+const emit = defineEmits<GaDialogEmits>();
+const slots: Slots = useSlots();
+const dialogRef = ref<DialogInstance>();
+const currentFullscreen = ref(props.fullscreen);
 const fullscreenLabel = computed(() =>
-  currentFullscreen.value ? '退出全屏' : '全屏',
-)
+  currentFullscreen.value ? "退出全屏" : "全屏",
+);
 
 watch(
   () => props.fullscreen,
   (value) => {
-    currentFullscreen.value = value
+    currentFullscreen.value = value;
   },
-)
+);
 
 const setFullscreen = (value: boolean) => {
-  if (currentFullscreen.value === value) return
+  if (currentFullscreen.value === value) return;
 
-  currentFullscreen.value = value
-  emit('update:fullscreen', value)
-}
+  currentFullscreen.value = value;
+  emit("update:fullscreen", value);
+};
 
 const toggleFullscreen = () => {
-  setFullscreen(!currentFullscreen.value)
-}
+  setFullscreen(!currentFullscreen.value);
+};
 
 const handleClosed = () => {
-  emit('update:modelValue', false)
-  setFullscreen(props.fullscreen)
-  emit('closed')
-}
+  setFullscreen(props.fullscreen);
+  emit("closed");
+};
 
 defineExpose({
   dialogRef,
-})
+});
 </script>
 
 <style lang="scss">
-@use '../style/index.scss';
+@use "../style/index.scss";
 </style>

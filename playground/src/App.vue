@@ -12,48 +12,28 @@
         position="left"
       >
         <template #column-prepend>
-          <ElTableColumn
-            type="selection"
-            width="48"
-          />
+          <ElTableColumn type="selection" width="48" />
         </template>
 
         <template #empty>
-          <ElEmpty
-            description="暂无用户数据"
-            :image-size="80"
-          >
-            <ElButton
-              type="primary"
-            >
-              重新加载
-            </ElButton>
+          <ElEmpty description="暂无用户数据" :image-size="80">
+            <ElButton type="primary"> 重新加载 </ElButton>
           </ElEmpty>
         </template>
 
         <template #append>
-          <div class="table-append">
-            已加载 {{ rows.length }} 条数据
-          </div>
+          <div class="table-append">已加载 {{ rows.length }} 条数据</div>
         </template>
 
         <template #status="{ row }">
           <ElTag :type="row.status === 'enabled' ? 'success' : 'info'">
-            {{ row.status === 'enabled' ? '启用' : '停用' }}
+            {{ row.status === "enabled" ? "启用" : "停用" }}
           </ElTag>
         </template>
 
-        <ElTableColumn
-          label="操作"
-          width="100"
-          fixed="right"
-        >
+        <ElTableColumn label="操作" width="100" fixed="right">
           <template #default="{ row }">
-            <ElButton
-              link
-              type="primary"
-              @click="viewUser(row)"
-            >
+            <ElButton link type="primary" @click="viewUser(row)">
               查看
             </ElButton>
           </template>
@@ -64,10 +44,7 @@
     <section class="dialog-area">
       <h2>GaDialog 通用弹窗示例</h2>
 
-      <ElButton
-        type="primary"
-        @click="dialogVisible = true"
-      >
+      <ElButton type="primary" @click="dialogVisible = true">
         打开通用弹窗
       </ElButton>
 
@@ -100,41 +77,33 @@
 
         <p>
           GaDialog 默认在关闭按钮左侧提供全屏/还原按钮，并通过
-          v-model:fullscreen 同步状态。组件不内置 footer 业务按钮，底部操作仍由使用方提供。
+          v-model:fullscreen 同步状态。组件不内置 footer
+          业务按钮，底部操作仍由使用方提供。
         </p>
 
         <p>
-          modal-class 会通过 $attrs 透传给 Element Plus Dialog，本示例用它标记遮罩层。
+          modal-class 会通过 $attrs 透传给 Element Plus
+          Dialog，本示例用它标记遮罩层。
         </p>
 
         <template #footer>
-           <ElButton
-              link
-              @click="handleDialogCancel"
-            >
-              关闭
-            </ElButton>
-          <ElButton @click="handleDialogCancel">
-            取消
-          </ElButton>
-          <ElButton
-            type="primary"
-            @click="handleDialogConfirm"
-          >
+          <ElButton link @click="handleDialogCancel"> 关闭 </ElButton>
+          <ElButton @click="handleDialogCancel"> 取消 </ElButton>
+          <ElButton type="primary" @click="handleDialogConfirm">
             确认
           </ElButton>
         </template>
       </GaDialog>
     </section>
 
-     <h1>GaTable 配置列示例</h1>
+    <h1>GaTable 配置列示例</h1>
 
-     <GaPagination position="center"></GaPagination>
+    <GaPagination position="center"></GaPagination>
   </main>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from "vue";
 
 import {
   type DialogBeforeCloseFn,
@@ -142,88 +111,88 @@ import {
   ElTableColumn,
   ElTag,
   ElEmpty,
-} from 'element-plus'
+} from "element-plus";
 
 import {
   GaDialog,
   GaPagination,
   type GaDialogExpose,
   type GaTableColumn,
-} from 'ga-ui-plus/base'
-import { GaTablePagination } from 'ga-ui-plus/business'
+} from "ga-ui-plus/base";
+import { GaTablePagination } from "ga-ui-plus/business";
 
 interface UserRow {
-  id: number
-  name: string
-  address: string
-  status: 'enabled' | 'disabled'
+  id: number;
+  name: string;
+  address: string;
+  status: "enabled" | "disabled";
 }
 
-const currentPage = ref(1)
-const pageSize = ref(10)
-const dialogVisible = ref(false)
-const dialogFullscreen = ref(false)
-const dialogInstance = ref<GaDialogExpose>()
+const currentPage = ref(1);
+const pageSize = ref(10);
+const dialogVisible = ref(false);
+const dialogFullscreen = ref(false);
+const dialogInstance = ref<GaDialogExpose>();
 
 const columns: GaTableColumn<UserRow>[] = [
   {
-    key: 'name',
-    prop: 'name',
-    label: '姓名',
+    key: "name",
+    prop: "name",
+    label: "姓名",
     minWidth: 140,
   },
   {
-    key: 'address',
-    prop: 'address',
-    label: '地址',
+    key: "address",
+    prop: "address",
+    label: "地址",
     minWidth: 260,
     showOverflowTooltip: true,
   },
   {
-    key: 'status',
-    prop: 'status',
-    label: '状态',
+    key: "status",
+    prop: "status",
+    label: "状态",
     width: 100,
-    align: 'center',
-    slot: 'status',
+    align: "center",
+    slot: "status",
   },
-]
+];
 
 const rows: UserRow[] = [
   {
     id: 1,
-    name: '张三',
-    address: '上海市浦东新区世纪大道 100 号',
-    status: 'enabled',
+    name: "张三",
+    address: "上海市浦东新区世纪大道 100 号",
+    status: "enabled",
   },
   {
     id: 2,
-    name: '李四',
-    address: '杭州市西湖区文三路 88 号',
-    status: 'disabled',
+    name: "李四",
+    address: "杭州市西湖区文三路 88 号",
+    status: "disabled",
   },
   {
     id: 2,
-    name: '李四',
-    address: '杭州市西湖区文三路 88 号',
-    status: 'disabled',
+    name: "李四",
+    address: "杭州市西湖区文三路 88 号",
+    status: "disabled",
   },
-]
+];
 
 function viewUser(row: Record<string, unknown>) {
-  console.info('查看用户', row)
+  console.info("查看用户", row);
 }
 
 const handleDialogBeforeClose: DialogBeforeCloseFn = (done) => {
-  if (window.confirm('确定关闭通用弹窗吗？')) done()
-}
+  if (window.confirm("确定关闭通用弹窗吗？")) done();
+};
 
 function handleDialogCancel() {
-  dialogInstance.value?.dialogRef?.handleClose()
+  dialogInstance.value?.dialogRef?.handleClose();
 }
 
 function handleDialogConfirm() {
-  dialogVisible.value = false
+  dialogVisible.value = false;
 }
 </script>
 
