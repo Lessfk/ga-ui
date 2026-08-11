@@ -34,6 +34,7 @@ for (const selector of [
   /\.el-table\.ga-table/,
   /\.el-pagination\.ga-pagination/,
   /\.ga-table-pagination/,
+  /\.el-aside\.ga-aside-menu/,
 ]) {
   assert.match(css, selector)
 }
@@ -138,8 +139,9 @@ const [base, business, root] = await Promise.all([
 ])
 
 assert.deepEqual(Object.keys(base).sort(), ['GaDialog', 'GaPagination', 'GaTable'])
-assert.deepEqual(Object.keys(business).sort(), ['GaTablePagination'])
+assert.deepEqual(Object.keys(business).sort(), ['GaAsideMenu', 'GaTablePagination'])
 assert.deepEqual(Object.keys(root).sort(), [
+  'GaAsideMenu',
   'GaDialog',
   'GaPagination',
   'GaTable',

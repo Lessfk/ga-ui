@@ -1,138 +1,83 @@
 <template>
-  <ElDialog
-    ref="dialogRef"
-    v-bind="$attrs"
-    class="ga-dialog"
-    :model-value="props.modelValue"
-    :title="props.title"
-    :width="props.width"
-    :top="props.top"
-    :fullscreen="currentFullscreen"
-    :append-to-body="props.appendToBody"
-    :destroy-on-close="props.destroyOnClose"
-    :center="props.center"
-    :align-center="props.alignCenter"
-    :draggable="props.draggable"
-    :show-close="false"
-    :close-on-click-modal="props.closeOnClickModal"
-    :close-on-press-escape="props.closeOnPressEscape"
-    :before-close="props.beforeClose"
-    @update:model-value="emit('update:modelValue', $event)"
-    @open="emit('open')"
-    @opened="emit('opened')"
-    @close="emit('close')"
-    @closed="handleClosed"
-    @open-auto-focus="emit('open-auto-focus')"
-    @close-auto-focus="emit('close-auto-focus')"
-  >
-    <template #header="scope">
-      <slot v-if="slots.header" name="header" v-bind="scope" />
-      <div v-else class="ga-dialog__header">
-        <span
-          :id="scope.titleId"
-          :class="scope.titleClass"
-          role="heading"
-          :aria-level="headerAriaLevel"
-        >
-          {{ props.title }}
-        </span>
-        <div class="ga-dialog__header-btns">
-          <button
-            v-if="props.showFullscreen"
-            type="button"
-            class="ga-dialog__fullscreenbtn"
-            :title="fullscreenLabel"
-            :aria-label="fullscreenLabel"
-            @click="toggleFullscreen"
-          >
-            <svg
-              v-if="!currentFullscreen"
-              class="ga-dialog__fullscreen-icon ga-dialog__fullscreen-icon--expand"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
-              <path d="M4 16v2a2 2 0 0 0 2 2h2" />
-              <path d="M16 4h2a2 2 0 0 1 2 2v2" />
-              <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
-            </svg>
+  <ElAside v-bind="$attrs" :width="currentWidth" class="ga-aside-menu">
+    <div v-if="slots.header" class="ga-aside-menu__header">
+      <slot name="header" />
+    </div>
 
-            <svg
-              v-else
-              class="ga-dialog__fullscreen-icon ga-dialog__fullscreen-icon--restore"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M15 19v-2a2 2 0 0 1 2 -2h2" />
-              <path d="M15 5v2a2 2 0 0 0 2 2h2" />
-              <path d="M5 15h2a2 2 0 0 1 2 2v2" />
-              <path d="M5 9h2a2 2 0 0 0 2 -2v-2" />
-            </svg>
-          </button>
-          <button
-            v-if="props.showClose"
-            type="button"
-            class="ga-dialog__closebtn"
-            title="关闭"
-            aria-label="关闭"
-            @click="toggleFullscreen"
-          >
-            <svg
-              class="ga-dialog__fullscreen-icon ga-dialog__fullscreen-icon--restore"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M18 6l-12 12" />
-              <path d="M6 6l12 12" />
-            </svg>
-            <!-- <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="ga-dialog__fullscreen-icon ga-dialog__fullscreen-icon--restore"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path
-                d="M6.707 5.293l5.293 5.292l5.293 -5.292a1 1 0 0 1 1.414 1.414l-5.292 5.293l5.292 5.293a1 1 0 0 1 -1.414 1.414l-5.293 -5.292l-5.293 5.292a1 1 0 1 1 -1.414 -1.414l5.292 -5.293l-5.292 -5.293a1 1 0 0 1 1.414 -1.414"
-              />
-            </svg> -->
-          </button>
-        </div>
-      </div>
-    </template>
+    <ElScrollbar class="ga-aside-menu__body">
+      <ElMenu
+        ref="menuRef"
+        v-bind="menuProps"
+        class="ga-aside-menu__menu"
+        mode="vertical"
+        :collapse="currentCollapse"
+        @select="handleSelect"
+        @open="handleOpen"
+        @close="handleClose"
+      >
+        <slot />
+      </ElMenu>
+    </ElScrollbar>
 
-    <slot />
-
-    <template v-if="slots.footer" #footer>
+    <div v-if="slots.footer" class="ga-aside-menu__footer">
       <slot name="footer" />
-    </template>
-  </ElDialog>
+    </div>
+
+    <div class="ga-aside-menu__trigger">
+      <slot name="trigger" :collapse="currentCollapse" :toggle="toggleCollapse">
+        <button
+          type="button"
+          class="ga-aside-menu__trigger-btn"
+          :aria-label="currentCollapse ? '展开菜单' : '折叠菜单'"
+          @click="toggleCollapse"
+        >
+          <svg
+            v-if="currentCollapse"
+            class="ga-aside-menu__trigger-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path
+              d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12"
+            />
+            <path d="M15 4v16" />
+            <path d="M9 10l2 2l-2 2" />
+          </svg>
+
+          <svg
+            v-else
+            class="ga-aside-menu__trigger-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path
+              d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12"
+            />
+            <path d="M9 4v16" />
+            <path d="M15 10l-2 2l2 2" />
+          </svg>
+
+          <span v-if="!currentCollapse">折叠菜单</span>
+        </button>
+      </slot>
+    </div>
+  </ElAside>
 </template>
 
 <script setup lang="ts">

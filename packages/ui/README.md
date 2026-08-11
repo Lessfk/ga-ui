@@ -1,6 +1,6 @@
 # ga-ui-plus
 
-ga-ui-plus 是一个基于 Vue 3 与 Element Plus 的 ESM 组件库，提供通用对话框、表格、分页以及表格分页组合组件。本文档面向通过 npm 包消费组件的项目，是当前公开 API 的使用指南。
+ga-ui-plus 是一个基于 Vue 3 与 Element Plus 的 ESM 组件库，提供通用对话框、表格、分页、侧边栏菜单以及表格分页组合组件。本文档面向通过 npm 包消费组件的项目，是当前公开 API 的使用指南。
 
 ## 特性
 
@@ -9,6 +9,7 @@ ga-ui-plus 是一个基于 Vue 3 与 Element Plus 的 ESM 组件库，提供通�
 - `GaDialog` 默认提供全屏/还原工具按钮；确认、取消等 footer 业务按钮仍由使用方提供，并支持属性透传。
 - 同时支持配置式 `GaTableColumn` 与手写 `ElTableColumn`。
 - 提供 `GaTablePagination`，用扁平 Props 组合表格和分页。
+- 提供 `GaAsideMenu`，由 `ElAside`、`ElScrollbar`、`ElMenu` 组合的侧边栏菜单，支持头部/底部插槽、折叠与自定义宽度。
 - 按基础组件、业务组件和聚合入口导出，便于按需组织依赖。
 
 ## 兼容性
@@ -43,7 +44,7 @@ import 'ga-ui-plus/style.css'
 | 导出路径 | 运行时导出 | 类型导出 |
 | --- | --- | --- |
 | `ga-ui-plus/base` | `GaDialog`、`GaTable`、`GaPagination` | 对应的对话框、表格、列、实例与分页类型 |
-| `ga-ui-plus/business` | `GaTablePagination` | `GaTablePaginationProps` |
+| `ga-ui-plus/business` | `GaTablePagination`、`GaAsideMenu` | 对应的表格分页与侧边栏菜单类型 |
 | `ga-ui-plus` | 上述四个组件 | 上述全部公开类型；这是聚合入口 |
 | `ga-ui-plus/style.css` | 样式文件 | 不适用 |
 
@@ -882,6 +883,198 @@ function viewUser(row: UserRow) {
 
 组合组件会把收到的所有插槽及其作用域转发给内部 `GaTable`，因此可使用 `GaTable` 的 `column-prepend`、默认插槽、配置列命名插槽、`empty` 和 `append`。这些插槽不会转发给分页组件。
 
+## GaAsideMenu
+
+`GaAsideMenu` 由 Element Plus 的 `ElAside`、`ElScrollbar` 与 `ElMenu` 组合而成，是一个开箱即用的侧边栏菜单。整体结构为：`ElAside`（宽度受控）内自上而下依次排布可选的 `header` 插槽区、包裹菜单的 `ElScrollbar`、可选的 `footer` 插槽区。菜单固定 `mode="vertical"`，菜单内容一律通过默认插槽提供，插槽中直接使用 Element Plus 原生 `ElSubMenu`、`ElMenuItem`、`ElMenuItemGroup`，行为与手写 `ElMenu` 完全一致。
+
+### 基础用法
+
+`collapse` 驱动菜单折叠与侧边栏宽度：折叠时 `ElAside` 宽度切换为 `auto`，由 Element Plus 折叠菜单自身宽度（64px）决定；`width` 只控制展开时的宽度。父容器需要提供明确高度，内部 `ElScrollbar` 才能正确滚动。折叠时菜单项的文字应放在 `#title` 插槽（图标放默认插槽），文字会收进 tooltip；分组标题在折叠时自动隐藏，分组内菜单项按折叠样式渲染。
+
+折叠状态由组件内部维护，支持 `v-model:collapse` 双向同步。折叠/展开切换逻辑写在组件内部：执行后依次触发 `update:collapse` 与 `toggle` 事件，外部传入的处理方法（`@toggle`）即在此时被调用。`header` 插槽的作用域提供 `collapse`，折叠时可只渲染图标。底部 `trigger` 插槽未提供时使用内置切换按钮，提供后完全由消费方接管，其作用域提供 `collapse` 与 `toggle` 方法。
+
+```vue
+<template>
+  <el-container class="layout">
+    <GaAsideMenu
+      v-model:collapse="collapsed"
+      width="240px"
+      default-active="1-1"
+      unique-opened
+      @toggle="handleToggle"
+      @select="handleSelect"
+    >
+      <template #header="{ collapse }">
+        <div class="layout-logo">
+          <ElIcon><Grid /></ElIcon>
+          <span v-if="!collapse">Ga Admin</span>
+        </div>
+      </template>
+
+      <ElSubMenu index="1">
+        <template #title>
+          <ElIcon><Setting /></ElIcon>
+          <span>系统管理</span>
+        </template>
+        <ElMenuItem index="1-1">
+          <ElIcon><User /></ElIcon>
+          <template #title>用户管理</template>
+        </ElMenuItem>
+        <ElMenuItem index="1-2">
+          <template #title>权限管理</template>
+        </ElMenuItem>
+      </ElSubMenu>
+
+      <ElMenuItemGroup title="看板">
+        <ElMenuItem index="2-1">
+          <template #title>数据概览</template>
+        </ElMenuItem>
+      </ElMenuItemGroup>
+    </GaAsideMenu>
+
+    <el-main>内容区</el-main>
+  </el-container>
+</template>
+
+<script setup lang="ts">
+import { Grid, Setting, User } from '@element-plus/icons-vue'
+import { ElIcon, ElMenuItem, ElMenuItemGroup, ElSubMenu } from 'element-plus'
+import { ref } from 'vue'
+import { GaAsideMenu } from 'ga-ui-plus/business'
+
+const collapsed = ref(false)
+
+function handleToggle(collapse: boolean) {
+  console.info('折叠状态切换为', collapse)
+}
+
+function handleSelect(index: string, indexPath: string[]) {
+  console.info('选中菜单', index, indexPath)
+}
+</script>
+
+<style scoped>
+.layout {
+  height: 100vh;
+}
+
+.layout-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 56px;
+  padding-inline: 16px;
+  font-weight: 600;
+}
+</style>
+```
+
+未提供 `trigger` 插槽时使用内置切换按钮。需要完全自定义切换区域时，通过作用域拿到 `collapse` 与 `toggle`：
+
+```vue
+<template>
+  <GaAsideMenu v-model:collapse="collapsed" default-active="1-1">
+    <template #trigger="{ collapse, toggle }">
+      <ElButton link @click="toggle">
+        {{ collapse ? '展开菜单' : '折叠菜单' }}
+      </ElButton>
+    </template>
+
+    <ElMenuItem index="1-1">
+      <template #title>用户管理</template>
+    </ElMenuItem>
+  </GaAsideMenu>
+</template>
+
+<script setup lang="ts">
+import { ElButton, ElMenuItem } from 'element-plus'
+import { ref } from 'vue'
+import { GaAsideMenu } from 'ga-ui-plus/business'
+
+const collapsed = ref(false)
+</script>
+```
+
+### GaAsideMenu Props
+
+`GaAsideMenuProps` 是 `Omit<MenuPropsPublic, 'mode' | 'collapse'> & { collapse?: boolean; width?: string }`：`mode` 固定为 `vertical`，`collapse` 由组件接管用于宽度联动；其余属性为除 `mode`/`collapse` 外的全部 Element Plus Menu Props。
+
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `collapse` | `boolean` | `false` | 是否折叠，支持 `v-model:collapse`；折叠时 `ElAside` 宽度切换为 `auto`，由菜单自身折叠宽度（64px）决定 |
+| `width` | `string` | `'240px'` | 展开时侧边栏宽度 |
+| `defaultActive` | `string` | `''` | 默认激活菜单的 index |
+| `defaultOpeneds` | `string[]` | `[]` | 默认展开的 SubMenu index 集合 |
+| `uniqueOpened` | `boolean` | `false` | 是否只保持一个子菜单展开 |
+| `router` | `boolean` | `false` | 是否以 index 作为 path 进行路由跳转 |
+| `menuTrigger` | `'hover' \| 'click'` | `'hover'` | 子菜单触发方式 |
+| `backgroundColor` | `string` | `undefined` | 菜单背景色 |
+| `textColor` | `string` | `undefined` | 菜单文字颜色 |
+| `activeTextColor` | `string` | `undefined` | 激活菜单文字颜色 |
+| `collapseTransition` | `boolean` | `true` | 是否开启折叠动画 |
+| `ellipsis` | `boolean` | `true` | 文字溢出时是否省略 |
+| `popperOffset` | `number` | `6` | 弹出层偏移 |
+| `popperEffect` | `PopperEffect` | `'dark'` | 弹出层主题 |
+| `popperClass` | `string` | `undefined` | 弹出层自定义类名 |
+| `popperStyle` | `string \| CSSProperties` | `undefined` | 弹出层自定义样式 |
+| `showTimeout` | `number` | `300` | 子菜单展开延时 |
+| `hideTimeout` | `number` | `300` | 子菜单收起延时 |
+| `closeOnClickOutside` | `boolean` | `false` | 点击外部是否收起弹出菜单 |
+| `ellipsisIcon` | `string \| Component` | Element Plus 默认图标 | 省略图标 |
+| `persistent` | `boolean` | `true` | 菜单收起时是否保留弹出层 DOM |
+
+完整行为以 [Element Plus Menu 文档](https://element-plus.org/zh-CN/component/menu.html) 为准。
+
+### GaAsideMenu Events
+
+| 事件 | 参数 | 触发时机 |
+| --- | --- | --- |
+| `update:collapse` | `(collapse: boolean)` | 折叠状态变化；用于 `v-model:collapse` |
+| `toggle` | `(collapse: boolean)` | 折叠/展开切换动作执行后触发；外部处理方法通过 `@toggle` 传入 |
+| `select` | `(index: string, indexPath: string[], item: MenuItemClicked, routerResult?: Promise<unknown>)` | 菜单项激活；`routerResult` 在 `router` 模式下为路由跳转结果，类型以 `Promise<unknown>` 表达 |
+| `open` | `(index: string, indexPath: string[])` | 子菜单展开 |
+| `close` | `(index: string, indexPath: string[])` | 子菜单收起 |
+
+### GaAsideMenu Slots
+
+| 插槽 | 作用域 | 说明 |
+| --- | --- | --- |
+| `header` | `{ collapse: boolean }` | 侧边栏头部区域，通常放 logo 或产品名；折叠时可按作用域只渲染图标；未提供时不渲染 |
+| `default` | 无 | 菜单内容，直接使用原生 `ElSubMenu`、`ElMenuItem`、`ElMenuItemGroup` |
+| `footer` | 无 | 侧边栏底部区域；未提供时不渲染 |
+| `trigger` | `{ collapse: boolean, toggle: () => void }` | 折叠/展开切换区域；未提供时使用内置切换按钮 |
+
+### 访问底层菜单实例
+
+`GaAsideMenuExpose` 的 `menuRef` 类型为 `MenuInstance | undefined`，可调用 Element Plus 菜单实例的 `open(index)`、`close(index)`、`handleResize()` 与 `updateActiveIndex(index)` 方法；`toggle()` 方法可在组件外触发与内置切换一致的折叠/展开动作（同样触发 `update:collapse` 与 `toggle` 事件）：
+
+```vue
+<template>
+  <ElButton @click="openSystemMenu">展开系统管理</ElButton>
+  <GaAsideMenu ref="asideMenuInstance" default-active="1-1">
+    <ElSubMenu index="1">
+      <template #title>系统管理</template>
+      <ElMenuItem index="1-1">用户管理</ElMenuItem>
+    </ElSubMenu>
+  </GaAsideMenu>
+</template>
+
+<script setup lang="ts">
+import { ElButton, ElMenuItem, ElSubMenu } from 'element-plus'
+import { ref } from 'vue'
+import {
+  GaAsideMenu,
+  type GaAsideMenuExpose,
+} from 'ga-ui-plus/business'
+
+const asideMenuInstance = ref<GaAsideMenuExpose>()
+
+function openSystemMenu() {
+  asideMenuInstance.value?.menuRef?.open('1')
+}
+</script>
+```
+
 ## TypeScript 类型
 
 所有公开类型均可从聚合入口导入，也可从所属的 `base` 或 `business` 入口导入。
@@ -903,6 +1096,9 @@ function viewUser(row: UserRow) {
 | `GaTableColumnFixed` | 固定列类型 |
 | `GaPaginationProps` | `GaPagination` Props |
 | `GaTablePaginationProps<Row>` | 扁平的表格分页组合 Props |
+| `GaAsideMenuProps` | `GaAsideMenu` Props；`Omit<MenuPropsPublic, 'mode' \| 'collapse'>` 加折叠与宽度配置 |
+| `GaAsideMenuEmits` | `GaAsideMenu` 的 `update:collapse`/`toggle` 与 `select`/`open`/`close` 事件签名 |
+| `GaAsideMenuExpose` | `GaAsideMenu` 暴露实例类型，包含 `menuRef` 与 `toggle()` |
 
 ```vue
 <template>
@@ -972,6 +1168,7 @@ void getStatusText
 - `GaDialog` 显式转发 `v-model`、全屏状态更新与对话框生命周期事件，并将其他 `$attrs` 绑定到内部 `ElDialog`；默认标题栏提供全屏/还原工具按钮，但组件不内置 `footer` 内容或确认、取消等业务按钮。`beforeClose` 的异常处理与 `done` 回调调用由消费方负责，直接将 `v-model` 状态改为 `false` 会绕过 `beforeClose`。
 - `GaTable` 使用 `inheritAttrs: false`，并将普通 `$attrs` 直接绑定到内部 `ElTable`；未声明的 Element Plus 表格事件也随监听器一起透传。
 - `GaPagination` 使用相同策略，将普通 `$attrs` 绑定到内部 `ElPagination`。组件当前不转发分页插槽。
+- `GaAsideMenu` 固定菜单 `mode="vertical"`，`collapse` 与 `width` 由组件接管（折叠时 `ElAside` 宽度为 `auto`），其余菜单 Props 透传给内部 `ElMenu`；普通 `$attrs` 绑定在 `ElAside` 根节点上。`select`/`open`/`close` 事件原样转发，其中 `select` 的 `routerResult` 参数类型以 `Promise<unknown>` 表达，不引用 `vue-router` 类型。父容器需要提供明确高度，内部 `ElScrollbar` 才能正确滚动。折叠时分组标题自动隐藏，分组内菜单项按折叠样式渲染（组件样式补齐了 Element Plus 未覆盖的选择器）。
 - `GaTablePagination` 的普通 `$attrs` 绑定在根 `<div>`，包括 `class`、`style`、`id` 和普通监听器；它们不会自动分发给内部表格或分页。组件只转发明确声明的四个分页事件，不会透传 `selection-change` 等表格事件；选择列只展示选择 UI。需要读取选择结果时，请使用 `GaTable` 与 `GaPagination` 组合。
 - `GaTablePagination` 当前不暴露底层 `tableRef`。需要调用 `clearSelection`、`doLayout` 等表格实例方法时，请使用 `GaTable` 与 `GaPagination` 组合。
 - `GaTablePagination` 不接受 `height`、`maxHeight`、`tableProps` 或 `paginationProps`；内部表格高度由组件固定，其他能力通过扁平 Props 和表格插槽提供。

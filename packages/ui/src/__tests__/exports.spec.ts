@@ -4,6 +4,9 @@ import { GaDialog as DialogBarrel } from '../base/components/dialog'
 import { GaPagination as PaginationBarrel } from '../base/components/pagination'
 import { GaTable as TableBarrel } from '../base/components/table'
 import {
+  GaAsideMenu as AsideMenuBarrel,
+} from '../business/components/asideMenu'
+import {
   GaTablePagination as TablePaginationBarrel,
 } from '../business/components/tablePagination'
 import type {
@@ -17,8 +20,12 @@ import type {
 } from '../base'
 // @ts-expect-error GaDialog public types are not exported from the business entry
 import type { GaDialogProps as BusinessGaDialogProps } from '../business'
+import type { GaAsideMenuEmits, GaAsideMenuProps } from '../business'
 import type { GaTablePaginationProps } from '../business'
 import type {
+  GaAsideMenuEmits as RootGaAsideMenuEmits,
+  GaAsideMenuExpose as RootGaAsideMenuExpose,
+  GaAsideMenuProps as RootGaAsideMenuProps,
   GaDialogEmits as RootGaDialogEmits,
   GaDialogExpose as RootGaDialogExpose,
   GaDialogHeaderSlotProps as RootGaDialogHeaderSlotProps,
@@ -48,6 +55,9 @@ type RootTypeContract = [
   RootGaTableColumn,
   RootGaPaginationProps,
   RootGaTablePaginationProps,
+  RootGaAsideMenuProps,
+  RootGaAsideMenuEmits,
+  RootGaAsideMenuExpose,
 ]
 
 type BusinessDialogTypeContract = BusinessGaDialogProps
@@ -97,6 +107,21 @@ void legacyPaginationProps
 void legacyHeight
 void legacyMaxHeight
 
+const asideMenuProps: GaAsideMenuProps = {
+  collapse: false,
+  width: '260px',
+  defaultActive: '1-1',
+  uniqueOpened: true,
+}
+
+function checkAsideMenuToggleEmit(emit: GaAsideMenuEmits) {
+  emit('update:collapse', true)
+  emit('toggle', false)
+}
+
+void asideMenuProps
+void checkAsideMenuToggleEmit
+
 const fullscreenDialogProps: GaDialogProps = {
   modelValue: true,
   showFullscreen: true,
@@ -117,12 +142,14 @@ describe('library exports', () => {
     expect(base.GaTable).toBe(TableBarrel)
     expect(base.GaPagination).toBe(PaginationBarrel)
     expect(base).not.toHaveProperty('GaTablePagination')
+    expect(base).not.toHaveProperty('GaAsideMenu')
   })
 
   it('exports only business components from the business entry', async () => {
     const business = await import('../business')
 
     expect(business.GaTablePagination).toBe(TablePaginationBarrel)
+    expect(business.GaAsideMenu).toBe(AsideMenuBarrel)
     expect(business).not.toHaveProperty('GaDialog')
     expect(business).not.toHaveProperty('GaTable')
     expect(business).not.toHaveProperty('GaPagination')
@@ -135,5 +162,6 @@ describe('library exports', () => {
     expect(library.GaTable).toBe(TableBarrel)
     expect(library.GaPagination).toBe(PaginationBarrel)
     expect(library.GaTablePagination).toBe(TablePaginationBarrel)
+    expect(library.GaAsideMenu).toBe(AsideMenuBarrel)
   })
 })

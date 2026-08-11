@@ -1,8 +1,12 @@
 import {
+  GaAsideMenu,
   GaDialog,
   GaPagination,
   GaTable,
   GaTablePagination,
+  type GaAsideMenuEmits,
+  type GaAsideMenuExpose,
+  type GaAsideMenuProps,
   type GaDialogEmits,
   type GaDialogExpose,
   type GaDialogHeaderSlotProps,
@@ -20,9 +24,13 @@ import {
   type GaDialogProps as BaseDialogProps,
   type GaTableColumn as BaseTableColumn,
 } from 'ga-ui-plus/base'
+// @ts-expect-error GaAsideMenu public types are not exported from the base entry
+import type { GaAsideMenuProps as BaseAsideMenuProps } from 'ga-ui-plus/base'
 // @ts-expect-error GaDialog public types are not exported from the business entry
 import type { GaDialogProps as BusinessDialogProps } from 'ga-ui-plus/business'
 import {
+  GaAsideMenu as BusinessAsideMenu,
+  type GaAsideMenuProps as BusinessAsideMenuProps,
   GaTablePagination as BusinessTablePagination,
   type GaTablePaginationProps as BusinessTablePaginationProps,
 } from 'ga-ui-plus/business'
@@ -89,9 +97,41 @@ function checkBaseDialogExpose(expose: BaseDialogExpose) {
   expose.dialogRef?.resetPosition()
 }
 
+const rootAsideMenuProps: GaAsideMenuProps = {
+  collapse: false,
+  width: '260px',
+  defaultActive: '1-1',
+  uniqueOpened: true,
+}
+const businessAsideMenuProps: BusinessAsideMenuProps = {
+  collapse: true,
+}
+
+function checkRootAsideMenuEmits(emit: GaAsideMenuEmits) {
+  emit('update:collapse', true)
+  emit('toggle', false)
+  emit('select', '1-1', ['1', '1-1'], {
+    index: '1-1',
+    indexPath: ['1', '1-1'],
+  })
+  emit('open', '1', ['1'])
+  emit('close', '1', ['1'])
+}
+
+function checkRootAsideMenuExpose(expose: GaAsideMenuExpose) {
+  expose.menuRef?.open('1')
+  expose.menuRef?.close('1')
+  expose.menuRef?.handleResize()
+  expose.menuRef?.updateActiveIndex('1-1')
+  expose.toggle()
+}
+
 type BusinessDialogTypeContract = BusinessDialogProps
+type BaseAsideMenuTypeContract = BaseAsideMenuProps
 
 const businessDialogTypeContract: BusinessDialogTypeContract | undefined =
+  undefined
+const baseAsideMenuTypeContract: BaseAsideMenuTypeContract | undefined =
   undefined
 
 void [
@@ -99,10 +139,12 @@ void [
   GaPagination,
   GaTable,
   GaTablePagination,
+  GaAsideMenu,
   BaseDialog,
   BasePagination,
   BaseTable,
   BusinessTablePagination,
+  BusinessAsideMenu,
   rootColumn,
   baseColumn,
   rootProps,
@@ -111,9 +153,14 @@ void [
   baseDialogProps,
   rootDialogHeaderScope,
   baseDialogHeaderScope,
+  rootAsideMenuProps,
+  businessAsideMenuProps,
   checkRootDialogEmits,
   checkBaseDialogEmits,
   checkRootDialogExpose,
   checkBaseDialogExpose,
+  checkRootAsideMenuEmits,
+  checkRootAsideMenuExpose,
   businessDialogTypeContract,
+  baseAsideMenuTypeContract,
 ]

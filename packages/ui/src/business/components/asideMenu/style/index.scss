@@ -1,0 +1,75 @@
+.el-aside.ga-aside-menu {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: width 0.3s;
+
+    .ga-aside-menu__header,
+    .ga-aside-menu__footer {
+        flex: none;
+    }
+
+    .ga-aside-menu__body {
+        flex: 1;
+        min-height: 0;
+    }
+
+    .ga-aside-menu__trigger {
+        flex: none;
+        border-top: 1px solid var(--el-border-color-light);
+
+        .ga-aside-menu__trigger-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            height: 40px;
+            padding: 0;
+            border: none;
+            background: transparent;
+            color: inherit;
+            font-size: 14px;
+            cursor: pointer;
+
+            &:hover {
+                color: #2b3b5e;
+                background: var(--el-fill-color-light);
+            }
+
+            .ga-aside-menu__trigger-icon {
+                width: 18px;
+                height: 18px;
+            }
+        }
+    }
+
+    .el-menu.ga-aside-menu__menu {
+        border-right: none;
+    }
+
+    // Element Plus 的折叠样式只覆盖分组内的子菜单，
+    // 没有覆盖分组标题与分组内的直属菜单项，这里补齐
+    // .el-menu.ga-aside-menu__menu.el-menu--collapse {
+    //     .el-menu-item-group__title {
+    //         display: none;
+    //     }
+
+    //     .el-menu-item-group > ul > .el-menu-item {
+    //         [class^='el-icon'] {
+    //             vertical-align: middle;
+    //             width: var(--el-menu-icon-width);
+    //             margin: 0;
+    //             text-align: center;
+    //         }
+
+    //         > span {
+    //             display: inline-block;
+    //             width: 0;
+    //             height: 0;
+    //             overflow: hidden;
+    //             visibility: hidden;
+    //         }
+    //     }
+    // }
+}
