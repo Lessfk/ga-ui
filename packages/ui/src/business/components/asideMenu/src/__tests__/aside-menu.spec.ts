@@ -484,6 +484,9 @@ describe('GaAsideMenu', () => {
     const button = wrapper.find('.ga-aside-menu__trigger-btn')
 
     expect(button.exists()).toBe(true)
+    expect(button.attributes('type')).toBe('button')
+    expect(button.attributes('title')).toBe('折叠菜单')
+    expect(button.find('svg').attributes('aria-hidden')).toBe('true')
     expect(button.attributes('aria-label')).toBe('折叠菜单')
     expect(button.find('span').exists()).toBe(true)
 
@@ -493,6 +496,7 @@ describe('GaAsideMenu', () => {
     expect(wrapper.emitted('toggle')).toEqual([[true]])
     expect(wrapper.findComponent(ElAsideStub).props('width')).toBe('auto')
     expect(wrapper.findComponent(ElMenuStub).props('collapse')).toBe(true)
+    expect(button.attributes('title')).toBe('展开菜单')
     expect(button.attributes('aria-label')).toBe('展开菜单')
     expect(button.find('span').exists()).toBe(false)
 
@@ -542,13 +546,18 @@ describe('GaAsideMenu', () => {
     ).toBe('function')
   })
 
-  it('compensates Element Plus collapse styles for menu item groups', () => {
+  it('scopes collapse compensation and trigger focus styles to GaAsideMenu', () => {
+    expect(asideMenuStyleSource).toContain('.el-aside.ga-aside-menu')
+    expect(asideMenuStyleSource).toContain('> .ga-aside-menu__body')
     expect(asideMenuStyleSource).toContain(
       '.el-menu.ga-aside-menu__menu.el-menu--collapse',
     )
-    expect(asideMenuStyleSource).toContain('.el-menu-item-group__title')
     expect(asideMenuStyleSource).toContain(
-      '.el-menu-item-group > ul > .el-menu-item',
+      '> .el-menu-item-group > ul > .el-menu-item',
+    )
+    expect(asideMenuStyleSource).toContain('&:focus-visible')
+    expect(asideMenuStyleSource).toContain(
+      '--ga-aside-menu-transition-duration',
     )
   })
 })
