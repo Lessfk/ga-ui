@@ -25,13 +25,18 @@
         @open="handleOpen"
         @close="handleClose"
       >
-        <GaMenuSlotTree v-if="slots.default" :active="currentActive">
+        <GaMenuSlotTree
+          v-if="slots.default"
+          :active="currentActive"
+          :popper-class-fallback="props.popperClass"
+        >
           <slot />
         </GaMenuSlotTree>
         <GaMenuTree
           v-else-if="normalizedItems.length"
           :nodes="normalizedItems"
           :active="currentActive"
+          :popper-class-fallback="props.popperClass"
         />
       </ElMenu>
     </ElScrollbar>

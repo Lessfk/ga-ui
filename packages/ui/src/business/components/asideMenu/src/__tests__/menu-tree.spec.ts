@@ -169,4 +169,50 @@ describe('GaMenuTree', () => {
     ).toBe('true')
     expect(wrapper.find('[data-index="audit"]').text()).toContain('Audit')
   })
+
+  it('reactively appends its internal class to the fallback popper class recursively', async () => {
+    const nodes: GaAsideMenuNode[] = [
+      {
+        type: 'submenu',
+        index: 'system',
+        label: 'System',
+        children: [
+          {
+            type: 'submenu',
+            index: 'accounts',
+            label: 'Accounts',
+            children: [],
+          },
+        ],
+      },
+    ]
+
+    const wrapper = mount(GaMenuTree, {
+      props: { nodes, popperClassFallback: 'root-popper' },
+      global: {
+        stubs: {
+          ElMenuItem: ElMenuItemStub,
+          ElSubMenu: ElSubMenuStub,
+          ElMenuItemGroup: ElMenuItemGroupStub,
+          ElIcon: ElIconStub,
+        },
+      },
+    })
+
+    expect(wrapper.find('[data-index="system"]').attributes(
+      'data-popper-class',
+    )).toBe('root-popper ga-aside-menu__submenu-popper')
+    expect(wrapper.find('[data-index="accounts"]').attributes(
+      'data-popper-class',
+    )).toBe('root-popper ga-aside-menu__submenu-popper')
+
+    await wrapper.setProps({ popperClassFallback: 'next-popper' })
+
+    expect(wrapper.find('[data-index="system"]').attributes(
+      'data-popper-class',
+    )).toBe('next-popper ga-aside-menu__submenu-popper')
+    expect(wrapper.find('[data-index="accounts"]').attributes(
+      'data-popper-class',
+    )).toBe('next-popper ga-aside-menu__submenu-popper')
+  })
 })

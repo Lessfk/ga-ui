@@ -256,6 +256,85 @@ describe('GaAsideMenu', () => {
     expect(submenu.text()).toContain('Accounts')
   })
 
+  it('inherits the root popper class in default-slot submenus unless locally overridden', () => {
+    const wrapper = mountAsideMenu({
+      props: { popperClass: 'root-popper' },
+      slots: {
+        default: () => [
+          h(
+            RealElSubMenu,
+            { index: 'inherited' },
+            {
+              title: () => 'Inherited',
+              default: () =>
+                h(
+                  ActiveMenuItemStub,
+                  { index: 'inherited-item' },
+                  () => 'Item',
+                ),
+            },
+          ),
+          h(
+            RealElSubMenu,
+            { index: 'local', popperClass: 'local-popper' },
+            {
+              title: () => 'Local',
+              default: () =>
+                h(
+                  ActiveMenuItemStub,
+                  { index: 'local-item' },
+                  () => 'Item',
+                ),
+            },
+          ),
+        ],
+      },
+      global: {
+        stubs: {
+          ElSubMenu: ActiveSubMenuStub,
+        },
+      },
+    })
+
+    const inherited = wrapper.find('[data-index="inherited"]')
+    const local = wrapper.find('[data-index="local"]')
+
+    expect(inherited.attributes('data-popper-class')).toBe(
+      'root-popper ga-aside-menu__submenu-popper',
+    )
+    expect(local.attributes('data-popper-class')).toBe(
+      'local-popper ga-aside-menu__submenu-popper',
+    )
+    expect(local.attributes('data-popper-class')).not.toContain('root-popper')
+  })
+
+  it('inherits the root popper class in configuration submenus', () => {
+    const wrapper = mountAsideMenu({
+      props: {
+        popperClass: 'root-popper',
+        items: [
+          {
+            type: 'submenu',
+            index: 'accounts',
+            label: 'Accounts',
+            children: [{ type: 'item', index: 'users', label: 'Users' }],
+          },
+        ],
+      },
+      global: {
+        stubs: {
+          GaMenuTree: false,
+          ElSubMenu: ActiveSubMenuStub,
+          ElMenuItem: ActiveMenuItemStub,
+        },
+      },
+    })
+
+    expect(
+      wrapper.find('[data-index="accounts"]').attributes('data-popper-class'),
+    ).toBe('root-popper ga-aside-menu__submenu-popper')
+  })
+
   it('moves a default-slot active marker between stable nested branches', async () => {
     const wrapper = mountAsideMenu({
       props: { active: 'users' },

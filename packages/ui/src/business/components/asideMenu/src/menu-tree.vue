@@ -17,7 +17,7 @@
       v-else-if="node.type === 'submenu'"
       :index="node.index"
       :disabled="node.disabled"
-      popper-class="ga-aside-menu__submenu-popper"
+      :popper-class="submenuPopperClass"
       :class="{
         'ga-aside-menu__submenu--active': containsActive(node.children),
       }"
@@ -28,16 +28,25 @@
         </ElIcon>
         <span>{{ node.label }}</span>
       </template>
-      <GaMenuTree :nodes="node.children" :active="props.active" />
+      <GaMenuTree
+        :nodes="node.children"
+        :active="props.active"
+        :popper-class-fallback="props.popperClassFallback"
+      />
     </ElSubMenu>
     <ElMenuItemGroup v-else :title="node.label">
-      <GaMenuTree :nodes="node.children" :active="props.active" />
+      <GaMenuTree
+        :nodes="node.children"
+        :active="props.active"
+        :popper-class-fallback="props.popperClassFallback"
+      />
     </ElMenuItemGroup>
   </template>
 </template>
 
 <script setup lang="ts">
 import { ElIcon, ElMenuItem, ElMenuItemGroup, ElSubMenu } from 'element-plus'
+import { computed } from 'vue'
 
 import type { GaAsideMenuNode } from '../types'
 
@@ -47,8 +56,15 @@ const props = withDefaults(
   defineProps<{
     nodes: readonly GaAsideMenuNode[]
     active?: string
+    popperClassFallback?: string
   }>(),
   { active: '' },
+)
+
+const submenuPopperClass = computed(() =>
+  [props.popperClassFallback, 'ga-aside-menu__submenu-popper']
+    .filter(Boolean)
+    .join(' '),
 )
 
 const containsActive = (nodes: readonly GaAsideMenuNode[]): boolean =>
