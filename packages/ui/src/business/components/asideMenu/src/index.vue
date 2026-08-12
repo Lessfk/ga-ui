@@ -1,7 +1,16 @@
 <template>
-  <ElAside v-bind="$attrs" :width="currentWidth" class="ga-aside-menu">
+  <ElAside
+    v-bind="$attrs"
+    :width="currentWidth"
+    class="ga-aside-menu"
+    :style="{ '--ga-aside-menu-width': props.width }"
+  >
     <div v-if="slots.header" class="ga-aside-menu__header">
-      <slot name="header" />
+      <slot
+        name="header"
+        :collapse="currentCollapse"
+        :active="currentActive"
+      />
     </div>
 
     <ElScrollbar class="ga-aside-menu__body">
@@ -11,20 +20,34 @@
         class="ga-aside-menu__menu"
         mode="vertical"
         :collapse="currentCollapse"
+        :default-active="currentActive"
         @select="handleSelect"
         @open="handleOpen"
         @close="handleClose"
       >
-        <slot />
+        <slot v-if="slots.default" />
+        <GaMenuTree
+          v-else-if="normalizedItems.length"
+          :nodes="normalizedItems"
+        />
       </ElMenu>
     </ElScrollbar>
 
     <div v-if="slots.footer" class="ga-aside-menu__footer">
-      <slot name="footer" />
+      <slot
+        name="footer"
+        :collapse="currentCollapse"
+        :active="currentActive"
+      />
     </div>
 
     <div class="ga-aside-menu__trigger">
-      <slot name="trigger" :collapse="currentCollapse" :toggle="toggleCollapse">
+      <slot
+        name="trigger"
+        :collapse="currentCollapse"
+        :active="currentActive"
+        :toggle="toggleCollapse"
+      >
         <button
           type="button"
           class="ga-aside-menu__trigger-btn"
@@ -34,6 +57,7 @@
         >
           <svg
             v-if="currentCollapse"
+            aria-hidden="true"
             class="ga-aside-menu__trigger-icon"
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -55,6 +79,7 @@
 
           <svg
             v-else
+            aria-hidden="true"
             class="ga-aside-menu__trigger-icon"
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -81,14 +106,19 @@
   </ElAside>
 </template>
 
-
 <script setup lang="ts">
 import { ElAside, ElMenu, ElScrollbar } from 'element-plus'
 import type { MenuInstance, MenuItemClicked } from 'element-plus'
-import { computed, ref, useSlots, watch } from 'vue'
+import { computed, ref, useSlots, watchEffect } from 'vue'
 import type { Slots } from 'vue'
 
 import type { GaAsideMenuEmits, GaAsideMenuProps } from '../types/index'
+import {
+  getAsideMenuConfigurationWarnings,
+  normalizeAsideMenuNodes,
+} from './menu-items'
+import GaMenuTree from './menu-tree.vue'
+import { useAsideMenuState } from './use-aside-menu-state'
 
 defineOptions({
   name: 'GaAsideMenu',
@@ -98,43 +128,65 @@ defineOptions({
 const props = withDefaults(defineProps<GaAsideMenuProps>(), {
   collapse: false,
   width: '240px',
+  items: () => [],
 })
 
 const emit = defineEmits<GaAsideMenuEmits>()
 const slots: Slots = useSlots()
 const menuRef = ref<MenuInstance>()
 
-// collapse 由组件内部维护，外部可通过 v-model:collapse 同步
-const currentCollapse = ref(props.collapse)
-
-watch(
-  () => props.collapse,
-  (value) => {
-    currentCollapse.value = value
+const {
+  currentActive,
+  currentCollapse,
+  selectActive,
+  toggleCollapse,
+} = useAsideMenuState({
+  props,
+  menuRef,
+  onCollapseUpdate: (value) => {
+    emit('update:collapse', value)
   },
-)
+  onToggle: (value) => {
+    emit('toggle', value)
+  },
+  onActiveUpdate: (value) => {
+    emit('update:active', value)
+  },
+})
 
-const setCollapse = (value: boolean) => {
-  if (currentCollapse.value === value) return
-
-  currentCollapse.value = value
-  emit('update:collapse', value)
-  emit('toggle', value)
-}
-
-const toggleCollapse = () => {
-  setCollapse(!currentCollapse.value)
-}
-
-// 折叠时宽度交给 auto，由 Element Plus 折叠菜单自身宽度（64px）决定
 const currentWidth = computed(() =>
   currentCollapse.value ? 'auto' : props.width,
 )
 
-// collapse/width 由本组件接管，mode 固定 vertical，其余 Props 透传给 ElMenu
+const normalizedItems = computed(() => normalizeAsideMenuNodes(props.items))
+
 const menuProps = computed(() => {
-  const { collapse, width, ...elMenuProps } = props
+  const {
+    active,
+    collapse,
+    defaultActive,
+    items,
+    width,
+    ...elMenuProps
+  } = props
   return elMenuProps
+})
+
+const warnedMessages = new Set<string>()
+
+watchEffect(() => {
+  if (!import.meta.env.DEV) return
+
+  const warnings = getAsideMenuConfigurationWarnings(
+    props.items,
+    Boolean(slots.default),
+  )
+
+  warnings.forEach((message) => {
+    if (warnedMessages.has(message)) return
+    warnedMessages.add(message)
+    console.warn(`[GaAsideMenu] ${message}`)
+  })
 })
 
 const handleSelect = (
@@ -143,6 +195,7 @@ const handleSelect = (
   item: MenuItemClicked,
   routerResult?: Promise<unknown>,
 ) => {
+  selectActive(index)
   emit('select', index, indexPath, item, routerResult)
 }
 
