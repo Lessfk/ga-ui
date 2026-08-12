@@ -964,7 +964,7 @@ function handleSelect(index: string) {
 </style>
 ```
 
-`GaAsideMenu` 不读取权限上下文，也不引入 `vue-router`。业务层应在传入 `items` 前完成权限过滤，并在 `select` 事件中执行路由跳转。
+`GaAsideMenu` 自身不引入或读取 `vue-router`。权限过滤始终由业务层在传入 `items` 前完成。未启用 Element Plus `router` 模式时，可在 `select` 事件中根据 `index` 执行路由跳转；启用 `router` 且应用已安装 Vue Router 时，底层 `ElMenu` 会按节点 `index`（或原生插槽节点的 `route`）调用 `router.push`。
 
 ### 基础用法
 
@@ -1125,7 +1125,7 @@ const active = ref('1-1')
 | `hidden` | 全部 | `boolean` | 隐藏节点；用于子菜单或分组时会隐藏整棵子树 |
 | `children` | `submenu`、`group` | 节点数组 | `submenu` 可包含全部节点类型；`group` 的子节点只能是 `item` 或 `submenu` |
 
-组件仅负责渲染和状态同步，不引入 `vue-router` 或权限上下文。权限过滤应在业务层完成；路由跳转应在 `select` 事件中处理。
+组件自身不引入 `vue-router` 或权限上下文。权限过滤应在业务层完成；未启用 `router` 时在 `select` 事件中处理跳转，启用 `router` 时由底层 Element Plus Menu 执行路由跳转，`select` 的 `routerResult` 返回跳转结果。
 
 ### GaAsideMenu Events
 
