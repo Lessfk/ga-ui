@@ -22,9 +22,15 @@
 
             <template #footer="{ collapse, active }">
               <div :class="collapse ? 'logo' : 'aside-logo'">
-                <ElIcon><component :is="MenuGridIcon" /></ElIcon>
-                <span v-if="!collapse">
-                  当前菜单：{{ active || "未选择" }}
+                <ElIcon v-if="!collapse">
+                  <component :is="MenuGridIcon" />
+                </ElIcon>
+                <span class="aside-status-text">
+                  {{
+                    collapse
+                      ? active || "未选择"
+                      : `当前菜单：${active || "未选择"}`
+                  }}
                 </span>
               </div>
             </template>
@@ -270,7 +276,7 @@ const MenuGridIcon = markRaw(
 );
 
 const configuredCollapsed = ref(false);
-const configuredActive = ref("");
+const configuredActive = ref("users");
 const legacyCollapsed = ref(false);
 const legacyActive = ref("1-1");
 
@@ -369,6 +375,18 @@ function handleLegacySelect(index: string) {
   margin: 12px 0 0;
   color: var(--el-text-color-regular);
   font-size: 14px;
+}
+
+.aside-status-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logo .aside-status-text {
+  max-width: 56px;
+  font-size: 12px;
 }
 
 h2 {
