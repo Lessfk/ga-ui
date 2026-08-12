@@ -2,6 +2,12 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import { mount } from '@vue/test-utils'
+import {
+  ElIcon as RealElIcon,
+  ElMenu as RealElMenu,
+  ElMenuItem as RealElMenuItem,
+  ElMenuItemGroup as RealElMenuItemGroup,
+} from 'element-plus'
 import { defineComponent, h, nextTick } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -115,6 +121,11 @@ const GaMenuTreeStub = defineComponent({
   setup() {
     return () => h('div', { class: 'ga-menu-tree-stub' })
   },
+})
+
+const RealTestIcon = defineComponent({
+  name: 'RealTestIcon',
+  setup: () => () => h('svg', { class: 'real-test-icon' }),
 })
 
 function mountAsideMenu(options: Parameters<typeof mount>[1] = {}) {
@@ -558,6 +569,56 @@ describe('GaAsideMenu', () => {
     expect(asideMenuStyleSource).toContain('&:focus-visible')
     expect(asideMenuStyleSource).toContain(
       '--ga-aside-menu-transition-duration',
+    )
+  })
+
+  it('matches the Element Plus collapsed group tooltip structure', () => {
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          return () =>
+            h(
+              RealElMenu,
+              {
+                collapse: true,
+                collapseTransition: false,
+                mode: 'vertical',
+              },
+              {
+                default: () =>
+                  h(
+                    RealElMenuItemGroup,
+                    { title: 'Accounts' },
+                    {
+                      default: () =>
+                        h(
+                          RealElMenuItem,
+                          { index: 'users' },
+                          {
+                            default: () =>
+                              h(RealElIcon, null, {
+                                default: () => h(RealTestIcon),
+                              }),
+                            title: () => 'Users',
+                          },
+                        ),
+                    },
+                  ),
+              },
+            )
+        },
+      }),
+    )
+
+    expect(
+      wrapper
+        .find(
+          '.el-menu-item-group > ul > .el-menu-item > .el-menu-tooltip__trigger > .el-icon',
+        )
+        .exists(),
+    ).toBe(true)
+    expect(asideMenuStyleSource).toContain(
+      '> .el-menu-tooltip__trigger > .el-icon',
     )
   })
 })

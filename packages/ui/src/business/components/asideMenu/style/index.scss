@@ -29,7 +29,8 @@
             }
 
             > .el-menu-item-group > ul > .el-menu-item {
-                > .el-icon {
+                > .el-icon,
+                > .el-menu-tooltip__trigger > .el-icon {
                     width: var(--el-menu-icon-width);
                     margin: 0;
                     text-align: center;
