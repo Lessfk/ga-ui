@@ -3,6 +3,7 @@ import type { Component, Slot, VNode, VNodeChild } from 'vue'
 import { ElMenuItem, ElMenuItemGroup, ElSubMenu } from 'element-plus'
 
 const activeClass = 'ga-aside-menu__submenu--active'
+const popperClass = 'ga-aside-menu__submenu-popper'
 
 const componentName = (component: VNode['type']) => {
   if (typeof component !== 'object' && typeof component !== 'function') return
@@ -59,6 +60,13 @@ const processChild = (
     return { child: cloned, containsActive: processed.containsActive }
   }
 
+  const isSubMenu = isComponent(child, ElSubMenu, 'ElSubMenu')
+  const isItemGroup = isComponent(child, ElMenuItemGroup, 'ElMenuItemGroup')
+
+  if (!isSubMenu && !isItemGroup) {
+    return { child, containsActive: false }
+  }
+
   const slots = vnodeSlots(child)
   const defaultSlot = slots?.default
 
@@ -67,25 +75,25 @@ const processChild = (
   }
 
   const processed = processChildren((defaultSlot as Slot)(), active)
-  const cloned = cloneVNode(
-    child,
-    isComponent(child, ElSubMenu, 'ElSubMenu') && processed.containsActive
-      ? { class: activeClass }
-      : undefined,
-  )
+  const userPopperClass = child.props?.popperClass
+  const cloned = cloneVNode(child, {
+    ...(isSubMenu && processed.containsActive ? { class: activeClass } : {}),
+    ...(isSubMenu
+      ? {
+          popperClass: [userPopperClass, popperClass]
+            .filter(Boolean)
+            .join(' '),
+        }
+      : {}),
+  })
   cloned.children = {
     ...slots,
     default: () => processed.children,
   }
 
-  const passesActive =
-    isComponent(child, ElSubMenu, 'ElSubMenu') ||
-    isComponent(child, ElMenuItemGroup, 'ElMenuItemGroup') ||
-    processed.containsActive
-
   return {
     child: cloned,
-    containsActive: passesActive && processed.containsActive,
+    containsActive: processed.containsActive,
   }
 }
 

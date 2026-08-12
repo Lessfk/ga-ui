@@ -17,6 +17,7 @@
       v-else-if="node.type === 'submenu'"
       :index="node.index"
       :disabled="node.disabled"
+      popper-class="ga-aside-menu__submenu-popper"
       :class="{
         'ga-aside-menu__submenu--active': containsActive(node.children),
       }"

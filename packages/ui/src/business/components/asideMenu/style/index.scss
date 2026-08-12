@@ -87,3 +87,7 @@
         }
     }
 }
+
+.ga-aside-menu__submenu-popper .el-sub-menu.ga-aside-menu__submenu--active > .el-sub-menu__title {
+    color: var(--el-menu-active-color);
+}

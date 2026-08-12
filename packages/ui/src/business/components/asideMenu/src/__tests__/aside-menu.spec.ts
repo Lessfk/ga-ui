@@ -129,6 +129,53 @@ const RealTestIcon = defineComponent({
   setup: () => () => h('svg', { class: 'real-test-icon' }),
 })
 
+const ScopedSlotWrapper = defineComponent({
+  name: 'ScopedSlotWrapper',
+  setup(_, { slots }) {
+    return () =>
+      h(
+        'div',
+        { class: 'scoped-slot-wrapper' },
+        slots.default?.({ value: 'wrapped' }),
+      )
+  },
+})
+
+const ActiveSubMenuStub = defineComponent({
+  name: 'ElSubMenu',
+  inheritAttrs: false,
+  props: { index: String, popperClass: String },
+  setup(props, { attrs, slots }) {
+    return () =>
+      h(
+        'section',
+        {
+          ...attrs,
+          class: ['active-submenu-stub', attrs.class],
+          'data-index': props.index,
+          'data-popper-class': props.popperClass,
+        },
+        [slots.title?.(), slots.default?.()],
+      )
+  },
+})
+
+const ActiveMenuItemStub = defineComponent({
+  name: 'ElMenuItem',
+  props: { index: String },
+  setup(props, { slots }) {
+    return () =>
+      h(
+        'li',
+        { class: 'active-item-stub', 'data-index': props.index },
+        slots.default?.(),
+      )
+  },
+})
+
+const stableSlots = (slots: Record<string, unknown>) =>
+  ({ ...slots, _: 1 }) as never
+
 function mountAsideMenu(options: Parameters<typeof mount>[1] = {}) {
   return mount(GaAsideMenu, {
     ...options,
@@ -146,6 +193,20 @@ function mountAsideMenu(options: Parameters<typeof mount>[1] = {}) {
 }
 
 describe('GaAsideMenu', () => {
+  it('leaves unknown scoped-slot wrappers in control of their slot arguments', () => {
+    const wrapper = mountAsideMenu({
+      slots: {
+        default: () =>
+          h(ScopedSlotWrapper, null, {
+            default: ({ value }: { value: string }) =>
+              h('span', { class: 'wrapped-value' }, value),
+          }),
+      },
+    })
+
+    expect(wrapper.find('.wrapped-value').text()).toBe('wrapped')
+  })
+
   it('marks an active default-slot submenu before its collapsed popup opens', () => {
     const wrapper = mount(GaAsideMenu, {
       props: {
@@ -161,6 +222,7 @@ describe('GaAsideMenu', () => {
               index: 'accounts',
               class: 'legacy-submenu',
               disabled: true,
+              popperClass: 'legacy-popper',
             },
             {
               title: () => 'Accounts',
@@ -185,7 +247,80 @@ describe('GaAsideMenu', () => {
     )
     expect(submenu.props('index')).toBe('accounts')
     expect(submenu.props('disabled')).toBe(true)
+    expect(submenu.props('popperClass')).toContain(
+      'legacy-popper',
+    )
+    expect(submenu.props('popperClass')).toContain(
+      'ga-aside-menu__submenu-popper',
+    )
     expect(submenu.text()).toContain('Accounts')
+  })
+
+  it('moves a default-slot active marker between stable nested branches', async () => {
+    const wrapper = mountAsideMenu({
+      props: { active: 'users' },
+      slots: {
+        default: () =>
+          h(
+            RealElSubMenu,
+            { index: 'root' },
+            stableSlots({
+              title: () => 'Root',
+              default: () => [
+                h(
+                  RealElSubMenu,
+                  { index: 'accounts' },
+                  stableSlots({
+                    title: () => 'Accounts',
+                    default: () =>
+                      h(RealElMenuItem, { index: 'users' }, () => 'Users'),
+                  }),
+                ),
+                h(
+                  RealElSubMenu,
+                  { index: 'reports' },
+                  stableSlots({
+                    title: () => 'Reports',
+                    default: () =>
+                      h(RealElMenuItem, { index: 'audit' }, () => 'Audit'),
+                  }),
+                ),
+              ],
+            }),
+          ),
+      },
+      global: {
+        stubs: {
+          ElSubMenu: ActiveSubMenuStub,
+          ElMenuItem: ActiveMenuItemStub,
+        },
+      },
+    })
+
+    const submenu = (index: string) =>
+      wrapper.find(`[data-index="${index}"]`)
+
+    expect(submenu('root').classes()).toContain(
+      'ga-aside-menu__submenu--active',
+    )
+    expect(submenu('accounts').classes()).toContain(
+      'ga-aside-menu__submenu--active',
+    )
+    expect(submenu('reports').classes()).not.toContain(
+      'ga-aside-menu__submenu--active',
+    )
+
+    await wrapper.setProps({ active: 'audit' })
+
+    expect(submenu('root').classes()).toContain(
+      'ga-aside-menu__submenu--active',
+    )
+    expect(submenu('accounts').classes()).not.toContain(
+      'ga-aside-menu__submenu--active',
+    )
+    expect(submenu('reports').classes()).toContain(
+      'ga-aside-menu__submenu--active',
+    )
   })
 
   it('uses the default width when expanded', () => {
@@ -613,6 +748,10 @@ describe('GaAsideMenu', () => {
     expect(asideMenuStyleSource).toContain(
       '--ga-aside-menu-transition-duration',
     )
+    expect(asideMenuStyleSource).toContain(
+      '.ga-aside-menu__submenu-popper .el-sub-menu.ga-aside-menu__submenu--active',
+    )
+    expect(asideMenuStyleSource).toContain('var(--el-menu-active-color)')
   })
 
   it('matches the Element Plus collapsed group tooltip structure', () => {

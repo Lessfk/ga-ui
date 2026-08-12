@@ -9,7 +9,12 @@ const slotStub = (name: string, tag: string) =>
   defineComponent({
     name,
     inheritAttrs: false,
-    props: { index: String, title: String, disabled: Boolean },
+    props: {
+      index: String,
+      title: String,
+      disabled: Boolean,
+      popperClass: String,
+    },
     setup(props, { attrs, slots }) {
       return () =>
         h(
@@ -19,6 +24,7 @@ const slotStub = (name: string, tag: string) =>
             class: [name, attrs.class],
             'data-index': props.index,
             'data-disabled': String(props.disabled),
+            'data-popper-class': props.popperClass,
           },
           [
             slots.title
@@ -91,6 +97,12 @@ describe('GaMenuTree', () => {
     expect(wrapper.find('[data-index="reports"]').classes()).not.toContain(
       'ga-aside-menu__submenu--active',
     )
+    expect(wrapper.find('[data-index="system"]').attributes(
+      'data-popper-class',
+    )).toBe('ga-aside-menu__submenu-popper')
+    expect(wrapper.find('[data-index="accounts"]').attributes(
+      'data-popper-class',
+    )).toBe('ga-aside-menu__submenu-popper')
 
     await wrapper.setProps({ active: 'audit' })
 
