@@ -21,6 +21,10 @@
 
         .el-menu.ga-aside-menu__menu {
             border-right: 0;
+
+            .el-sub-menu.ga-aside-menu__submenu--active > .el-sub-menu__title {
+                color: var(--el-menu-active-color);
+            }
         }
 
         .el-menu.ga-aside-menu__menu.el-menu--collapse {

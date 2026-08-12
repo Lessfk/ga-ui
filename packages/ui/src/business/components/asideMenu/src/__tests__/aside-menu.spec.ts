@@ -7,6 +7,7 @@ import {
   ElMenu as RealElMenu,
   ElMenuItem as RealElMenuItem,
   ElMenuItemGroup as RealElMenuItemGroup,
+  ElSubMenu as RealElSubMenu,
 } from 'element-plus'
 import { defineComponent, h, nextTick } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -145,6 +146,48 @@ function mountAsideMenu(options: Parameters<typeof mount>[1] = {}) {
 }
 
 describe('GaAsideMenu', () => {
+  it('marks an active default-slot submenu before its collapsed popup opens', () => {
+    const wrapper = mount(GaAsideMenu, {
+      props: {
+        active: 'users',
+        collapse: true,
+        collapseTransition: false,
+      },
+      slots: {
+        default: () =>
+          h(
+            RealElSubMenu,
+            {
+              index: 'accounts',
+              class: 'legacy-submenu',
+              disabled: true,
+            },
+            {
+              title: () => 'Accounts',
+              default: () =>
+                h(RealElMenuItem, { index: 'users' }, () => 'Users'),
+            },
+          ),
+      },
+      global: {
+        stubs: {
+          ElAside: ElAsideStub,
+          ElScrollbar: ElScrollbarStub,
+        },
+      },
+    })
+
+    const submenu = wrapper.findComponent(RealElSubMenu)
+
+    expect(submenu.classes()).toContain('legacy-submenu')
+    expect(submenu.classes()).toContain(
+      'ga-aside-menu__submenu--active',
+    )
+    expect(submenu.props('index')).toBe('accounts')
+    expect(submenu.props('disabled')).toBe(true)
+    expect(submenu.text()).toContain('Accounts')
+  })
+
   it('uses the default width when expanded', () => {
     const wrapper = mountAsideMenu()
 

@@ -16,7 +16,7 @@ const slotStub = (name: string, tag: string) =>
           tag,
           {
             ...attrs,
-            class: name,
+            class: [name, attrs.class],
             'data-index': props.index,
             'data-disabled': String(props.disabled),
           },
@@ -47,6 +47,64 @@ const TestIcon = markRaw(
 )
 
 describe('GaMenuTree', () => {
+  it('moves the active marker between containing submenus', async () => {
+    const nodes: GaAsideMenuNode[] = [
+      {
+        type: 'submenu',
+        index: 'system',
+        label: 'System',
+        children: [
+          {
+            type: 'submenu',
+            index: 'accounts',
+            label: 'Accounts',
+            children: [{ type: 'item', index: 'users', label: 'Users' }],
+          },
+        ],
+      },
+      {
+        type: 'submenu',
+        index: 'reports',
+        label: 'Reports',
+        children: [{ type: 'item', index: 'audit', label: 'Audit' }],
+      },
+    ]
+
+    const wrapper = mount(GaMenuTree, {
+      props: { nodes, active: 'users' },
+      global: {
+        stubs: {
+          ElMenuItem: ElMenuItemStub,
+          ElSubMenu: ElSubMenuStub,
+          ElMenuItemGroup: ElMenuItemGroupStub,
+          ElIcon: ElIconStub,
+        },
+      },
+    })
+
+    expect(wrapper.find('[data-index="system"]').classes()).toContain(
+      'ga-aside-menu__submenu--active',
+    )
+    expect(wrapper.find('[data-index="accounts"]').classes()).toContain(
+      'ga-aside-menu__submenu--active',
+    )
+    expect(wrapper.find('[data-index="reports"]').classes()).not.toContain(
+      'ga-aside-menu__submenu--active',
+    )
+
+    await wrapper.setProps({ active: 'audit' })
+
+    expect(wrapper.find('[data-index="system"]').classes()).not.toContain(
+      'ga-aside-menu__submenu--active',
+    )
+    expect(wrapper.find('[data-index="accounts"]').classes()).not.toContain(
+      'ga-aside-menu__submenu--active',
+    )
+    expect(wrapper.find('[data-index="reports"]').classes()).toContain(
+      'ga-aside-menu__submenu--active',
+    )
+  })
+
   it('renders items, submenus, groups, icons, and disabled state recursively', () => {
     const nodes: GaAsideMenuNode[] = [
       {

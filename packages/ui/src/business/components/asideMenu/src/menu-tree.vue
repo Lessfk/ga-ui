@@ -17,6 +17,9 @@
       v-else-if="node.type === 'submenu'"
       :index="node.index"
       :disabled="node.disabled"
+      :class="{
+        'ga-aside-menu__submenu--active': containsActive(node.children),
+      }"
     >
       <template #title>
         <ElIcon v-if="node.icon" aria-hidden="true">
@@ -24,10 +27,10 @@
         </ElIcon>
         <span>{{ node.label }}</span>
       </template>
-      <GaMenuTree :nodes="node.children" />
+      <GaMenuTree :nodes="node.children" :active="props.active" />
     </ElSubMenu>
     <ElMenuItemGroup v-else :title="node.label">
-      <GaMenuTree :nodes="node.children" />
+      <GaMenuTree :nodes="node.children" :active="props.active" />
     </ElMenuItemGroup>
   </template>
 </template>
@@ -39,9 +42,19 @@ import type { GaAsideMenuNode } from '../types'
 
 defineOptions({ name: 'GaMenuTree' })
 
-const props = defineProps<{
-  nodes: readonly GaAsideMenuNode[]
-}>()
+const props = withDefaults(
+  defineProps<{
+    nodes: readonly GaAsideMenuNode[]
+    active?: string
+  }>(),
+  { active: '' },
+)
+
+const containsActive = (nodes: readonly GaAsideMenuNode[]): boolean =>
+  nodes.some((node) => {
+    if (node.type === 'item') return node.index === props.active
+    return containsActive(node.children)
+  })
 
 const nodeKey = (node: GaAsideMenuNode, nodeIndex: number) =>
   node.type === 'group'

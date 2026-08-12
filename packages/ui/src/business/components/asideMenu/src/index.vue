@@ -25,10 +25,13 @@
         @open="handleOpen"
         @close="handleClose"
       >
-        <slot v-if="slots.default" />
+        <GaMenuSlotTree v-if="slots.default" :active="currentActive">
+          <slot />
+        </GaMenuSlotTree>
         <GaMenuTree
           v-else-if="normalizedItems.length"
           :nodes="normalizedItems"
+          :active="currentActive"
         />
       </ElMenu>
     </ElScrollbar>
@@ -117,6 +120,7 @@ import {
   getAsideMenuConfigurationWarnings,
   normalizeAsideMenuNodes,
 } from './menu-items'
+import GaMenuSlotTree from './menu-slot-tree'
 import GaMenuTree from './menu-tree.vue'
 import { useAsideMenuState } from './use-aside-menu-state'
 
