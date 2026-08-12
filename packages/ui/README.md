@@ -964,7 +964,7 @@ function handleSelect(index: string) {
 </style>
 ```
 
-`GaAsideMenu` 自身不引入或读取 `vue-router`。权限过滤始终由业务层在传入 `items` 前完成。未启用 Element Plus `router` 模式时，可在 `select` 事件中根据 `index` 执行路由跳转；启用 `router` 且应用已安装 Vue Router 时，底层 `ElMenu` 会按节点 `index`（或原生插槽节点的 `route`）调用 `router.push`。
+`GaAsideMenu` 自身不引入或读取 `vue-router`。权限过滤始终由业务层在传入 `items` 前完成。未启用 Element Plus `router` 模式时，可在 `select` 事件中根据 `index` 执行路由跳转；启用 `router` 且应用已安装 Vue Router 时，配置节点按 `index`、原生插槽节点可按其 `route`（未提供时使用 `index`）调用 `router.push`。`select` 事件会原样带出 Element Plus 提供的 `routerResult`：组件不会 `await` 或捕获它，消费方可按需处理其 resolve 或 reject；无论导航结果如何，菜单内部都会先更新激活项。
 
 ### 基础用法
 
@@ -1092,7 +1092,7 @@ const active = ref('1-1')
 | `defaultActive` | `string` | `''` | 未传 `active` 时使用的初始激活菜单 index |
 | `defaultOpeneds` | `string[]` | `[]` | 默认展开的 SubMenu index 集合 |
 | `uniqueOpened` | `boolean` | `false` | 是否只保持一个子菜单展开 |
-| `router` | `boolean` | `false` | 是否以 index 作为 path 进行路由跳转 |
+| `router` | `boolean` | `false` | 是否启用路由跳转；配置节点以 `index` 作为 path，原生插槽节点可使用 `route`（未提供时使用 `index`） |
 | `menuTrigger` | `'hover' \| 'click'` | `'hover'` | 子菜单触发方式 |
 | `backgroundColor` | `string` | `undefined` | 菜单背景色 |
 | `textColor` | `string` | `undefined` | 菜单文字颜色 |
@@ -1111,7 +1111,7 @@ const active = ref('1-1')
 
 完整行为以 [Element Plus Menu 文档](https://element-plus.org/zh-CN/component/menu.html) 为准。
 
-激活状态的初始化优先级为 `active` → `defaultActive` → `''`。传入 `active` 时，组件会持续同步外部值；未绑定 `active` 时，组件在内部保留最后一次选择。
+激活状态的初始化优先级为 `active` → `defaultActive` → `''`。挂载后仅当 `active` 为字符串时才同步；若从字符串改为 `undefined`，不会回退到 `defaultActive`。建议使用 `v-model:active` 保持双向同步；传入 `''` 可清空激活项。单向传入 `:active` 时，内部选择仍会更新当前激活项，直到下一次外部传入字符串覆盖它。
 
 ### 配置节点字段
 
@@ -1122,7 +1122,7 @@ const active = ref('1-1')
 | `label` | 全部 | `string` | 菜单项、子菜单或分组标题 |
 | `icon` | `item`、`submenu` | `Component` | Vue 图标组件；常量配置中建议配合 `markRaw` 使用 |
 | `disabled` | `item`、`submenu` | `boolean` | 是否禁用节点 |
-| `hidden` | 全部 | `boolean` | 隐藏节点；用于子菜单或分组时会隐藏整棵子树 |
+| `hidden` | 全部 | `boolean` | 渲染前移除隐藏节点；用于子菜单或分组时会移除整棵子树，隐藏节点不可点击选择，也不会自动清空或回退 `active`、`defaultActive`、`defaultOpeneds` |
 | `children` | `submenu`、`group` | 节点数组 | `submenu` 可包含全部节点类型；`group` 的子节点只能是 `item` 或 `submenu` |
 
 组件自身不引入 `vue-router` 或权限上下文。权限过滤应在业务层完成；未启用 `router` 时在 `select` 事件中处理跳转，启用 `router` 时由底层 Element Plus Menu 执行路由跳转，`select` 的 `routerResult` 返回跳转结果。
@@ -1143,7 +1143,7 @@ const active = ref('1-1')
 | 插槽 | 作用域 | 说明 |
 | --- | --- | --- |
 | `header` | `{ collapse: boolean, active: string }` | 侧边栏头部区域，通常放 logo 或产品名；未提供时不渲染 |
-| `default` | 无 | 原生菜单内容；与 `items` 同时存在时优先渲染，可直接使用 `ElSubMenu`、`ElMenuItem`、`ElMenuItemGroup` |
+| `default` | 无 | 原生菜单内容；只要声明此插槽即优先渲染，可直接使用 `ElSubMenu`、`ElMenuItem`、`ElMenuItemGroup`。即使插槽因条件渲染为空，`items` 也不会作为运行时后备内容 |
 | `footer` | `{ collapse: boolean, active: string }` | 侧边栏底部区域；未提供时不渲染 |
 | `trigger` | `{ collapse: boolean, active: string, toggle: () => void }` | 折叠/展开切换区域；未提供时使用内置按钮，提供后消费方负责按钮语义与键盘交互 |
 
