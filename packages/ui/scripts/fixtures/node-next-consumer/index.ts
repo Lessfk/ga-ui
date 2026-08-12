@@ -6,7 +6,10 @@ import {
   GaTablePagination,
   type GaAsideMenuEmits,
   type GaAsideMenuExpose,
+  type GaAsideMenuNode,
   type GaAsideMenuProps,
+  type GaAsideMenuStateSlotProps,
+  type GaAsideMenuTriggerSlotProps,
   type GaDialogEmits,
   type GaDialogExpose,
   type GaDialogHeaderSlotProps,
@@ -30,7 +33,11 @@ import type { GaAsideMenuProps as BaseAsideMenuProps } from 'ga-ui-plus/base'
 import type { GaDialogProps as BusinessDialogProps } from 'ga-ui-plus/business'
 import {
   GaAsideMenu as BusinessAsideMenu,
+  type GaAsideMenuEmits as BusinessAsideMenuEmits,
+  type GaAsideMenuNode as BusinessAsideMenuNode,
   type GaAsideMenuProps as BusinessAsideMenuProps,
+  type GaAsideMenuStateSlotProps as BusinessAsideMenuStateSlotProps,
+  type GaAsideMenuTriggerSlotProps as BusinessAsideMenuTriggerSlotProps,
   GaTablePagination as BusinessTablePagination,
   type GaTablePaginationProps as BusinessTablePaginationProps,
 } from 'ga-ui-plus/business'
@@ -97,25 +104,70 @@ function checkBaseDialogExpose(expose: BaseDialogExpose) {
   expose.dialogRef?.resetPosition()
 }
 
+const rootAsideMenuNodes: GaAsideMenuNode[] = [
+  {
+    type: 'submenu',
+    index: 'system',
+    label: 'System',
+    children: [
+      { type: 'item', index: 'users', label: 'Users' },
+      { type: 'item', index: 'roles', label: 'Roles', disabled: true },
+    ],
+  },
+]
+
 const rootAsideMenuProps: GaAsideMenuProps = {
   collapse: false,
+  active: 'users',
+  items: rootAsideMenuNodes,
   width: '260px',
-  defaultActive: '1-1',
+  defaultActive: 'system',
   uniqueOpened: true,
 }
 const businessAsideMenuProps: BusinessAsideMenuProps = {
   collapse: true,
+  active: 'roles',
+  items: rootAsideMenuNodes,
+}
+
+const rootAsideMenuStateSlot: GaAsideMenuStateSlotProps = {
+  collapse: false,
+  active: 'users',
+}
+const rootAsideMenuTriggerSlot: GaAsideMenuTriggerSlotProps = {
+  ...rootAsideMenuStateSlot,
+  toggle: () => undefined,
+}
+const businessAsideMenuNode: BusinessAsideMenuNode = {
+  type: 'item',
+  index: 'business',
+  label: 'Business',
+}
+const businessAsideMenuStateSlot: BusinessAsideMenuStateSlotProps = {
+  collapse: true,
+  active: 'business',
+}
+const businessAsideMenuTriggerSlot: BusinessAsideMenuTriggerSlotProps = {
+  ...businessAsideMenuStateSlot,
+  toggle: () => undefined,
 }
 
 function checkRootAsideMenuEmits(emit: GaAsideMenuEmits) {
   emit('update:collapse', true)
+  emit('update:active', 'users')
   emit('toggle', false)
-  emit('select', '1-1', ['1', '1-1'], {
-    index: '1-1',
-    indexPath: ['1', '1-1'],
+  emit('select', 'users', ['system', 'users'], {
+    index: 'users',
+    indexPath: ['system', 'users'],
   })
-  emit('open', '1', ['1'])
-  emit('close', '1', ['1'])
+  emit('open', 'system', ['system'])
+  emit('close', 'system', ['system'])
+}
+
+function checkBusinessAsideMenuEmits(emit: BusinessAsideMenuEmits) {
+  emit('update:collapse', false)
+  emit('update:active', 'business')
+  emit('toggle', true)
 }
 
 function checkRootAsideMenuExpose(expose: GaAsideMenuExpose) {
@@ -153,13 +205,20 @@ void [
   baseDialogProps,
   rootDialogHeaderScope,
   baseDialogHeaderScope,
+  rootAsideMenuNodes,
   rootAsideMenuProps,
   businessAsideMenuProps,
+  rootAsideMenuStateSlot,
+  rootAsideMenuTriggerSlot,
+  businessAsideMenuNode,
+  businessAsideMenuStateSlot,
+  businessAsideMenuTriggerSlot,
   checkRootDialogEmits,
   checkBaseDialogEmits,
   checkRootDialogExpose,
   checkBaseDialogExpose,
   checkRootAsideMenuEmits,
+  checkBusinessAsideMenuEmits,
   checkRootAsideMenuExpose,
   businessDialogTypeContract,
   baseAsideMenuTypeContract,
