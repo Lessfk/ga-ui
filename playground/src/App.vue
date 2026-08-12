@@ -3,12 +3,11 @@
     <!-- <TablePaginationDemo /> -->
     <!-- <DialogDemo /> -->
     <!-- <PaginationDemo /> -->
-    <AsideMenuDemo />
   </main>
 </template>
 
 <script setup lang="ts">
-import AsideMenuDemo from "./demos/AsideMenuDemo.vue";
+// import AsideMenuDemo from "./demos/AsideMenuDemo.vue";
 import DialogDemo from "./demos/DialogDemo.vue";
 import PaginationDemo from "./demos/PaginationDemo.vue";
 import TablePaginationDemo from "./demos/TablePaginationDemo.vue";
