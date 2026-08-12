@@ -12,6 +12,30 @@ describe('GaAsideMenu menu item helpers', () => {
     expect(getAsideMenuConfigurationWarnings(undefined, true)).toEqual([])
   })
 
+  it('ignores malformed nodes without blocking valid siblings', () => {
+    const nodes = [
+      { type: 'item', index: 42, label: 'Broken index' },
+      {
+        type: 'submenu',
+        index: 'broken-children',
+        label: 'Broken children',
+        children: null,
+      },
+      null,
+      { type: 'unknown', label: 'Unknown' },
+      { type: 'item', index: 'users', label: 'Users' },
+    ] as unknown as readonly GaAsideMenuNode[]
+
+    expect(normalizeAsideMenuNodes(nodes)).toEqual([
+      { type: 'item', index: 'users', label: 'Users' },
+    ])
+    expect(getAsideMenuConfigurationWarnings(nodes, false)).toEqual([
+      'Menu item "Broken index" requires a non-empty index.',
+      'Submenu "broken-children" requires children to be an array.',
+      'Invalid menu node was ignored.',
+    ])
+  })
+
   it('filters hidden nodes and empty containers without mutating input', () => {
     const nodes: GaAsideMenuNode[] = [
       { type: 'item', index: 'visible', label: 'Visible' },

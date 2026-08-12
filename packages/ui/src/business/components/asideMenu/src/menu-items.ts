@@ -5,18 +5,34 @@ import type {
   GaAsideSubMenu,
 } from '../types'
 
-const hasVisibleChildren = (
-  node: GaAsideSubMenu | GaAsideMenuGroup,
-) => normalizeAsideMenuNodes(node.children).length > 0
+type AsideMenuNodeRecord = Record<string, unknown>
 
-export function normalizeAsideMenuNodes(
-  nodes: readonly GaAsideMenuNode[] | undefined,
-): GaAsideMenuNode[] {
-  return (nodes ?? []).flatMap<GaAsideMenuNode>((node) => {
-    if (node.hidden) return []
-    if (node.type === 'item') return [node]
+const isNodeRecord = (node: unknown): node is AsideMenuNodeRecord =>
+  typeof node === 'object' && node !== null
 
-    const children = normalizeAsideMenuNodes(node.children)
+const hasValidIndex = (node: AsideMenuNodeRecord) =>
+  typeof node.index === 'string' && node.index.trim().length > 0
+
+const isContainer = (
+  node: AsideMenuNodeRecord,
+): node is AsideMenuNodeRecord & { type: 'group' | 'submenu' } =>
+  node.type === 'group' || node.type === 'submenu'
+
+const normalizeNodes = (nodes: unknown): GaAsideMenuNode[] => {
+  if (!Array.isArray(nodes)) return []
+
+  return nodes.flatMap<GaAsideMenuNode>((node) => {
+    if (!isNodeRecord(node) || node.hidden === true) return []
+
+    if (node.type === 'item') {
+      return hasValidIndex(node) ? [node as unknown as GaAsideMenuItem] : []
+    }
+
+    if (!isContainer(node)) return []
+    if (node.type === 'submenu' && !hasValidIndex(node)) return []
+    if (!Array.isArray(node.children)) return []
+
+    const children = normalizeNodes(node.children)
     if (children.length === 0) return []
 
     if (node.type === 'group') {
@@ -24,19 +40,31 @@ export function normalizeAsideMenuNodes(
         {
           ...node,
           children: children as Array<GaAsideMenuItem | GaAsideSubMenu>,
-        },
+        } as GaAsideMenuGroup,
       ]
     }
 
-    return [{ ...node, children }]
+    return [{ ...node, children } as GaAsideSubMenu]
   })
+}
+
+const nodeLabel = (node: AsideMenuNodeRecord) =>
+  typeof node.label === 'string' ? node.label : ''
+
+const hasVisibleChildren = (node: AsideMenuNodeRecord) =>
+  normalizeNodes(node.children).length > 0
+
+export function normalizeAsideMenuNodes(
+  nodes: readonly GaAsideMenuNode[] | undefined,
+): GaAsideMenuNode[] {
+  return normalizeNodes(nodes)
 }
 
 export function getAsideMenuConfigurationWarnings(
   nodes: readonly GaAsideMenuNode[] | undefined,
   hasDefaultSlot: boolean,
 ): string[] {
-  const configuredNodes = nodes ?? []
+  const configuredNodes: readonly unknown[] = Array.isArray(nodes) ? nodes : []
   const warnings: string[] = []
   const indexes = new Set<string>()
 
@@ -46,15 +74,27 @@ export function getAsideMenuConfigurationWarnings(
     )
   }
 
-  const visit = (node: GaAsideMenuNode) => {
-    if (node.hidden) return
+  const visit = (node: unknown) => {
+    if (!isNodeRecord(node)) {
+      warnings.push('Invalid menu node was ignored.')
+      return
+    }
+
+    if (node.hidden === true) return
+
+    if (node.type !== 'item' && !isContainer(node)) {
+      warnings.push('Invalid menu node was ignored.')
+      return
+    }
 
     if (node.type !== 'group') {
-      const index = node.index.trim()
+      const index = typeof node.index === 'string' ? node.index.trim() : ''
 
       if (!index) {
         const type = node.type === 'item' ? 'Menu item' : 'Submenu'
-        warnings.push(`${type} "${node.label}" requires a non-empty index.`)
+        warnings.push(
+          `${type} "${nodeLabel(node)}" requires a non-empty index.`,
+        )
       } else if (indexes.has(index)) {
         warnings.push(`Duplicate menu index "${index}".`)
       } else {
@@ -64,9 +104,18 @@ export function getAsideMenuConfigurationWarnings(
 
     if (node.type === 'item') return
 
+    if (!Array.isArray(node.children)) {
+      const type = node.type === 'group' ? 'Menu group' : 'Submenu'
+      const name = node.type === 'group' ? nodeLabel(node) : node.index
+      warnings.push(
+        `${type} "${String(name ?? '')}" requires children to be an array.`,
+      )
+      return
+    }
+
     if (!hasVisibleChildren(node)) {
       const type = node.type === 'group' ? 'Menu group' : 'Submenu'
-      const name = node.type === 'group' ? node.label : node.index
+      const name = node.type === 'group' ? nodeLabel(node) : node.index
       warnings.push(`${type} "${name}" has no visible children.`)
     }
 
