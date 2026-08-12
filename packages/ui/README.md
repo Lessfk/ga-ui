@@ -964,7 +964,7 @@ function handleSelect(index: string) {
 </style>
 ```
 
-`GaAsideMenu` 自身不引入或读取 `vue-router`。权限过滤始终由业务层在传入 `items` 前完成。未启用 Element Plus `router` 模式时，可在 `select` 事件中根据 `index` 执行路由跳转；启用 `router` 且应用已安装 Vue Router 时，配置节点按 `index`、原生插槽节点可按其 `route`（未提供时使用 `index`）调用 `router.push`。`select` 事件会原样带出 Element Plus 提供的 `routerResult`：组件不会 `await` 或捕获它，消费方可按需处理其 resolve 或 reject；无论导航结果如何，菜单内部都会先更新激活项。
+`GaAsideMenu` 自身不引入或读取 `vue-router`。权限过滤始终由业务层在传入 `items` 前完成。只有 `router=true` 且应用实际安装并提供可用的 Vue Router 实例时，底层 `ElMenu` 才会在选择菜单项后调用 `router.push`：配置节点使用 `index`，默认插槽中的原生 `ElMenuItem` 可传 `route`，未传时使用该菜单项的 `index`。其他情况下仍是普通选择，`routerResult` 为 `undefined`，可在 `select` 事件中根据 `index` 自行跳转。组件会原样带出 Element Plus 提供的 `routerResult`，不会 `await` 或捕获它，消费方可按需处理其 resolve 或 reject；无论导航结果如何，菜单内部都会先更新激活项。
 
 ### 基础用法
 
@@ -1088,11 +1088,11 @@ const active = ref('1-1')
 | `collapse` | `boolean` | `false` | 是否折叠，支持 `v-model:collapse`；折叠时 `ElAside` 宽度切换为 `auto`，由菜单自身折叠宽度（64px）决定 |
 | `width` | `string` | `'240px'` | 展开时侧边栏宽度 |
 | `items` | `readonly GaAsideMenuNode[]` | `[]` | 配置驱动菜单节点；同时存在默认插槽时优先渲染默认插槽 |
-| `active` | `string` | `undefined` | 受控激活项，支持 `v-model:active` 与外部状态同步 |
+| `active` | `string` | `undefined` | 外部同步激活项，支持 `v-model:active`；单向传入时仍允许内部选择更新 |
 | `defaultActive` | `string` | `''` | 未传 `active` 时使用的初始激活菜单 index |
 | `defaultOpeneds` | `string[]` | `[]` | 默认展开的 SubMenu index 集合 |
 | `uniqueOpened` | `boolean` | `false` | 是否只保持一个子菜单展开 |
-| `router` | `boolean` | `false` | 是否启用路由跳转；配置节点以 `index` 作为 path，原生插槽节点可使用 `route`（未提供时使用 `index`） |
+| `router` | `boolean` | `false` | 是否启用路由模式；仅当值为 `true` 且应用实际安装并提供 Vue Router 实例时，选择菜单项才会调用 `router.push` 并提供 `routerResult`，否则仍是普通选择且 `routerResult` 为 `undefined`。配置节点使用 `index`，原生 `ElMenuItem` 可传 `route`，未传时使用该菜单项的 `index` |
 | `menuTrigger` | `'hover' \| 'click'` | `'hover'` | 子菜单触发方式 |
 | `backgroundColor` | `string` | `undefined` | 菜单背景色 |
 | `textColor` | `string` | `undefined` | 菜单文字颜色 |
@@ -1125,7 +1125,7 @@ const active = ref('1-1')
 | `hidden` | 全部 | `boolean` | 渲染前移除隐藏节点；用于子菜单或分组时会移除整棵子树，隐藏节点不可点击选择，也不会自动清空或回退 `active`、`defaultActive`、`defaultOpeneds` |
 | `children` | `submenu`、`group` | 节点数组 | `submenu` 可包含全部节点类型；`group` 的子节点只能是 `item` 或 `submenu` |
 
-组件自身不引入 `vue-router` 或权限上下文。权限过滤应在业务层完成；未启用 `router` 时在 `select` 事件中处理跳转，启用 `router` 时由底层 Element Plus Menu 执行路由跳转，`select` 的 `routerResult` 返回跳转结果。
+组件自身不引入 `vue-router` 或权限上下文。权限过滤应在业务层完成。只有 `router=true` 且应用实际安装并提供 Vue Router 实例时，底层 Element Plus Menu 才会调用 `router.push` 并通过 `select` 提供 `routerResult`；配置节点使用 `index`，原生 `ElMenuItem` 可传 `route`，未传时使用该菜单项的 `index`。其他情况下仍是普通选择，`routerResult` 为 `undefined`，可在 `select` 事件中自行处理跳转。
 
 ### GaAsideMenu Events
 
@@ -1134,7 +1134,7 @@ const active = ref('1-1')
 | `update:collapse` | `(collapse: boolean)` | 折叠状态变化；用于 `v-model:collapse` |
 | `update:active` | `(active: string)` | 激活项变化；用于 `v-model:active` |
 | `toggle` | `(collapse: boolean)` | 折叠/展开切换动作执行后触发；外部处理方法通过 `@toggle` 传入 |
-| `select` | `(index: string, indexPath: string[], item: MenuItemClicked, routerResult?: Promise<unknown>)` | 菜单项激活；`routerResult` 在 `router` 模式下为路由跳转结果，类型以 `Promise<unknown>` 表达 |
+| `select` | `(index: string, indexPath: string[], item: MenuItemClicked, routerResult?: Promise<unknown>)` | 菜单项激活；仅当 `router=true` 且应用实际安装并提供 Vue Router 实例时，`routerResult` 才是 `router.push` 的结果，否则为 `undefined`。组件先更新内部激活项，再原样转发该 Promise，不会 `await` 或捕获它 |
 | `open` | `(index: string, indexPath: string[])` | 子菜单展开 |
 | `close` | `(index: string, indexPath: string[])` | 子菜单收起 |
 
