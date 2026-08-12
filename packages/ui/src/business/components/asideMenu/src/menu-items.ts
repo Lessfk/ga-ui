@@ -12,7 +12,7 @@ const hasVisibleChildren = (
 export function normalizeAsideMenuNodes(
   nodes: readonly GaAsideMenuNode[],
 ): GaAsideMenuNode[] {
-  return nodes.flatMap((node) => {
+  return nodes.flatMap<GaAsideMenuNode>((node) => {
     if (node.hidden) return []
     if (node.type === 'item') return [node]
 
