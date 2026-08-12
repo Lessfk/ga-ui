@@ -174,6 +174,47 @@ void asideMenuStateSlot
 void asideMenuTriggerSlot
 void checkAsideMenuActiveEmit
 
+const rootConfiguredAsideMenuNodes: RootGaAsideMenuNode[] = [
+  {
+    type: 'submenu',
+    index: 'system',
+    label: '系统管理',
+    children: [
+      {
+        type: 'item',
+        index: 'users',
+        label: '用户管理',
+      },
+    ],
+  },
+]
+
+const rootConfiguredAsideMenuProps: RootGaAsideMenuProps = {
+  items: rootConfiguredAsideMenuNodes,
+  active: 'users',
+  defaultActive: 'system',
+}
+
+const rootAsideMenuStateSlot: RootGaAsideMenuStateSlotProps = {
+  collapse: false,
+  active: 'users',
+}
+
+const rootAsideMenuTriggerSlot: RootGaAsideMenuTriggerSlotProps = {
+  ...rootAsideMenuStateSlot,
+  toggle: () => undefined,
+}
+
+function checkRootAsideMenuActiveEmit(emit: RootGaAsideMenuEmits) {
+  emit('update:active', 'users')
+}
+
+void rootConfiguredAsideMenuNodes
+void rootConfiguredAsideMenuProps
+void rootAsideMenuStateSlot
+void rootAsideMenuTriggerSlot
+void checkRootAsideMenuActiveEmit
+
 const fullscreenDialogProps: GaDialogProps = {
   modelValue: true,
   showFullscreen: true,
