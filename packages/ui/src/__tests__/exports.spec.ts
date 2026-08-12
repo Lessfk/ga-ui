@@ -20,12 +20,21 @@ import type {
 } from '../base'
 // @ts-expect-error GaDialog public types are not exported from the business entry
 import type { GaDialogProps as BusinessGaDialogProps } from '../business'
-import type { GaAsideMenuEmits, GaAsideMenuProps } from '../business'
-import type { GaTablePaginationProps } from '../business'
+import type {
+  GaAsideMenuEmits,
+  GaAsideMenuNode,
+  GaAsideMenuProps,
+  GaAsideMenuStateSlotProps,
+  GaAsideMenuTriggerSlotProps,
+  GaTablePaginationProps,
+} from '../business'
 import type {
   GaAsideMenuEmits as RootGaAsideMenuEmits,
   GaAsideMenuExpose as RootGaAsideMenuExpose,
+  GaAsideMenuNode as RootGaAsideMenuNode,
   GaAsideMenuProps as RootGaAsideMenuProps,
+  GaAsideMenuStateSlotProps as RootGaAsideMenuStateSlotProps,
+  GaAsideMenuTriggerSlotProps as RootGaAsideMenuTriggerSlotProps,
   GaDialogEmits as RootGaDialogEmits,
   GaDialogExpose as RootGaDialogExpose,
   GaDialogHeaderSlotProps as RootGaDialogHeaderSlotProps,
@@ -58,6 +67,9 @@ type RootTypeContract = [
   RootGaAsideMenuProps,
   RootGaAsideMenuEmits,
   RootGaAsideMenuExpose,
+  RootGaAsideMenuNode,
+  RootGaAsideMenuStateSlotProps,
+  RootGaAsideMenuTriggerSlotProps,
 ]
 
 type BusinessDialogTypeContract = BusinessGaDialogProps
@@ -121,6 +133,46 @@ function checkAsideMenuToggleEmit(emit: GaAsideMenuEmits) {
 
 void asideMenuProps
 void checkAsideMenuToggleEmit
+
+const configuredAsideMenuNodes: GaAsideMenuNode[] = [
+  {
+    type: 'submenu',
+    index: 'system',
+    label: '系统管理',
+    children: [
+      {
+        type: 'item',
+        index: 'users',
+        label: '用户管理',
+      },
+    ],
+  },
+]
+
+const configuredAsideMenuProps: GaAsideMenuProps = {
+  items: configuredAsideMenuNodes,
+  active: 'users',
+  defaultActive: 'system',
+}
+
+const asideMenuStateSlot: GaAsideMenuStateSlotProps = {
+  collapse: false,
+  active: 'users',
+}
+
+const asideMenuTriggerSlot: GaAsideMenuTriggerSlotProps = {
+  ...asideMenuStateSlot,
+  toggle: () => undefined,
+}
+
+function checkAsideMenuActiveEmit(emit: GaAsideMenuEmits) {
+  emit('update:active', 'users')
+}
+
+void configuredAsideMenuProps
+void asideMenuStateSlot
+void asideMenuTriggerSlot
+void checkAsideMenuActiveEmit
 
 const fullscreenDialogProps: GaDialogProps = {
   modelValue: true,
