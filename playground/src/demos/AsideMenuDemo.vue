@@ -94,7 +94,7 @@
               </div>
             </template>
 
-            <el-sub-menu index="1">
+            <ElSubMenu index="1">
               <template #title>
                 <ElIcon>
                   <svg
@@ -115,19 +115,19 @@
                 </ElIcon>
                 <span>Navigator One</span>
               </template>
-              <el-menu-item-group title="Group One">
-                <el-menu-item index="1-1">item one</el-menu-item>
-                <el-menu-item index="1-2">item two</el-menu-item>
-              </el-menu-item-group>
-              <el-menu-item-group title="Group Two">
-                <el-menu-item index="1-3">item three</el-menu-item>
-              </el-menu-item-group>
-              <el-sub-menu index="1-4">
+              <ElMenuItemGroup title="Group One">
+                <ElMenuItem index="1-1">item one</ElMenuItem>
+                <ElMenuItem index="1-2">item two</ElMenuItem>
+              </ElMenuItemGroup>
+              <ElMenuItemGroup title="Group Two">
+                <ElMenuItem index="1-3">item three</ElMenuItem>
+              </ElMenuItemGroup>
+              <ElSubMenu index="1-4">
                 <template #title>item four</template>
-                <el-menu-item index="1-4-1">item one</el-menu-item>
-              </el-sub-menu>
-            </el-sub-menu>
-            <el-menu-item index="2">
+                <ElMenuItem index="1-4-1">item one</ElMenuItem>
+              </ElSubMenu>
+            </ElSubMenu>
+            <ElMenuItem index="2">
               <ElIcon>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -146,8 +146,8 @@
                 </svg>
               </ElIcon>
               <span>Navigator Two</span>
-            </el-menu-item>
-            <el-menu-item index="3" disabled>
+            </ElMenuItem>
+            <ElMenuItem index="3" disabled>
               <ElIcon>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -166,8 +166,8 @@
                 </svg>
               </ElIcon>
               <span>Navigator Three</span>
-            </el-menu-item>
-            <el-menu-item index="4">
+            </ElMenuItem>
+            <ElMenuItem index="4">
               <ElIcon>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -186,7 +186,7 @@
                 </svg>
               </ElIcon>
               <span>Navigator Four</span>
-            </el-menu-item>
+            </ElMenuItem>
 
             <template #footer="{ collapse }">
               <div class="aside-logo" v-if="!collapse">
@@ -241,7 +241,12 @@
 
 <script setup lang="ts">
 import { defineComponent, h, markRaw, ref } from "vue";
-import { ElIcon } from "element-plus";
+import {
+  ElIcon,
+  ElMenuItem,
+  ElMenuItemGroup,
+  ElSubMenu,
+} from "element-plus";
 import {
   GaAsideMenu,
   type GaAsideMenuNode,

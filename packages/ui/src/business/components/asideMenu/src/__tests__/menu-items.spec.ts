@@ -7,6 +7,11 @@ import {
 } from '../menu-items'
 
 describe('GaAsideMenu menu item helpers', () => {
+  it('treats omitted node configuration as empty', () => {
+    expect(normalizeAsideMenuNodes(undefined)).toEqual([])
+    expect(getAsideMenuConfigurationWarnings(undefined, true)).toEqual([])
+  })
+
   it('filters hidden nodes and empty containers without mutating input', () => {
     const nodes: GaAsideMenuNode[] = [
       { type: 'item', index: 'visible', label: 'Visible' },

@@ -10,9 +10,9 @@ const hasVisibleChildren = (
 ) => normalizeAsideMenuNodes(node.children).length > 0
 
 export function normalizeAsideMenuNodes(
-  nodes: readonly GaAsideMenuNode[],
+  nodes: readonly GaAsideMenuNode[] | undefined,
 ): GaAsideMenuNode[] {
-  return nodes.flatMap<GaAsideMenuNode>((node) => {
+  return (nodes ?? []).flatMap<GaAsideMenuNode>((node) => {
     if (node.hidden) return []
     if (node.type === 'item') return [node]
 
@@ -33,13 +33,14 @@ export function normalizeAsideMenuNodes(
 }
 
 export function getAsideMenuConfigurationWarnings(
-  nodes: readonly GaAsideMenuNode[],
+  nodes: readonly GaAsideMenuNode[] | undefined,
   hasDefaultSlot: boolean,
 ): string[] {
+  const configuredNodes = nodes ?? []
   const warnings: string[] = []
   const indexes = new Set<string>()
 
-  if (hasDefaultSlot && nodes.length > 0) {
+  if (hasDefaultSlot && configuredNodes.length > 0) {
     warnings.push(
       'The default slot and items were both provided; the default slot takes precedence.',
     )
@@ -72,6 +73,6 @@ export function getAsideMenuConfigurationWarnings(
     node.children.forEach(visit)
   }
 
-  nodes.forEach(visit)
+  configuredNodes.forEach(visit)
   return [...new Set(warnings)]
 }
