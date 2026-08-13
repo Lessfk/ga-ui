@@ -4,6 +4,15 @@ import type {
   MenuPropsPublic,
 } from 'element-plus'
 
+export interface GaAsideMenuTheme {
+  backgroundColor?: string
+  textColor?: string
+  activeTextColor?: string
+  activeBackgroundColor?: string
+  hoverBackgroundColor?: string
+  borderColor?: string
+}
+
 export type GaAsideMenuProps = Omit<
   MenuPropsPublic,
   'mode' | 'collapse'
@@ -11,6 +20,7 @@ export type GaAsideMenuProps = Omit<
   collapse?: boolean
   width?: string
   collapseWidth?: string
+  theme?: GaAsideMenuTheme
 }
 
 export interface GaAsideMenuEmits {

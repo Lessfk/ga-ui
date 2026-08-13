@@ -21,6 +21,7 @@ import type {
   GaAsideMenuExpose,
   GaAsideMenuProps,
   GaAsideMenuSlotProps,
+  GaAsideMenuTheme,
   GaAsideMenuToggleSlotProps,
   GaTablePaginationProps,
 } from '../business'
@@ -29,6 +30,7 @@ import type {
   GaAsideMenuExpose as RootGaAsideMenuExpose,
   GaAsideMenuProps as RootGaAsideMenuProps,
   GaAsideMenuSlotProps as RootGaAsideMenuSlotProps,
+  GaAsideMenuTheme as RootGaAsideMenuTheme,
   GaAsideMenuToggleSlotProps as RootGaAsideMenuToggleSlotProps,
   GaDialogEmits as RootGaDialogEmits,
   GaDialogExpose as RootGaDialogExpose,
@@ -63,6 +65,7 @@ type RootTypeContract = [
   RootGaAsideMenuEmits,
   RootGaAsideMenuExpose,
   RootGaAsideMenuSlotProps,
+  RootGaAsideMenuTheme,
   RootGaAsideMenuToggleSlotProps,
 ]
 
@@ -88,6 +91,15 @@ const asideMenuProps: GaAsideMenuProps = {
   defaultActive: '1-1',
   defaultOpeneds: ['1'],
   uniqueOpened: true,
+  theme: {
+    backgroundColor: '#101828',
+    activeBackgroundColor: '#155eef',
+  },
+}
+
+const asideMenuTheme: GaAsideMenuTheme = {
+  textColor: '#d0d5dd',
+  activeTextColor: '#ffffff',
 }
 
 const asideMenuSlot: GaAsideMenuSlotProps = {
@@ -122,6 +134,7 @@ void rootTypeContract
 void businessDialogTypeContract
 void tablePaginationProps
 void asideMenuProps
+void asideMenuTheme
 void asideMenuSlot
 void asideMenuToggleSlot
 void checkAsideMenuEmits

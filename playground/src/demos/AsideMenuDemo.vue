@@ -3,7 +3,6 @@
     <GaAsideMenu
       v-model:collapse="collapsed"
       width="248px"
-      collapse-width="68px"
       :default-active="activeMenu"
       :default-openeds="['workspace']"
       unique-opened
@@ -65,7 +64,7 @@
         <template #title>系统设置</template>
       </ElMenuItem>
 
-      <template #footer="{ collapse }">
+      <!-- <template #footer="{ collapse }">
         <div class="aside-user">
           <span class="aside-user__avatar">GA</span>
           <span v-if="!collapse" class="aside-user__meta">
@@ -73,9 +72,9 @@
             <small>admin@ga-ui.dev</small>
           </span>
         </div>
-      </template>
+      </template> -->
 
-      <template #collapse="{ collapse, toggle }">
+      <!-- <template #collapse="{ collapse, toggle }">
         <button
           type="button"
           class="aside-collapse"
@@ -88,7 +87,7 @@
           </ElIcon>
           <span v-if="!collapse">收起侧边栏</span>
         </button>
-      </template>
+      </template> -->
     </GaAsideMenu>
 
     <main class="aside-demo__content">
@@ -138,9 +137,7 @@ import {
   Calendar,
   DataAnalysis,
   Document,
-  Expand,
   Folder,
-  Fold,
   Grid,
   Setting,
   Tickets,
@@ -184,13 +181,6 @@ onBeforeUnmount(() =>
 </script>
 
 <style scoped lang="scss">
-:global(html),
-:global(body),
-:global(#app) {
-  min-width: 0;
-  min-height: 100%;
-  margin: 0;
-}
 
 .aside-demo {
   box-sizing: border-box;

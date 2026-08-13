@@ -8,6 +8,7 @@ import {
   type GaAsideMenuExpose,
   type GaAsideMenuProps,
   type GaAsideMenuSlotProps,
+  type GaAsideMenuTheme,
   type GaAsideMenuToggleSlotProps,
   type GaDialogProps,
   type GaTableColumn,
@@ -30,6 +31,7 @@ import {
   type GaAsideMenuEmits as BusinessAsideMenuEmits,
   type GaAsideMenuProps as BusinessAsideMenuProps,
   type GaAsideMenuSlotProps as BusinessAsideMenuSlotProps,
+  type GaAsideMenuTheme as BusinessAsideMenuTheme,
   type GaAsideMenuToggleSlotProps as BusinessAsideMenuToggleSlotProps,
   type GaTablePaginationProps as BusinessTablePaginationProps,
 } from 'ga-ui-plus/business'
@@ -51,12 +53,24 @@ const rootAsideMenuProps: GaAsideMenuProps = {
   collapseWidth: '68px',
   defaultActive: 'users',
   uniqueOpened: true,
+  theme: {
+    backgroundColor: '#101828',
+    activeBackgroundColor: '#155eef',
+  },
 }
 const businessAsideMenuProps: BusinessAsideMenuProps = {
   collapse: true,
   collapseWidth: '72px',
 }
 const rootAsideMenuSlot: GaAsideMenuSlotProps = { collapse: false }
+const rootAsideMenuTheme: GaAsideMenuTheme = {
+  textColor: '#d0d5dd',
+  activeTextColor: '#ffffff',
+}
+const businessAsideMenuTheme: BusinessAsideMenuTheme = {
+  hoverBackgroundColor: '#1d2939',
+  borderColor: '#344054',
+}
 const rootAsideMenuToggleSlot: GaAsideMenuToggleSlotProps = {
   ...rootAsideMenuSlot,
   toggle: () => undefined,
@@ -113,6 +127,8 @@ void [
   rootAsideMenuProps,
   businessAsideMenuProps,
   rootAsideMenuSlot,
+  rootAsideMenuTheme,
+  businessAsideMenuTheme,
   rootAsideMenuToggleSlot,
   businessAsideMenuSlot,
   businessAsideMenuToggleSlot,

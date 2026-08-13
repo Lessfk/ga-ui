@@ -8,5 +8,6 @@ export type {
   GaAsideMenuExpose,
   GaAsideMenuProps,
   GaAsideMenuSlotProps,
+  GaAsideMenuTheme,
   GaAsideMenuToggleSlotProps,
 } from './types'

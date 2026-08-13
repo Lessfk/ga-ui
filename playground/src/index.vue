@@ -1,16 +1,24 @@
 <template>
-  <ElAside v-bind="$attrs" :width="currentWidth" class="ga-aside-menu">
+  <ElAside
+    v-bind="$attrs"
+    class="ga-aside-menu"
+    :class="{ 'is-collapse': currentCollapse }"
+    :style="themeStyle"
+    :width="currentWidth"
+  >
     <div v-if="slots.header" class="ga-aside-menu__header">
-      <slot name="header" />
+      <slot name="header" :collapse="currentCollapse" />
     </div>
 
-    <ElScrollbar class="ga-aside-menu__body">
+    <ElScrollbar class="ga-aside-menu__scrollbar">
       <ElMenu
         ref="menuRef"
         v-bind="menuProps"
         class="ga-aside-menu__menu"
         mode="vertical"
         :collapse="currentCollapse"
+        :popper-class="menuPopperClass"
+        :popper-style="menuPopperStyle"
         @select="handleSelect"
         @open="handleOpen"
         @close="handleClose"
@@ -20,19 +28,21 @@
     </ElScrollbar>
 
     <div v-if="slots.footer" class="ga-aside-menu__footer">
-      <slot name="footer" />
+      <slot name="footer" :collapse="currentCollapse" />
     </div>
 
-    <div class="ga-aside-menu__trigger">
-      <slot name="trigger" :collapse="currentCollapse" :toggle="toggleCollapse">
+    <div class="ga-aside-menu__collapse">
+      <slot name="collapse" :collapse="currentCollapse" :toggle="toggle">
         <button
           type="button"
-          class="ga-aside-menu__trigger-btn"
+          class="ga-aside-menu__collapse-button"
           :aria-label="currentCollapse ? '展开菜单' : '折叠菜单'"
-          @click="toggleCollapse"
+          :title="currentCollapse ? '展开菜单' : '折叠菜单'"
+          @click="toggle"
         >
           <svg
             v-if="currentCollapse"
+            aria-hidden="true"
             class="ga-aside-menu__trigger-icon"
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -54,6 +64,7 @@
 
           <svg
             v-else
+            aria-hidden="true"
             class="ga-aside-menu__trigger-icon"
             xmlns="http://www.w3.org/2000/svg"
             width="24"

@@ -884,13 +884,33 @@ function viewUser(row: UserRow) {
 
 ## GaAsideMenu
 
-`GaAsideMenu` 由 Element Plus 的 `ElAside`、`ElScrollbar` 与 `ElMenu` 组合而成。菜单固定为纵向模式，默认插槽可以直接放置原生 `ElSubMenu`、`ElMenuItem` 与 `ElMenuItemGroup`，因此 Element Plus 菜单的插槽、图标和路由能力都可以继续使用。
+`GaAsideMenu` 由 Element Plus 的 `ElAside`、`ElScrollbar` 与 `ElMenu` 组合而成。菜单固定为纵向模式，默认插槽可以直接放置原生 `ElSubMenu`、`ElMenuItem` 与 `ElMenuItemGroup`，因此 Element Plus 菜单的插槽、图标和路由能力都可以继续使用。`theme` 可统一配置侧栏、菜单项及折叠弹出层的主题颜色。
 
 ### 基础用法
 
 `collapse` 驱动内部 `ElMenu` 和外层 `ElAside` 同步折叠，支持 `v-model:collapse`。`width` 控制展开宽度，`collapseWidth` 控制折叠宽度，默认分别为 `240px` 和 `64px`。父容器需要提供明确高度，内部 `ElScrollbar` 才能正确滚动。
 
 `header`、`footer` 插槽可读取当前 `collapse` 状态。`collapse` 插槽用于自定义折叠控制，并提供 `toggle()`；未提供时组件使用内置的可访问按钮。
+
+### 主题配置
+
+通过 `theme` 设置背景、文字、激活态、悬停态与边框颜色。主题会同步应用到折叠后 Teleport 到 `body` 的子菜单弹层，并与消费方传入的 `popperClass`、`popperStyle` 合并：
+
+```vue
+<GaAsideMenu
+  v-model:collapse="collapsed"
+  :theme="{
+    backgroundColor: '#101828',
+    textColor: '#d0d5dd',
+    activeTextColor: '#ffffff',
+    activeBackgroundColor: '#155eef',
+    hoverBackgroundColor: '#1d2939',
+    borderColor: '#344054',
+  }"
+>
+  <ElMenuItem index="dashboard">工作台</ElMenuItem>
+</GaAsideMenu>
+```
 
 ```vue
 <template>
@@ -1000,13 +1020,14 @@ const collapsed = ref(false)
 
 ### GaAsideMenu Props
 
-`GaAsideMenuProps` 在 Element Plus Menu Props 基础上增加了 `collapse`、`width` 与 `collapseWidth`。`mode` 固定为 `vertical`，`collapse` 由组件接管用于宽度联动；其余属性为除 `mode`/`collapse` 外的全部 Element Plus Menu Props。
+`GaAsideMenuProps` 在 Element Plus Menu Props 基础上增加了 `collapse`、`width`、`collapseWidth` 与 `theme`。`mode` 固定为 `vertical`，`collapse` 由组件接管用于宽度联动；其余属性为除 `mode`/`collapse` 外的全部 Element Plus Menu Props。
 
 | 属性 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `collapse` | `boolean` | `false` | 是否折叠，支持 `v-model:collapse` |
 | `width` | `string` | `'240px'` | 展开时侧边栏宽度 |
 | `collapseWidth` | `string` | `'64px'` | 折叠时侧边栏宽度 |
+| `theme` | `GaAsideMenuTheme` | 内置蓝色渐变主题 | 配置侧栏、菜单项与折叠弹层的主题颜色，支持局部覆盖默认值 |
 | `defaultActive` | `string` | `''` | 默认激活菜单 index |
 | `defaultOpeneds` | `string[]` | `[]` | 默认展开的 SubMenu index 集合 |
 | `uniqueOpened` | `boolean` | `false` | 是否只保持一个子菜单展开 |
@@ -1028,6 +1049,17 @@ const collapsed = ref(false)
 | `persistent` | `boolean` | `true` | 菜单收起时是否保留弹出层 DOM |
 
 完整行为以 [Element Plus Menu 文档](https://element-plus.org/zh-CN/component/menu.html) 为准。
+
+`GaAsideMenuTheme` 支持以下字段：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `backgroundColor` | `string` | 侧栏、菜单与折叠弹层背景色 |
+| `textColor` | `string` | 默认文字与图标颜色 |
+| `activeTextColor` | `string` | 激活菜单项文字与图标颜色 |
+| `activeBackgroundColor` | `string` | 激活菜单项背景色 |
+| `hoverBackgroundColor` | `string` | 菜单项和折叠按钮悬停背景色 |
+| `borderColor` | `string` | 侧栏分隔线和折叠弹层边框颜色 |
 
 ### GaAsideMenu Events
 
@@ -1101,8 +1133,9 @@ function openSystemMenu() {
 | `GaPaginationProps` | `GaPagination` Props |
 | `GaTablePaginationProps<Row>` | 扁平的表格分页组合 Props |
 | `GaAsideMenuSlotProps` | `header`/`footer` 插槽作用域，包含 `collapse` |
+| `GaAsideMenuTheme` | `GaAsideMenu` 主题颜色配置 |
 | `GaAsideMenuToggleSlotProps` | `collapse` 插槽作用域，包含 `collapse` 与 `toggle()` |
-| `GaAsideMenuProps` | `GaAsideMenu` Props；在 Element Plus Menu Props 上增加折叠与宽度控制 |
+| `GaAsideMenuProps` | `GaAsideMenu` Props；在 Element Plus Menu Props 上增加折叠、宽度与主题控制 |
 | `GaAsideMenuEmits` | `GaAsideMenu` 的折叠更新、切换与 `select`/`open`/`close` 事件签名 |
 | `GaAsideMenuExpose` | `GaAsideMenu` 暴露实例类型，包含 `menuRef` 与 `toggle()` |
 
@@ -1174,7 +1207,7 @@ void getStatusText
 - `GaDialog` 显式转发 `v-model`、全屏状态更新与对话框生命周期事件，并将其他 `$attrs` 绑定到内部 `ElDialog`；默认标题栏提供全屏/还原工具按钮，但组件不内置 `footer` 内容或确认、取消等业务按钮。`beforeClose` 的异常处理与 `done` 回调调用由消费方负责，直接将 `v-model` 状态改为 `false` 会绕过 `beforeClose`。
 - `GaTable` 使用 `inheritAttrs: false`，并将普通 `$attrs` 直接绑定到内部 `ElTable`；未声明的 Element Plus 表格事件也随监听器一起透传。
 - `GaPagination` 使用相同策略，将普通 `$attrs` 绑定到内部 `ElPagination`。组件当前不转发分页插槽。
-- `GaAsideMenu` 固定菜单 `mode="vertical"`，菜单内容通过默认插槽直接使用 Element Plus 菜单节点。`collapse`、`width` 与 `collapseWidth` 由组件接管，其余菜单 Props 传给内部 `ElMenu`；普通 `$attrs` 绑定在根部 `ElAside`。`select`/`open`/`close` 事件原样转发，其中 `routerResult` 使用 `Promise<unknown>` 表达。父容器需要提供明确高度，内部 `ElScrollbar` 才能正确滚动。
+- `GaAsideMenu` 固定菜单 `mode="vertical"`，菜单内容通过默认插槽直接使用 Element Plus 菜单节点。`collapse`、`width`、`collapseWidth` 与 `theme` 由组件接管，其余菜单 Props 传给内部 `ElMenu`；主题变量会同时传给折叠子菜单弹层，并与 `popperClass`、`popperStyle` 合并。普通 `$attrs` 绑定在根部 `ElAside`。`select`/`open`/`close` 事件原样转发，其中 `routerResult` 使用 `Promise<unknown>` 表达。父容器需要提供明确高度，内部 `ElScrollbar` 才能正确滚动。
 - `GaTablePagination` 的普通 `$attrs` 绑定在根 `<div>`，包括 `class`、`style`、`id` 和普通监听器；它们不会自动分发给内部表格或分页。组件只转发明确声明的四个分页事件，不会透传 `selection-change` 等表格事件；选择列只展示选择 UI。需要读取选择结果时，请使用 `GaTable` 与 `GaPagination` 组合。
 - `GaTablePagination` 当前不暴露底层 `tableRef`。需要调用 `clearSelection`、`doLayout` 等表格实例方法时，请使用 `GaTable` 与 `GaPagination` 组合。
 - `GaTablePagination` 不接受 `height`、`maxHeight`、`tableProps` 或 `paginationProps`；内部表格高度由组件固定，其他能力通过扁平 Props 和表格插槽提供。
