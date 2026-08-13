@@ -1,6 +1,6 @@
 {
   "name": "ga-ui-plus",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "lemonmon",
   "license": "MIT",
   "description": "基于 Element Plus 二次封装的 Vue 3 组件库",

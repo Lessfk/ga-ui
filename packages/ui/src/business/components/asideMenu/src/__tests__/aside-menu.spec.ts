@@ -117,7 +117,7 @@ function mountAsideMenu(options: Parameters<typeof mount>[1] = {}) {
 
 describe('GaAsideMenu', () => {
   const defaultBackground =
-    'radial-gradient(130% 55% at 50% -10%, rgba(96, 165, 250, 0.22) 0%, transparent 60%), radial-gradient(90% 40% at 85% 108%, rgba(34, 211, 238, 0.1) 0%, transparent 55%), linear-gradient(165deg, #1b3a7a 0%, #0e1f4a 52%, #091636 100%)'
+    'radial-gradient(130% 55% at 40% -10%, rgba(96, 165, 250, 0.28) 0%, transparent 62%),radial-gradient(85% 40% at 95% 100%, rgba(125, 211, 252, 0.1) 0%, transparent 55%),linear-gradient(168deg, #1d4480 0%, #122c5c 48%, #0a1a3d 100%)'
 
   it('combines Element Plus aside, scrollbar, and menu with layout slots', () => {
     const wrapper = mountAsideMenu({

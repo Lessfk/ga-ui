@@ -1,19 +1,8 @@
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
-
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
 
-import dialogStyles from '../../style/index.scss?raw'
 import GaDialog from '../index.vue'
-
-const dialogStyleSource =
-  dialogStyles ||
-  readFileSync(
-    resolve(process.cwd(), 'src/base/components/dialog/style/index.scss'),
-    'utf8',
-  )
 
 const titleId = 'el-dialog-title'
 const titleClass = 'el-dialog__title'
@@ -101,7 +90,7 @@ function mountDialog(options: Parameters<typeof mount>[1] = {}) {
 }
 
 describe('GaDialog', () => {
-  it('passes the Element Plus-compatible defaults to ElDialog', () => {
+  it('passes its defaults to ElDialog and disables the native close button', () => {
     const wrapper = mountDialog()
 
     expect(wrapper.findComponent(ElDialogStub).props()).toMatchObject({
@@ -115,14 +104,18 @@ describe('GaDialog', () => {
       center: false,
       alignCenter: true,
       draggable: true,
-      showClose: true,
+      showClose: false,
       closeOnClickModal: false,
       closeOnPressEscape: false,
       beforeClose: undefined,
     })
+
+    expect(wrapper.find('.ga-dialog__header').exists()).toBe(true)
+    expect(wrapper.find('.ga-dialog__fullscreenbtn').exists()).toBe(true)
+    expect(wrapper.find('.ga-dialog__closebtn').exists()).toBe(true)
   })
 
-  it('lets consumers override every selected dialog prop', () => {
+  it('forwards selected props while keeping the native close button disabled', () => {
     const beforeClose = (done: () => void) => done()
     const wrapper = mountDialog({
       props: {
@@ -161,9 +154,10 @@ describe('GaDialog', () => {
       closeOnPressEscape: true,
     })
     expect(dialogProps.beforeClose).toBe(beforeClose)
+    expect(wrapper.find('.ga-dialog__closebtn').exists()).toBe(false)
   })
 
-  it('forwards low-frequency props, attributes, and listeners through $attrs', () => {
+  it('forwards undeclared attributes and listeners to ElDialog', () => {
     const receivedPayloads: unknown[] = []
     const payload = { source: 'consumer' }
     const wrapper = mountDialog({
@@ -180,47 +174,57 @@ describe('GaDialog', () => {
     expect(dialog.props('modal')).toBe(false)
     expect(dialog.attributes('data-dialog')).toBe('account-settings')
     expect(receivedPayloads).toEqual([payload])
-    expect(receivedPayloads[0]).toBe(payload)
   })
 
-  it('forwards the controlled model and lifecycle events', () => {
-    const wrapper = mountDialog()
-    const dialog = wrapper.findComponent(ElDialogStub)
+  it('renders an accessible default header and optional footer', () => {
+    const wrapper = mountDialog({
+      props: {
+        title: 'Account settings',
+      },
+      attrs: {
+        'header-aria-level': 3,
+      },
+      slots: {
+        default: () => h('p', { class: 'dialog-content' }, 'Profile fields'),
+        footer: () => h('span', { class: 'custom-footer' }, 'Save changes'),
+      },
+    })
 
-    dialog.vm.$emit('update:modelValue', true)
-    dialog.vm.$emit('open')
-    dialog.vm.$emit('opened')
-    dialog.vm.$emit('close')
-    dialog.vm.$emit('closed')
-    dialog.vm.$emit('openAutoFocus')
-    dialog.vm.$emit('closeAutoFocus')
+    const title = wrapper.get(`#${titleId}`)
 
-    expect(wrapper.emitted('update:modelValue')).toEqual([[true]])
-    expect(wrapper.emitted('open')).toEqual([[]])
-    expect(wrapper.emitted('opened')).toEqual([[]])
-    expect(wrapper.emitted('close')).toEqual([[]])
-    expect(wrapper.emitted('closed')).toEqual([[]])
-    expect(wrapper.emitted('open-auto-focus')).toEqual([[]])
-    expect(wrapper.emitted('close-auto-focus')).toEqual([[]])
+    expect(title.text()).toBe('Account settings')
+    expect(title.classes()).toContain(titleClass)
+    expect(title.attributes('role')).toBe('heading')
+    expect(title.attributes('aria-level')).toBe('3')
+    expect(wrapper.get('.dialog-content').text()).toBe('Profile fields')
+    expect(wrapper.get('.custom-footer').text()).toBe('Save changes')
+    expect(wrapper.get('.ga-dialog__fullscreenbtn').attributes()).toMatchObject({
+      type: 'button',
+      title: '全屏',
+      'aria-label': '全屏',
+    })
+    expect(wrapper.get('.ga-dialog__closebtn').attributes()).toMatchObject({
+      type: 'button',
+      title: '关闭',
+      'aria-label': '关闭',
+    })
   })
 
-  it('renders the default, scoped header, and footer slots unchanged', () => {
+  it('replaces the complete default header when the header slot is provided', () => {
     const receivedScopes: Array<Record<string, unknown>> = []
     const wrapper = mountDialog({
       slots: {
-        default: () => h('p', { class: 'dialog-content' }, 'Profile fields'),
         header: (scope) => {
           receivedScopes.push(scope)
           return h('h2', { class: 'custom-header' }, scope.titleId as string)
         },
-        footer: () => h('span', { class: 'custom-footer' }, 'Footer content'),
       },
     })
 
-    expect(wrapper.find('.dialog-content').text()).toBe('Profile fields')
-    expect(wrapper.find('.custom-header').text()).toBe(titleId)
-    expect(wrapper.find('.custom-footer').text()).toBe('Footer content')
-    expect(wrapper.find('button.ga-dialog__fullscreenbtn').exists()).toBe(true)
+    expect(wrapper.get('.custom-header').text()).toBe(titleId)
+    expect(wrapper.find('.ga-dialog__header').exists()).toBe(false)
+    expect(wrapper.find('.ga-dialog__fullscreenbtn').exists()).toBe(false)
+    expect(wrapper.find('.ga-dialog__closebtn').exists()).toBe(false)
     expect(receivedScopes[0]).toEqual({
       close: handleClose,
       titleId,
@@ -228,77 +232,32 @@ describe('GaDialog', () => {
     })
   })
 
-  it('renders an accessible fullscreen control with the default title', () => {
+  it('lets showFullscreen and showClose control the custom header buttons', () => {
     const wrapper = mountDialog({
       props: {
-        title: 'Native dialog title',
-      },
-      attrs: {
-        'header-aria-level': '3',
-      },
-      slots: {
-        default: () => h('p', { class: 'dialog-content' }, 'Dialog body'),
+        showFullscreen: false,
+        showClose: false,
       },
     })
 
-    const title = wrapper.find('#el-dialog-title')
-    const fullscreenButton = wrapper.find('button.ga-dialog__fullscreenbtn')
-
-    expect(title.text()).toBe('Native dialog title')
-    expect(title.classes()).toContain(titleClass)
-    expect(title.attributes('role')).toBe('heading')
-    expect(title.attributes('aria-level')).toBe('3')
-    expect(fullscreenButton.attributes('type')).toBe('button')
-    expect(fullscreenButton.attributes('title')).toBe('全屏')
-    expect(fullscreenButton.attributes('aria-label')).toBe('全屏')
-    expect(wrapper.find('.dialog-content').text()).toBe('Dialog body')
-    expect(wrapper.find('.el-dialog__footer').exists()).toBe(false)
+    expect(wrapper.find('.ga-dialog__fullscreenbtn').exists()).toBe(false)
+    expect(wrapper.find('.ga-dialog__closebtn').exists()).toBe(false)
   })
 
-  it('hides the fullscreen control when showFullscreen is false', () => {
-    const wrapper = mountDialog({ props: { showFullscreen: false } })
-    expect(wrapper.find('button.ga-dialog__fullscreenbtn').exists()).toBe(false)
-  })
-
-  it('moves the fullscreen control to the right when close is hidden', () => {
-    const wrapper = mountDialog({ props: { showClose: false } })
-    const dialog = wrapper.findComponent(ElDialogStub)
-
-    expect(dialog.classes()).toContain('ga-dialog--fullscreenable')
-    expect(dialog.classes()).toContain('ga-dialog--without-close')
-  })
-
-  it('scopes fullscreen header actions to direct dialog children', () => {
-    expect(dialogStyleSource).toContain('> .el-dialog__header')
-    expect(dialogStyleSource).toContain(
-      '> .el-dialog__header > .ga-dialog__fullscreenbtn',
-    )
-  })
-
-  it('scopes close control styles to the direct dialog header', () => {
-    expect(dialogStyleSource).toContain(
-      '> .el-dialog__header > .el-dialog__headerbtn > .el-dialog__close',
-    )
-    expect(dialogStyleSource).toContain(
-      '> .el-dialog__header > .el-dialog__headerbtn:focus-visible > .el-dialog__close',
-    )
-  })
-
-  it('toggles fullscreen and emits update:fullscreen', async () => {
+  it('toggles fullscreen state and emits update:fullscreen', async () => {
     const wrapper = mountDialog()
-    const fullscreenButton = wrapper.find('button.ga-dialog__fullscreenbtn')
+    const button = wrapper.get('.ga-dialog__fullscreenbtn')
 
-    expect(wrapper.find('.ga-dialog__fullscreen-icon--expand').exists()).toBe(true)
+    expect(button.attributes('title')).toBe('全屏')
 
-    await fullscreenButton.trigger('click')
+    await button.trigger('click')
 
     expect(wrapper.findComponent(ElDialogStub).props('fullscreen')).toBe(true)
     expect(wrapper.emitted('update:fullscreen')).toEqual([[true]])
-    expect(wrapper.find('.ga-dialog__fullscreen-icon--restore').exists()).toBe(true)
-    expect(fullscreenButton.attributes('title')).toBe('退出全屏')
-    expect(fullscreenButton.attributes('aria-label')).toBe('退出全屏')
+    expect(button.attributes('title')).toBe('退出全屏')
+    expect(button.attributes('aria-label')).toBe('退出全屏')
 
-    await fullscreenButton.trigger('click')
+    await button.trigger('click')
 
     expect(wrapper.findComponent(ElDialogStub).props('fullscreen')).toBe(false)
     expect(wrapper.emitted('update:fullscreen')).toEqual([[true], [false]])
@@ -310,28 +269,65 @@ describe('GaDialog', () => {
     await wrapper.setProps({ fullscreen: true })
 
     expect(wrapper.findComponent(ElDialogStub).props('fullscreen')).toBe(true)
-    expect(wrapper.find('button.ga-dialog__fullscreenbtn').attributes('title')).toBe(
+    expect(wrapper.get('.ga-dialog__fullscreenbtn').attributes('title')).toBe(
       '退出全屏',
     )
   })
 
-  it('restores the external fullscreen value after closed', async () => {
+  it('the custom close button closes immediately without invoking beforeClose', async () => {
+    let beforeCloseCalls = 0
+    const beforeClose = () => {
+      beforeCloseCalls += 1
+    }
+    const wrapper = mountDialog({
+      props: {
+        modelValue: true,
+        beforeClose,
+      },
+    })
+
+    await wrapper.get('.ga-dialog__fullscreenbtn').trigger('click')
+    await wrapper.get('.ga-dialog__closebtn').trigger('click')
+
+    expect(beforeCloseCalls).toBe(0)
+    expect(wrapper.emitted('update:modelValue')).toEqual([[false]])
+    expect(wrapper.emitted('update:fullscreen')).toEqual([[true], [false]])
+    expect(wrapper.emitted('closed')).toEqual([[]])
+    expect(wrapper.findComponent(ElDialogStub).props('fullscreen')).toBe(false)
+  })
+
+  it('forwards ElDialog model and lifecycle events', async () => {
+    const wrapper = mountDialog()
+    const dialog = wrapper.findComponent(ElDialogStub)
+
+    dialog.vm.$emit('update:modelValue', true)
+    dialog.vm.$emit('open')
+    dialog.vm.$emit('opened')
+    dialog.vm.$emit('close')
+    dialog.vm.$emit('openAutoFocus')
+    dialog.vm.$emit('closeAutoFocus')
+    await nextTick()
+
+    expect(wrapper.emitted('update:modelValue')).toEqual([[true]])
+    expect(wrapper.emitted('open')).toEqual([[]])
+    expect(wrapper.emitted('opened')).toEqual([[]])
+    expect(wrapper.emitted('close')).toEqual([[]])
+    expect(wrapper.emitted('open-auto-focus')).toEqual([[]])
+    expect(wrapper.emitted('close-auto-focus')).toEqual([[]])
+  })
+
+  it('handles the ElDialog closed event with the same close finalization', async () => {
     const wrapper = mountDialog({ props: { fullscreen: false } })
     const dialog = wrapper.findComponent(ElDialogStub)
 
-    await wrapper.find('button.ga-dialog__fullscreenbtn').trigger('click')
-    expect(dialog.props('fullscreen')).toBe(true)
-
-    dialog.vm.$emit('close')
-    await nextTick()
-    expect(dialog.props('fullscreen')).toBe(true)
-
+    await wrapper.get('.ga-dialog__fullscreenbtn').trigger('click')
     dialog.vm.$emit('closed')
     await nextTick()
 
-    expect(dialog.props('fullscreen')).toBe(false)
+    expect(wrapper.emitted('update:modelValue')).toEqual([[false]])
     expect(wrapper.emitted('update:fullscreen')).toEqual([[true], [false]])
     expect(wrapper.emitted('closed')).toEqual([[]])
+    expect(dialog.props('fullscreen')).toBe(false)
   })
 
   it('exposes the underlying ElDialog instance', () => {
