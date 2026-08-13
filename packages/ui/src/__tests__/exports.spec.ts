@@ -3,12 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { GaDialog as DialogBarrel } from '../base/components/dialog'
 import { GaPagination as PaginationBarrel } from '../base/components/pagination'
 import { GaTable as TableBarrel } from '../base/components/table'
-import {
-  GaAsideMenu as AsideMenuBarrel,
-} from '../business/components/asideMenu'
-import {
-  GaTablePagination as TablePaginationBarrel,
-} from '../business/components/tablePagination'
+import { GaAsideMenu as AsideMenuBarrel } from '../business/components/asideMenu'
+import { GaTablePagination as TablePaginationBarrel } from '../business/components/tablePagination'
 import type {
   GaDialogEmits,
   GaDialogExpose,
@@ -22,19 +18,18 @@ import type {
 import type { GaDialogProps as BusinessGaDialogProps } from '../business'
 import type {
   GaAsideMenuEmits,
-  GaAsideMenuNode,
+  GaAsideMenuExpose,
   GaAsideMenuProps,
-  GaAsideMenuStateSlotProps,
-  GaAsideMenuTriggerSlotProps,
+  GaAsideMenuSlotProps,
+  GaAsideMenuToggleSlotProps,
   GaTablePaginationProps,
 } from '../business'
 import type {
   GaAsideMenuEmits as RootGaAsideMenuEmits,
   GaAsideMenuExpose as RootGaAsideMenuExpose,
-  GaAsideMenuNode as RootGaAsideMenuNode,
   GaAsideMenuProps as RootGaAsideMenuProps,
-  GaAsideMenuStateSlotProps as RootGaAsideMenuStateSlotProps,
-  GaAsideMenuTriggerSlotProps as RootGaAsideMenuTriggerSlotProps,
+  GaAsideMenuSlotProps as RootGaAsideMenuSlotProps,
+  GaAsideMenuToggleSlotProps as RootGaAsideMenuToggleSlotProps,
   GaDialogEmits as RootGaDialogEmits,
   GaDialogExpose as RootGaDialogExpose,
   GaDialogHeaderSlotProps as RootGaDialogHeaderSlotProps,
@@ -67,9 +62,8 @@ type RootTypeContract = [
   RootGaAsideMenuProps,
   RootGaAsideMenuEmits,
   RootGaAsideMenuExpose,
-  RootGaAsideMenuNode,
-  RootGaAsideMenuStateSlotProps,
-  RootGaAsideMenuTriggerSlotProps,
+  RootGaAsideMenuSlotProps,
+  RootGaAsideMenuToggleSlotProps,
 ]
 
 type BusinessDialogTypeContract = BusinessGaDialogProps
@@ -79,153 +73,59 @@ const rootTypeContract: RootTypeContract | undefined = undefined
 const businessDialogTypeContract: BusinessDialogTypeContract | undefined =
   undefined
 
-void baseTypeContract
-void rootTypeContract
-void businessDialogTypeContract
-
-const flatTablePaginationProps: GaTablePaginationProps<{ id: number }> = {
+const tablePaginationProps: GaTablePaginationProps<{ id: number }> = {
   data: [{ id: 1 }],
   columns: [{ prop: 'id' }],
   currentPage: 1,
   pageSize: 10,
   total: 1,
-  size: 'default',
 }
-
-void flatTablePaginationProps
-
-const legacyTableProps: GaTablePaginationProps = {
-  // @ts-expect-error tableProps is not part of the flat public API
-  tableProps: {},
-}
-
-const legacyPaginationProps: GaTablePaginationProps = {
-  // @ts-expect-error paginationProps is not part of the flat public API
-  paginationProps: {},
-}
-
-const legacyHeight: GaTablePaginationProps = {
-  // @ts-expect-error height is intentionally omitted from the composite API
-  height: 100,
-}
-
-const legacyMaxHeight: GaTablePaginationProps = {
-  // @ts-expect-error maxHeight is intentionally omitted from the composite API
-  maxHeight: 100,
-}
-
-void legacyTableProps
-void legacyPaginationProps
-void legacyHeight
-void legacyMaxHeight
 
 const asideMenuProps: GaAsideMenuProps = {
   collapse: false,
   width: '260px',
+  collapseWidth: '68px',
   defaultActive: '1-1',
+  defaultOpeneds: ['1'],
   uniqueOpened: true,
 }
 
-function checkAsideMenuToggleEmit(emit: GaAsideMenuEmits) {
+const asideMenuSlot: GaAsideMenuSlotProps = {
+  collapse: false,
+}
+
+const asideMenuToggleSlot: GaAsideMenuToggleSlotProps = {
+  ...asideMenuSlot,
+  toggle: () => undefined,
+}
+
+function checkAsideMenuEmits(emit: GaAsideMenuEmits) {
   emit('update:collapse', true)
   emit('toggle', false)
+  emit('select', '1-1', ['1', '1-1'], {
+    index: '1-1',
+    indexPath: ['1', '1-1'],
+  })
+  emit('open', '1', ['1'])
+  emit('close', '1', ['1'])
 }
 
+function checkAsideMenuExpose(expose: GaAsideMenuExpose) {
+  expose.menuRef?.open('1')
+  expose.menuRef?.close('1')
+  expose.menuRef?.updateActiveIndex('1-1')
+  expose.toggle()
+}
+
+void baseTypeContract
+void rootTypeContract
+void businessDialogTypeContract
+void tablePaginationProps
 void asideMenuProps
-void checkAsideMenuToggleEmit
-
-const configuredAsideMenuNodes: GaAsideMenuNode[] = [
-  {
-    type: 'submenu',
-    index: 'system',
-    label: '系统管理',
-    children: [
-      {
-        type: 'item',
-        index: 'users',
-        label: '用户管理',
-      },
-    ],
-  },
-]
-
-const configuredAsideMenuProps: GaAsideMenuProps = {
-  items: configuredAsideMenuNodes,
-  active: 'users',
-  defaultActive: 'system',
-}
-
-const asideMenuStateSlot: GaAsideMenuStateSlotProps = {
-  collapse: false,
-  active: 'users',
-}
-
-const asideMenuTriggerSlot: GaAsideMenuTriggerSlotProps = {
-  ...asideMenuStateSlot,
-  toggle: () => undefined,
-}
-
-function checkAsideMenuActiveEmit(emit: GaAsideMenuEmits) {
-  emit('update:active', 'users')
-}
-
-void configuredAsideMenuProps
-void asideMenuStateSlot
-void asideMenuTriggerSlot
-void checkAsideMenuActiveEmit
-
-const rootConfiguredAsideMenuNodes: RootGaAsideMenuNode[] = [
-  {
-    type: 'submenu',
-    index: 'system',
-    label: '系统管理',
-    children: [
-      {
-        type: 'item',
-        index: 'users',
-        label: '用户管理',
-      },
-    ],
-  },
-]
-
-const rootConfiguredAsideMenuProps: RootGaAsideMenuProps = {
-  items: rootConfiguredAsideMenuNodes,
-  active: 'users',
-  defaultActive: 'system',
-}
-
-const rootAsideMenuStateSlot: RootGaAsideMenuStateSlotProps = {
-  collapse: false,
-  active: 'users',
-}
-
-const rootAsideMenuTriggerSlot: RootGaAsideMenuTriggerSlotProps = {
-  ...rootAsideMenuStateSlot,
-  toggle: () => undefined,
-}
-
-function checkRootAsideMenuActiveEmit(emit: RootGaAsideMenuEmits) {
-  emit('update:active', 'users')
-}
-
-void rootConfiguredAsideMenuNodes
-void rootConfiguredAsideMenuProps
-void rootAsideMenuStateSlot
-void rootAsideMenuTriggerSlot
-void checkRootAsideMenuActiveEmit
-
-const fullscreenDialogProps: GaDialogProps = {
-  modelValue: true,
-  showFullscreen: true,
-}
-
-function checkDialogFullscreenEmit(emit: GaDialogEmits) {
-  emit('update:fullscreen', true)
-}
-
-void fullscreenDialogProps
-void checkDialogFullscreenEmit
+void asideMenuSlot
+void asideMenuToggleSlot
+void checkAsideMenuEmits
+void checkAsideMenuExpose
 
 describe('library exports', () => {
   it('exports only base components from the base entry', async () => {

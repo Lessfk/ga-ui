@@ -1,25 +1,7 @@
 <template>
-  <main class="playground-page">
-    <!-- <TablePaginationDemo /> -->
-    <!-- <DialogDemo /> -->
-    <!-- <PaginationDemo /> -->
-  </main>
+  <AsideMenuDemo />
 </template>
 
 <script setup lang="ts">
-// import AsideMenuDemo from "./demos/AsideMenuDemo.vue";
-import DialogDemo from "./demos/DialogDemo.vue";
-import PaginationDemo from "./demos/PaginationDemo.vue";
-import TablePaginationDemo from "./demos/TablePaginationDemo.vue";
+import AsideMenuDemo from './demos/AsideMenuDemo.vue'
 </script>
-
-<style scoped lang="scss">
-.playground-page {
-  display: flex;
-  flex-direction: column;
-  width: 80vw;
-  height: 80vh;
-  min-height: 0;
-  margin: 0 auto;
-}
-</style>
