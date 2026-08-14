@@ -4,9 +4,9 @@
 <template>
   <main class="playground-page">
     <!-- <TablePaginationDemo /> -->
-    <!-- <DialogDemo /> -->
+    <DialogDemo />
     <!-- <PaginationDemo /> -->
-    <AsideMenuDemo />
+    <!-- <AsideMenuDemo /> -->
   </main>
 </template>
 

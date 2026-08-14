@@ -91,7 +91,7 @@
             class="ga-dialog__closebtn"
             title="关闭"
             aria-label="关闭"
-            @click="handleClosed"
+            @click="scope.close"
           >
             <svg
               class="ga-dialog__header-icon ga-dialog__close-icon"
@@ -183,7 +183,6 @@ const toggleFullscreen = () => {
 }
 
 const handleClosed = () => {
-  emit('update:modelValue', false)
   setFullscreen(props.fullscreen)
   emit('closed')
 }

@@ -464,9 +464,9 @@ function saveUser() {
 
 `GaDialog` 将未声明的 `$attrs` 绑定到内部 `ElDialog`，因此可以继续使用 `lock-scroll`、`modal-class` 等 Element Plus 属性。`beforeClose` 也会原样传给 Element Plus。
 
-需要特别注意，默认标题栏中的 `GaDialog` 自定义关闭按钮不会调用底层 `handleClose`，而是立即触发 `update:modelValue(false)`、恢复全屏状态并触发 `closed`，因此它不会执行 `beforeClose`，也不会等待 Element Plus 的关闭动画结束。
+默认标题栏中的关闭按钮、`header` 插槽作用域中的 `close()`、暴露实例的 `dialogRef.handleClose()`、点击遮罩和按 Escape 都会进入 Element Plus 的关闭流程，因此会执行 `beforeClose(done)`。点击遮罩或按 Escape 还需要分别启用 `closeOnClickModal` 和 `closeOnPressEscape`。
 
-需要执行 `beforeClose` 时，请使用 Element Plus 的关闭路径，例如 `header` 插槽作用域中的 `close()`、暴露实例的 `dialogRef.handleClose()`、点击遮罩或按 Escape。后两种方式还需要分别启用 `closeOnClickModal` 和 `closeOnPressEscape`。直接修改 `v-model` 同样不会执行 `beforeClose`。
+直接将 `v-model` 修改为 `false` 不属于关闭请求，而是外部状态同步，因此和 Element Plus 原生行为一样，不会执行 `beforeClose`。需要在 footer 等业务按钮中触发关闭确认时，请调用 `dialogRef.handleClose()`。
 
 ```vue
 <template>
@@ -531,18 +531,18 @@ function requestClose() {
 | `showClose` | `boolean` | `true` | 是否显示默认标题栏中的自定义关闭按钮；底层 Element Plus 原生关闭按钮始终关闭 |
 | `closeOnClickModal` | `boolean` | `false` | 是否允许点击遮罩关闭 |
 | `closeOnPressEscape` | `boolean` | `false` | 是否允许按 Escape 关闭 |
-| `beforeClose` | `DialogBeforeCloseFn` | `undefined` | 传给底层 Element Plus 的关闭前回调；自定义关闭按钮和直接修改 `v-model` 不触发 |
+| `beforeClose` | `DialogBeforeCloseFn` | `undefined` | 传给底层 Element Plus 的关闭前回调；默认关闭按钮会触发，直接修改 `v-model` 不触发 |
 
 ### GaDialog Events
 
 | 事件 | 参数 | 触发时机 |
 | --- | --- | --- |
-| `update:modelValue` | `(value: boolean)` | 底层模型变化或点击自定义关闭按钮；用于 `v-model` |
+| `update:modelValue` | `(value: boolean)` | 底层模型变化时触发；用于 `v-model` |
 | `update:fullscreen` | `(value: boolean)` | 点击全屏/还原按钮，或关闭时恢复内部全屏状态；用于 `v-model:fullscreen` |
 | `open` | 无 | 对话框开始打开 |
 | `opened` | 无 | 对话框打开动画结束 |
 | `close` | 无 | 对话框开始关闭 |
-| `closed` | 无 | 底层关闭动画结束，或点击自定义关闭按钮后立即触发 |
+| `closed` | 无 | 底层关闭动画结束后触发 |
 | `open-auto-focus` | 无 | 打开后完成自动聚焦 |
 | `close-auto-focus` | 无 | 关闭后完成自动聚焦恢复 |
 
@@ -1219,7 +1219,7 @@ void getStatusText
 
 ## 属性透传与当前限制
 
-- `GaDialog` 显式转发 `v-model`、全屏状态更新与对话框生命周期事件，并将其他 `$attrs` 绑定到内部 `ElDialog`。底层原生关闭按钮始终关闭，默认标题栏使用自绘全屏和关闭按钮；自绘关闭按钮会立即触发模型关闭与 `closed`，不会执行 `beforeClose`。传入 `header` 插槽会替换整套默认标题栏。组件不内置 `footer` 内容或确认、取消等业务按钮。
+- `GaDialog` 显式转发 `v-model`、全屏状态更新与对话框生命周期事件，并将其他 `$attrs` 绑定到内部 `ElDialog`。底层原生关闭按钮始终关闭，默认标题栏使用自绘全屏和关闭按钮；自绘关闭按钮通过 Element Plus 的 `handleClose` 流程执行 `beforeClose`。传入 `header` 插槽会替换整套默认标题栏。组件不内置 `footer` 内容或确认、取消等业务按钮。
 - `GaTable` 使用 `inheritAttrs: false`，并将普通 `$attrs` 直接绑定到内部 `ElTable`；未声明的 Element Plus 表格事件也随监听器一起透传。
 - `GaPagination` 使用相同策略，将普通 `$attrs` 绑定到内部 `ElPagination`。组件当前不转发分页插槽。
 - `GaAsideMenu` 固定菜单 `mode="vertical"`，菜单内容通过默认插槽直接使用 Element Plus 菜单节点。`collapse`、`width`、`collapseWidth` 与 `theme` 由组件接管，其余菜单 Props 传给内部 `ElMenu`；主题变量会同时传给折叠子菜单弹层，并与 `popperClass`、`popperStyle` 合并。普通 `$attrs` 绑定在根部 `ElAside`。`select`/`open`/`close` 事件原样转发，其中 `routerResult` 使用 `Promise<unknown>` 表达。父容器需要提供明确高度，内部 `ElScrollbar` 才能正确滚动。

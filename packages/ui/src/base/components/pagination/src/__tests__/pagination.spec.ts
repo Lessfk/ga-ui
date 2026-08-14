@@ -1,8 +1,14 @@
 import { mount } from '@vue/test-utils'
+import { readFileSync } from 'node:fs'
 import { defineComponent, h } from 'vue'
 import { describe, expect, it } from 'vitest'
 
 import GaPagination from '../index.vue'
+
+const paginationStyles = readFileSync(
+  'src/base/components/pagination/style/index.scss',
+  'utf8',
+)
 
 const ElPaginationStub = defineComponent({
   name: 'ElPagination',
@@ -40,6 +46,12 @@ function mountPagination(options: Parameters<typeof mount>[1] = {}) {
 }
 
 describe('GaPagination', () => {
+  it('uses pagination disabled variables in background mode', () => {
+    expect(paginationStyles).toMatch(
+      /\.el-pagination\.ga-pagination\.is-background[\s\S]*\.btn-prev:disabled[\s\S]*color:\s*var\(--el-pagination-button-disabled-color\)[\s\S]*background-color:\s*var\(--el-pagination-button-disabled-bg-color\)/,
+    )
+  })
+
   it('passes the approved defaults to ElPagination', () => {
     const wrapper = mountPagination()
 

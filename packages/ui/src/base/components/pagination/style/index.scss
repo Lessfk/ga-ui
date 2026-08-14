@@ -8,14 +8,16 @@
     --el-pagination-button-color: #2b3b5e;
     --el-pagination-button-bg-color: #fff;
 
-    --el-pagination-button-disabled-color: #fff;
+    --el-pagination-button-disabled-color: #2b3b5e;
     --el-pagination-button-disabled-bg-color: #fff;
+
     --el-pagination-hover-color: #2b3b5e;
     --el-pagination-item-gap: 12px;
 
     &.is-background {
         .el-pager {
             background-color: #fff;
+
             li.is-active {
                 color: #2b3b5e;
                 background-color: #ffffff;
@@ -24,36 +26,41 @@
 
 
         .btn-prev {
-            background-color: #fff;
             margin-right: 0px;
             margin-left: 8px;
         }
 
         .btn-next {
-            background-color: #fff;
             margin-right: 8px;
             margin-left: 0px;
         }
 
-        .btn-prev:disabled {
-            background-color: #fff;
-            color: #2b3b5e;
-        }
-
-        .btn-next:disabled {
-            background-color: #fff;
-            color: #2b3b5e;
-        }
     }
 
+}
+
+// Element Plus background pagination bypasses the pagination disabled variables.
+.el-pagination.ga-pagination.is-background {
+    .btn-prev:disabled,
+    .btn-prev.is-disabled,
+    .btn-next:disabled,
+    .btn-next.is-disabled,
+    .el-pager li:disabled,
+    .el-pager li.is-disabled {
+        color: var(--el-pagination-button-disabled-color);
+        background-color: var(--el-pagination-button-disabled-bg-color);
+    }
 }
 
 .is-left {
     justify-content: flex-start;
 }
+
 .is-center {
     justify-content: center;
 }
+
 .is-right {
     justify-content: flex-end;
 }
+
