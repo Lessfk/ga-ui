@@ -727,7 +727,7 @@ const paginationTheme: GaPaginationTheme = {
 
 | 主题字段 | 说明 |
 | --- | --- |
-| `backgroundColor` | 整个分页容器背景；单独使用默认透明，`GaTablePagination` 中默认 `#f6f6f6` |
+| `backgroundColor` | 整个分页容器背景，默认 `#fafafa`；组合组件可通过 `paginationTheme` 覆盖 |
 | `textColor` | 总数、每页数量和跳转说明文字颜色 |
 | `buttonColor` | 普通分页按钮和页码文字颜色 |
 | `buttonBackgroundColor` | 普通分页按钮和页码背景色 |
@@ -748,7 +748,7 @@ const paginationTheme: GaPaginationTheme = {
 | `pageSizes` | `number[]` | `[10, 20, 30, 40, 50]` | 可选的每页条数 |
 | `size` | `ComponentSize` | `'default'` | 分页尺寸 |
 | `layout` | `string` | `'total, sizes, prev, pager, next, jumper'` | 分页布局 |
-| `background` | `boolean` | `true` | 是否为分页按钮添加背景 |
+| `background` | `boolean` | `false` | 是否为分页按钮添加背景 |
 | `position` | `'left' \| 'center' \| 'right'` | `'right'` | 水平对齐方式 |
 | `theme` | `GaPaginationTheme` | 默认颜色主题 | 当前分页实例的颜色配置，支持部分覆盖 |
 
