@@ -11,6 +11,7 @@ import type {
   GaDialogHeaderSlotProps,
   GaDialogProps,
   GaPaginationProps,
+  GaPaginationTheme,
   GaTableColumn,
   GaTableProps,
 } from '../base'
@@ -37,6 +38,7 @@ import type {
   GaDialogHeaderSlotProps as RootGaDialogHeaderSlotProps,
   GaDialogProps as RootGaDialogProps,
   GaPaginationProps as RootGaPaginationProps,
+  GaPaginationTheme as RootGaPaginationTheme,
   GaTableColumn as RootGaTableColumn,
   GaTablePaginationProps as RootGaTablePaginationProps,
   GaTableProps as RootGaTableProps,
@@ -50,6 +52,7 @@ type BaseTypeContract = [
   GaTableProps,
   GaTableColumn,
   GaPaginationProps,
+  GaPaginationTheme,
 ]
 
 type RootTypeContract = [
@@ -60,6 +63,7 @@ type RootTypeContract = [
   RootGaTableProps,
   RootGaTableColumn,
   RootGaPaginationProps,
+  RootGaPaginationTheme,
   RootGaTablePaginationProps,
   RootGaAsideMenuProps,
   RootGaAsideMenuEmits,
@@ -82,6 +86,12 @@ const tablePaginationProps: GaTablePaginationProps<{ id: number }> = {
   currentPage: 1,
   pageSize: 10,
   total: 1,
+}
+
+const paginationTheme: GaPaginationTheme = {
+  backgroundColor: '#f8fafc',
+  activeColor: '#ffffff',
+  activeBackgroundColor: '#409eff',
 }
 
 const asideMenuProps: GaAsideMenuProps = {
@@ -133,6 +143,7 @@ void baseTypeContract
 void rootTypeContract
 void businessDialogTypeContract
 void tablePaginationProps
+void paginationTheme
 void asideMenuProps
 void asideMenuTheme
 void asideMenuSlot

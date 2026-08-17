@@ -1,8 +1,14 @@
 import { mount } from '@vue/test-utils'
+import { readFileSync } from 'node:fs'
 import { defineComponent, h } from 'vue'
 import { describe, expect, it } from 'vitest'
 
 import GaTablePagination from '../index.vue'
+
+const tablePaginationStyles = readFileSync(
+  'src/business/components/tablePagination/style/index.scss',
+  'utf8',
+)
 
 const GaTableStub = defineComponent({
   name: 'GaTable',
@@ -72,6 +78,7 @@ const GaPaginationStub = defineComponent({
       type: Boolean,
       default: undefined,
     },
+    theme: Object,
   },
   emits: ['current-change', 'size-change'],
   setup(_, { attrs }) {
@@ -97,10 +104,23 @@ function mountComposite(options: Parameters<typeof mount>[1] = {}) {
 }
 
 describe('GaTablePagination', () => {
+  it('keeps its existing footer background while allowing the pagination theme to override it', () => {
+    expect(tablePaginationStyles).toContain(
+      '--ga-pagination-default-background: #f6f6f6',
+    )
+    expect(tablePaginationStyles).toContain(
+      'background: var(--ga-pagination-background)',
+    )
+  })
+
   it('routes flat table and pagination props to the correct child', () => {
     const data = [{ id: 1 }]
     const columns = [{ key: 'id', prop: 'id' }]
     const rowKey = (row: { id: number }) => String(row.id)
+    const theme = {
+      activeColor: '#ffffff',
+      activeBackgroundColor: '#409eff',
+    }
     const wrapper = mountComposite({
       props: {
         data,
@@ -120,6 +140,7 @@ describe('GaTablePagination', () => {
         pageSizes: [10, 20, 40],
         layout: 'prev, pager, next',
         background: false,
+        theme,
       },
     })
 
@@ -150,6 +171,7 @@ describe('GaTablePagination', () => {
       layout: 'prev, pager, next',
       background: false,
     })
+    expect(pagination.props('theme')).toEqual(theme)
     expect(table.attributes()).not.toHaveProperty('total')
     expect(table.attributes()).not.toHaveProperty('layout')
     expect(pagination.attributes()).not.toHaveProperty('data')
@@ -165,6 +187,7 @@ describe('GaTablePagination', () => {
       'page-sizes',
       'layout',
       'background',
+      'theme',
     ]) {
       expect(table.vm.$attrs).not.toHaveProperty(attrName)
     }
@@ -248,6 +271,7 @@ describe('GaTablePagination', () => {
       'pageSizes',
       'layout',
       'background',
+      'theme',
     ]) {
       expect(runtimeProps).toHaveProperty(propName)
     }

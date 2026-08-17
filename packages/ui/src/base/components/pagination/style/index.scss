@@ -5,38 +5,72 @@
     --el-pagination-button-width: 30px;
     --el-pagination-button-height: 30px;
 
-    --el-pagination-button-color: #2b3b5e;
-    --el-pagination-button-bg-color: #fff;
-
-    --el-pagination-button-disabled-color: #2b3b5e;
-    --el-pagination-button-disabled-bg-color: #fff;
-
-    --el-pagination-hover-color: #2b3b5e;
     --el-pagination-item-gap: 12px;
 
-    &.is-background {
-        .el-pager {
-            background-color: #fff;
+    background: var(--ga-pagination-background);
 
-            li.is-active {
-                color: #2b3b5e;
-                background-color: #ffffff;
-            }
-        }
-
-
-        .btn-prev {
-            margin-right: 0px;
-            margin-left: 8px;
-        }
-
-        .btn-next {
-            margin-right: 8px;
-            margin-left: 0px;
-        }
-
+    .el-pagination__total,
+    .el-pagination__sizes,
+    .el-pagination__jump {
+        color: var(--ga-pagination-text-color);
     }
 
+    .el-pagination__sizes .el-select__wrapper:not(.is-disabled) .el-select__selected-item,
+    .el-pagination__editor.el-input:not(.is-disabled) .el-input__inner {
+        color: var(--ga-pagination-text-color);
+    }
+
+    &:not(.is-background) {
+        .btn-prev,
+        .btn-next,
+        .el-pager li {
+            background: var(--el-pagination-bg-color);
+        }
+    }
+
+    &.is-background {
+        .btn-prev,
+        .btn-next,
+        .el-pager li {
+            background: var(--el-pagination-button-bg-color);
+        }
+    }
+
+    .btn-prev:hover:not(:disabled):not(.is-disabled),
+    .btn-next:hover:not(:disabled):not(.is-disabled),
+    .el-pager li:hover:not(.is-active):not(:disabled):not(.is-disabled) {
+        color: var(--el-pagination-hover-color);
+        background: var(--ga-pagination-hover-bg-color);
+    }
+
+    .btn-prev.is-active,
+    .btn-next.is-active,
+    .el-pager li.is-active {
+        color: var(--ga-pagination-active-color);
+        background: var(--ga-pagination-active-bg-color);
+    }
+
+    .btn-prev:disabled,
+    .btn-prev.is-disabled,
+    .btn-next:disabled,
+    .btn-next.is-disabled,
+    .el-pager li:disabled,
+    .el-pager li.is-disabled {
+        color: var(--el-pagination-button-disabled-color);
+        background: var(--el-pagination-button-disabled-bg-color);
+    }
+
+    // &.is-background {
+    //     .btn-prev {
+    //         margin-right: 0px;
+    //         margin-left: 8px;
+    //     }
+
+    //     .btn-next {
+    //         margin-right: 8px;
+    //         margin-left: 0px;
+    //     }
+    // }
 }
 
 // Element Plus background pagination bypasses the pagination disabled variables.
@@ -48,7 +82,7 @@
     .el-pager li:disabled,
     .el-pager li.is-disabled {
         color: var(--el-pagination-button-disabled-color);
-        background-color: var(--el-pagination-button-disabled-bg-color);
+        background: var(--el-pagination-button-disabled-bg-color);
     }
 }
 
@@ -63,4 +97,3 @@
 .is-right {
     justify-content: flex-end;
 }
-

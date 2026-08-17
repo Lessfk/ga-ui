@@ -14,9 +14,11 @@
   }
 
   >.ga-pagination {
+    --ga-pagination-default-background: #f6f6f6;
+
     width: 100%;
     height: 50px;
     min-height: 50px;
-    background: #f6f6f6;
+    background: var(--ga-pagination-background);
   }
 }

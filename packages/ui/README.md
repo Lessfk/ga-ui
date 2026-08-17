@@ -636,6 +636,52 @@ function handleSizeChange(size: number) {
 <GaPagination :total="100" position="right" />
 ```
 
+### 颜色主题
+
+`theme` 用于配置当前分页实例的颜色。主题支持部分覆盖，未传字段继续使用 `GaPagination` 默认值；配置会同时作用于普通模式和 `background` 模式。背景类字段同时支持普通颜色、CSS 变量和渐变等合法的 CSS `background` 值。
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import {
+  GaPagination,
+  type GaPaginationTheme,
+} from 'ga-ui-plus/base'
+
+const currentPage = ref(1)
+const paginationTheme: GaPaginationTheme = {
+  backgroundColor: '#f8fafc',
+  activeColor: '#ffffff',
+  activeBackgroundColor: '#0f766e',
+  hoverColor: '#0f766e',
+  hoverBackgroundColor: '#ccfbf1',
+  disabledColor: '#98a2b3',
+  disabledBackgroundColor: '#f2f4f7',
+}
+</script>
+
+<template>
+  <GaPagination
+    v-model:current-page="currentPage"
+    :total="100"
+    :theme="paginationTheme"
+  />
+</template>
+```
+
+| 主题字段 | 说明 |
+| --- | --- |
+| `backgroundColor` | 整个分页容器背景；单独使用默认透明，`GaTablePagination` 中默认 `#f6f6f6` |
+| `textColor` | 总数、每页数量和跳转说明文字颜色 |
+| `buttonColor` | 普通分页按钮和页码文字颜色 |
+| `buttonBackgroundColor` | 普通分页按钮和页码背景色 |
+| `activeColor` | 当前页文字颜色 |
+| `activeBackgroundColor` | 当前页背景色 |
+| `hoverColor` | 可交互分页项悬停文字颜色 |
+| `hoverBackgroundColor` | 可交互分页项悬停背景色 |
+| `disabledColor` | 禁用分页项文字颜色 |
+| `disabledBackgroundColor` | 禁用分页项背景色 |
+
 ### GaPagination Props
 
 | 属性 | 类型 | 默认值 | 说明 |
@@ -648,6 +694,7 @@ function handleSizeChange(size: number) {
 | `layout` | `string` | `'total, sizes, prev, pager, next, jumper'` | 分页布局 |
 | `background` | `boolean` | `true` | 是否为分页按钮添加背景 |
 | `position` | `'left' \| 'center' \| 'right'` | `'right'` | 水平对齐方式 |
+| `theme` | `GaPaginationTheme` | 默认颜色主题 | 当前分页实例的颜色配置，支持部分覆盖 |
 
 未声明的属性与监听器经 `$attrs` 透传到底层 `ElPagination`，例如 `disabled`、`hide-on-single-page`。更多低频能力参见 [Element Plus Pagination 文档](https://element-plus.org/zh-CN/component/pagination.html)。
 
@@ -878,7 +925,7 @@ function viewUser(row: UserRow) {
 | 共享尺寸 | `size` | 同时传给 `GaTable` 与 `GaPagination`；未传时使用子组件默认行为 |
 | 分页模型 | `currentPage`、`pageSize` | 与 `GaPagination` 相同：`1`、`10` |
 | 分页数据 | `total`、`pageSizes` | 与 `GaPagination` 相同：`100`、`[10, 20, 30, 40, 50]` |
-| 分页外观 | `layout`、`background`、`position` | 与 `GaPagination` 相同；分别为默认布局、`true`、`'right'` |
+| 分页外观 | `layout`、`background`、`position`、`theme` | 与 `GaPagination` 相同；`theme` 会传给内部分页组件 |
 
 `height` 和 `maxHeight` 被有意排除，不能用于控制内部表格；请通过父容器高度控制整个组合组件。
 
@@ -1133,6 +1180,7 @@ function openSystemMenu() {
 | 类型 | 用途 |
 | --- | --- |
 | `GaDialogProps` | `GaDialog` 明确声明的常用 Props 子集 |
+| `GaPaginationTheme` | `GaPagination` 的实例级颜色主题配置 |
 | `GaDialogEmits` | `GaDialog` 的模型更新与生命周期事件签名 |
 | `GaDialogHeaderSlotProps` | `header` 插槽作用域，包含 `close`、`titleId`、`titleClass` |
 | `GaDialogExpose` | `GaDialog` 暴露实例类型，包含 `DialogInstance \| undefined` 的 `dialogRef` |

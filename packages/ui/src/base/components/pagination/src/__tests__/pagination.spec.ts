@@ -21,6 +21,7 @@ const ElPaginationStub = defineComponent({
     size: String,
     layout: String,
     background: Boolean,
+    theme: Object,
   },
   emits: ['current-change', 'size-change'],
   setup(_, { attrs }) {
@@ -46,9 +47,99 @@ function mountPagination(options: Parameters<typeof mount>[1] = {}) {
 }
 
 describe('GaPagination', () => {
+  it('applies the complete default color theme', () => {
+    const wrapper = mountPagination()
+    const pagination = wrapper.get('.el-pagination-stub')
+
+    const style = pagination.attributes('style') ?? ''
+
+    expect(style).toContain(
+      '--ga-pagination-text-color: #606266',
+    )
+    expect(style).toContain(
+      '--ga-pagination-background: var(--ga-pagination-default-background, transparent)',
+    )
+    expect(style).toContain(
+      '--el-pagination-button-color: #2b3b5e',
+    )
+    expect(style).toContain(
+      '--ga-pagination-active-bg-color: #ffffff',
+    )
+  })
+
+  it('merges a partial theme, reacts to updates, and preserves consumer styles', async () => {
+    const wrapper = mountPagination({
+      props: {
+        theme: {
+          backgroundColor: '#f5f7fa',
+          activeColor: '#ffffff',
+          activeBackgroundColor: '#409eff',
+        },
+      },
+      attrs: {
+        style: {
+          width: '75%',
+        },
+      },
+    })
+    const pagination = wrapper.get('.el-pagination-stub')
+
+    expect(pagination.attributes('style')).toContain(
+      '--ga-pagination-background: #f5f7fa',
+    )
+    expect(pagination.attributes('style')).toContain(
+      '--ga-pagination-active-color: #ffffff',
+    )
+    expect(pagination.attributes('style')).toContain(
+      '--ga-pagination-active-bg-color: #409eff',
+    )
+    expect(pagination.attributes('style')).toContain(
+      '--el-pagination-button-color: #2b3b5e',
+    )
+    expect(pagination.attributes('style')).toContain('width: 75%')
+    expect(wrapper.findComponent(ElPaginationStub).props('theme')).toBeUndefined()
+
+    await wrapper.setProps({
+      theme: {
+        activeBackgroundColor: '#67c23a',
+      },
+    })
+
+    expect(pagination.attributes('style')).toContain(
+      '--ga-pagination-active-bg-color: #67c23a',
+    )
+    expect(pagination.attributes('style')).toContain(
+      '--ga-pagination-active-color: #2b3b5e',
+    )
+  })
+
   it('uses pagination disabled variables in background mode', () => {
     expect(paginationStyles).toMatch(
-      /\.el-pagination\.ga-pagination\.is-background[\s\S]*\.btn-prev:disabled[\s\S]*color:\s*var\(--el-pagination-button-disabled-color\)[\s\S]*background-color:\s*var\(--el-pagination-button-disabled-bg-color\)/,
+      /\.el-pagination\.ga-pagination\.is-background[\s\S]*\.btn-prev:disabled[\s\S]*color:\s*var\(--el-pagination-button-disabled-color\)[\s\S]*background:\s*var\(--el-pagination-button-disabled-bg-color\)/,
+    )
+  })
+
+  it('uses theme variables for the container, text, buttons, active, and hover states', () => {
+    expect(paginationStyles).toContain(
+      'background: var(--ga-pagination-background)',
+    )
+    expect(paginationStyles).toContain(
+      'color: var(--ga-pagination-text-color)',
+    )
+    expect(paginationStyles).toContain(
+      '.el-pagination__editor.el-input:not(.is-disabled) .el-input__inner',
+    )
+    expect(paginationStyles).toContain(
+      'background: var(--el-pagination-button-bg-color)',
+    )
+    expect(paginationStyles).toContain(
+      'color: var(--ga-pagination-active-color)',
+    )
+    expect(paginationStyles).toContain(
+      'background: var(--ga-pagination-active-bg-color)',
+    )
+    expect(paginationStyles).toContain(
+      'background: var(--ga-pagination-hover-bg-color)',
     )
   })
 

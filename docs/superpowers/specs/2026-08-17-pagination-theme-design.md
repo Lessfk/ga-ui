@@ -23,6 +23,7 @@
 
 ```ts
 export interface GaPaginationTheme {
+  backgroundColor?: string
   textColor?: string
   buttonColor?: string
   buttonBackgroundColor?: string
@@ -43,6 +44,7 @@ theme?: GaPaginationTheme
 
 字段含义：
 
+- `backgroundColor`：整个分页根容器的背景，默认透明。
 - `textColor`：总数、跳转说明等普通文本颜色。
 - `buttonColor`：普通上一页、下一页和页码文字颜色。
 - `buttonBackgroundColor`：普通按钮和页码背景色。
@@ -50,7 +52,7 @@ theme?: GaPaginationTheme
 - `hoverColor`、`hoverBackgroundColor`：可交互分页项悬停时的文字和背景色。
 - `disabledColor`、`disabledBackgroundColor`：禁用按钮和禁用页码的文字和背景色。
 
-所有字段接受合法 CSS 颜色值，包括十六进制、RGB、CSS 变量和渐变允许的背景值。组件不在运行时解析或校验颜色字符串。
+文字字段接受合法 CSS 颜色值，包括十六进制、RGB 和 CSS 变量。背景字段接受合法 CSS `background` 值，因此也支持渐变。组件不在运行时解析或校验这些字符串。
 
 ## 默认主题与合并规则
 
@@ -58,6 +60,7 @@ theme?: GaPaginationTheme
 
 ```ts
 const defaultTheme: Required<GaPaginationTheme> = {
+  backgroundColor: 'var(--ga-pagination-default-background, transparent)',
   textColor: '#606266',
   buttonColor: '#2b3b5e',
   buttonBackgroundColor: '#ffffff',
@@ -78,12 +81,15 @@ defaultTheme -> props.theme
 
 未传 `theme` 时使用完整默认主题；只传部分字段时，其余字段继承默认值。主题对象变化后，组件应响应式更新颜色。
 
+`GaPagination` 单独使用时根背景默认为透明；`GaTablePagination` 通过 `--ga-pagination-default-background: #f6f6f6` 保留原有分页栏背景。显式传入 `theme.backgroundColor` 时，两种用法都会以传入值为准。
+
 ## CSS Variables 映射
 
 组件将当前主题转换为根 `ElPagination` 上的内联 CSS Variables：
 
 ```ts
 {
+  '--ga-pagination-background': theme.backgroundColor,
   '--ga-pagination-text-color': theme.textColor,
   '--el-pagination-button-color': theme.buttonColor,
   '--el-pagination-bg-color': theme.buttonBackgroundColor,
@@ -103,8 +109,10 @@ defaultTheme -> props.theme
 
 SCSS 使用变量替换当前固定颜色：
 
-- 总数、每页数量和跳转说明使用 `--ga-pagination-text-color`，避免修改 Element Plus 全局文本变量并影响内部选择器、输入框。
+- 根容器使用 `--ga-pagination-background`，不传时保持透明。
+- 总数、每页数量、跳转说明、每页条数选中值和跳页输入值使用 `--ga-pagination-text-color`。
 - 普通分页按钮使用 Element Plus 分页变量；`--el-pagination-bg-color` 覆盖普通模式，`--el-pagination-button-bg-color` 覆盖背景模式。
+- 所有背景状态使用 CSS `background` 属性，以同时支持纯色和渐变。
 - 激活页使用 `--ga-pagination-active-color` 和 `--ga-pagination-active-bg-color`。
 - 悬停页、上一页和下一页使用 `--el-pagination-hover-color` 与 `--ga-pagination-hover-bg-color`。
 - 禁用页、上一页和下一页统一使用 `--el-pagination-button-disabled-color` 与 `--el-pagination-button-disabled-bg-color`。
@@ -118,6 +126,7 @@ SCSS 使用变量替换当前固定颜色：
   v-model:current-page="page"
   :total="100"
   :theme="{
+    backgroundColor: '#f8fafc',
     activeColor: '#ffffff',
     activeBackgroundColor: '#409eff',
     hoverColor: '#409eff',

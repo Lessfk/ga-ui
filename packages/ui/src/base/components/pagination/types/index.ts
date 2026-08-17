@@ -1,1 +1,1 @@
-export type { GaPaginationProps } from '../src/props'
+export type { GaPaginationProps, GaPaginationTheme } from '../src/props'

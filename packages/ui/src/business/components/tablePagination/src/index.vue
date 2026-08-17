@@ -38,6 +38,7 @@
       :layout="props.layout"
       :background="props.background"
       :position="props.position"
+      :theme="props.theme"
       @current-change="handleCurrentChange"
       @size-change="handleSizeChange"
     />
