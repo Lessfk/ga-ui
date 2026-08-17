@@ -134,13 +134,16 @@ function mountTable(options: Parameters<typeof mount>[1] = {}) {
 describe('GaTable', () => {
   it('keeps the expanded row theme background while hovering', () => {
     expect(normalizedTableStyles).toContain(
-      '.el-table.ga-table .el-table__expanded-cell:hover { background-color: var(--el-table-expanded-cell-bg-color) !important; }',
+      '.el-table.ga-table > .el-table__inner-wrapper > .el-table__body-wrapper > .el-scrollbar > .el-scrollbar__wrap > .el-scrollbar__view > .el-table__body > tbody > tr > td.el-table__expanded-cell:hover { background-color: var(--el-table-expanded-cell-bg-color) !important; }',
     )
   })
 
   it('applies the header theme background to grouped headers', () => {
     expect(normalizedTableStyles).toContain(
-      '.el-table.ga-table thead.is-group th.el-table__cell { background: var(--el-table-header-bg-color); }',
+      '.el-table.ga-table > .el-table__inner-wrapper > .el-table__header-wrapper > .el-table__header > thead.is-group > tr > th.el-table__cell { background: var(--el-table-header-bg-color); }',
+    )
+    expect(normalizedTableStyles).toContain(
+      '.el-table.ga-table > .el-table__inner-wrapper > .el-table__body-wrapper > .el-scrollbar > .el-scrollbar__wrap > .el-scrollbar__view > .el-table__body > thead.is-group > tr > th.el-table__cell { background: var(--el-table-header-bg-color); }',
     )
   })
 
