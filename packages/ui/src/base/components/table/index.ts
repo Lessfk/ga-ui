@@ -6,6 +6,7 @@ export default GaTable
 export type {
   GaTableProps,
   GaTableRowKey,
+  GaTableTheme,
 } from './src/props'
 export type {
   GaTableCellScope,

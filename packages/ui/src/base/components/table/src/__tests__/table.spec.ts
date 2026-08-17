@@ -124,6 +124,89 @@ function mountTable(options: Parameters<typeof mount>[1] = {}) {
 }
 
 describe('GaTable', () => {
+  it('applies the complete default color theme', () => {
+    const wrapper = mountTable()
+    const style = (wrapper.find('.el-table-stub').element as HTMLElement).style
+
+    expect(style.getPropertyValue('--el-table-bg-color')).toBe('#ffffff')
+    expect(style.getPropertyValue('--el-table-tr-bg-color')).toBe('#ffffff')
+    expect(style.getPropertyValue('--el-table-text-color')).toBe('#303133')
+    expect(style.getPropertyValue('--el-table-header-bg-color')).toBe('#f6f6f6')
+    expect(style.getPropertyValue('--el-table-header-text-color')).toBe('#2b3b5e')
+    expect(style.getPropertyValue('--el-table-border-color')).toBe('#e5e7eb')
+    expect(style.getPropertyValue('--ga-table-stripe-bg-color')).toBe(
+      'var(--el-fill-color-lighter)',
+    )
+    expect(style.getPropertyValue('--el-table-row-hover-bg-color')).toBe('#f6f6f6')
+    expect(style.getPropertyValue('--el-table-current-row-bg-color')).toBe('#ecf5ff')
+    expect(style.getPropertyValue('--el-table-expanded-cell-bg-color')).toBe('#fafafa')
+  })
+
+  it('merges a partial theme with defaults', () => {
+    const wrapper = mountTable({
+      props: {
+        theme: {
+          backgroundColor: '#101828',
+          headerTextColor: '#f9fafb',
+        },
+      },
+    })
+    const style = (wrapper.find('.el-table-stub').element as HTMLElement).style
+
+    expect(style.getPropertyValue('--el-table-bg-color')).toBe('#101828')
+    expect(style.getPropertyValue('--el-table-header-text-color')).toBe('#f9fafb')
+    expect(style.getPropertyValue('--el-table-tr-bg-color')).toBe('#ffffff')
+  })
+
+  it('updates theme variables reactively', async () => {
+    const wrapper = mountTable({
+      props: {
+        theme: {
+          textColor: '#344054',
+        },
+      },
+    })
+
+    await wrapper.setProps({
+      theme: {
+        textColor: '#f2f4f7',
+        borderColor: '#475467',
+      },
+    })
+
+    const style = (wrapper.find('.el-table-stub').element as HTMLElement).style
+    expect(style.getPropertyValue('--el-table-text-color')).toBe('#f2f4f7')
+    expect(style.getPropertyValue('--el-table-border-color')).toBe('#475467')
+  })
+
+  it('preserves consumer styles alongside theme variables', () => {
+    const wrapper = mountTable({
+      attrs: {
+        style: {
+          width: '80%',
+          '--consumer-table-token': '#409eff',
+        },
+      },
+    })
+    const style = (wrapper.find('.el-table-stub').element as HTMLElement).style
+
+    expect(style.width).toBe('80%')
+    expect(style.getPropertyValue('--consumer-table-token')).toBe('#409eff')
+    expect(style.getPropertyValue('--el-table-bg-color')).toBe('#ffffff')
+  })
+
+  it('does not forward theme to ElTable', () => {
+    const wrapper = mountTable({
+      props: {
+        theme: {
+          backgroundColor: '#101828',
+        },
+      },
+    })
+
+    expect(wrapper.findComponent(ElTableStub).attributes()).not.toHaveProperty('theme')
+  })
+
   it('passes the approved defaults to ElTable', () => {
     const wrapper = mountTable()
 

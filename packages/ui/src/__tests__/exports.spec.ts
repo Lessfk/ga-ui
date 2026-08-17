@@ -14,6 +14,7 @@ import type {
   GaPaginationTheme,
   GaTableColumn,
   GaTableProps,
+  GaTableTheme,
 } from '../base'
 // @ts-expect-error GaDialog public types are not exported from the business entry
 import type { GaDialogProps as BusinessGaDialogProps } from '../business'
@@ -42,6 +43,7 @@ import type {
   GaTableColumn as RootGaTableColumn,
   GaTablePaginationProps as RootGaTablePaginationProps,
   GaTableProps as RootGaTableProps,
+  GaTableTheme as RootGaTableTheme,
 } from '../index'
 
 type BaseTypeContract = [
@@ -51,6 +53,7 @@ type BaseTypeContract = [
   GaDialogHeaderSlotProps,
   GaTableProps,
   GaTableColumn,
+  GaTableTheme,
   GaPaginationProps,
   GaPaginationTheme,
 ]
@@ -62,6 +65,7 @@ type RootTypeContract = [
   RootGaDialogHeaderSlotProps,
   RootGaTableProps,
   RootGaTableColumn,
+  RootGaTableTheme,
   RootGaPaginationProps,
   RootGaPaginationTheme,
   RootGaTablePaginationProps,
@@ -92,6 +96,12 @@ const paginationTheme: GaPaginationTheme = {
   backgroundColor: '#f8fafc',
   activeColor: '#ffffff',
   activeBackgroundColor: '#409eff',
+}
+
+const tableTheme: GaTableTheme = {
+  backgroundColor: '#ffffff',
+  headerBackgroundColor: '#f6f6f6',
+  currentRowBackgroundColor: '#ecf5ff',
 }
 
 const asideMenuProps: GaAsideMenuProps = {
@@ -144,6 +154,7 @@ void rootTypeContract
 void businessDialogTypeContract
 void tablePaginationProps
 void paginationTheme
+void tableTheme
 void asideMenuProps
 void asideMenuTheme
 void asideMenuSlot

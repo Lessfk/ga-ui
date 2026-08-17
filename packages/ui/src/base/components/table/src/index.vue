@@ -1,5 +1,5 @@
 <template>
-  <ElTable ref="tableRef" v-loading="props.loading" v-bind="$attrs" class="ga-table" :data="props.data"
+  <ElTable ref="tableRef" v-loading="props.loading" v-bind="tableAttrs" class="ga-table" :style="tableStyle" :data="props.data"
       :height="props.height" :max-height="props.maxHeight" :row-key="props.rowKey" :border="props.border"
       :stripe="props.stripe" :size="props.size" :fit="props.fit" :show-header="props.showHeader"
       :highlight-current-row="props.highlightCurrentRow" :empty-text="props.emptyText"
@@ -42,11 +42,11 @@ import {
   vLoading,
 } from 'element-plus'
 import type { TableInstance } from 'element-plus'
-import { ref, useSlots } from 'vue'
-import type { Slots } from 'vue'
+import { computed, ref, useAttrs, useSlots } from 'vue'
+import type { CSSProperties, Slots } from 'vue'
 
 import { getColumnKey, getColumnProps } from './column'
-import type { GaTableProps } from './props'
+import type { GaTableProps, GaTableTheme } from './props'
 import type { GaTableRow } from '../types'
 
 defineOptions({
@@ -66,6 +66,46 @@ const props = withDefaults(defineProps<GaTableProps<Row>>(), {
   loading: false,
   loadingText: '加载中...',
 })
+
+const attrs = useAttrs()
+
+const defaultTheme: Required<GaTableTheme> = {
+  backgroundColor: '#ffffff',
+  rowBackgroundColor: '#ffffff',
+  textColor: '#303133',
+  headerBackgroundColor: '#f6f6f6',
+  headerTextColor: '#2b3b5e',
+  borderColor: '#e5e7eb',
+  stripeBackgroundColor: 'var(--el-fill-color-lighter)',
+  hoverBackgroundColor: '#f6f6f6',
+  currentRowBackgroundColor: '#ecf5ff',
+  expandedRowBackgroundColor: '#fafafa',
+}
+
+const currentTheme = computed<Required<GaTableTheme>>(() => ({
+  ...defaultTheme,
+  ...props.theme,
+}))
+
+const themeStyle = computed<CSSProperties>(() => ({
+  '--el-table-bg-color': currentTheme.value.backgroundColor,
+  '--el-table-tr-bg-color': currentTheme.value.rowBackgroundColor,
+  '--el-table-text-color': currentTheme.value.textColor,
+  '--el-table-header-bg-color': currentTheme.value.headerBackgroundColor,
+  '--el-table-header-text-color': currentTheme.value.headerTextColor,
+  '--el-table-border-color': currentTheme.value.borderColor,
+  '--ga-table-stripe-bg-color': currentTheme.value.stripeBackgroundColor,
+  '--el-table-row-hover-bg-color': currentTheme.value.hoverBackgroundColor,
+  '--el-table-current-row-bg-color': currentTheme.value.currentRowBackgroundColor,
+  '--el-table-expanded-cell-bg-color': currentTheme.value.expandedRowBackgroundColor,
+}))
+
+const tableAttrs = computed(() => {
+  const { style: _style, ...forwardedAttrs } = attrs
+  return forwardedAttrs
+})
+
+const tableStyle = computed(() => [themeStyle.value, attrs.style])
 
 const slots: Slots = useSlots()
 const tableRef = ref<TableInstance>()
