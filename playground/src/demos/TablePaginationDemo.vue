@@ -8,6 +8,10 @@
       v-model:current-page="currentPage"
       v-model:page-size="pageSize"
       :total="100"
+      :table-theme="tableTheme"
+      :pagination-theme="paginationTheme"
+      highlight-current-row
+      row-key="id"
       position="left"
     >
       <template #column-prepend>
@@ -44,7 +48,11 @@ import { ref } from "vue";
 
 import { ElButton, ElEmpty, ElTableColumn, ElTag } from "element-plus";
 
-import { type GaTableColumn } from "ga-ui-plus/base";
+import {
+  type GaPaginationTheme,
+  type GaTableColumn,
+  type GaTableTheme,
+} from "ga-ui-plus/base";
 import { GaTablePagination } from "ga-ui-plus/business";
 
 interface UserRow {
@@ -56,6 +64,29 @@ interface UserRow {
 
 const currentPage = ref(1);
 const pageSize = ref(10);
+
+const tableTheme: GaTableTheme = {
+  backgroundColor: "#ffffff",
+  rowBackgroundColor: "#ffffff",
+  textColor: "#344054",
+  headerBackgroundColor: "#101828",
+  headerTextColor: "#f9fafb",
+  borderColor: "#d0d5dd",
+  stripeBackgroundColor: "#f8fafc",
+  hoverBackgroundColor: "#eff8ff",
+  currentRowBackgroundColor: "#d1e9ff",
+  expandedRowBackgroundColor: "#f2f4f7",
+};
+
+const paginationTheme: GaPaginationTheme = {
+  backgroundColor: "#f8fafc",
+  buttonColor: "#344054",
+  buttonBackgroundColor: "#ffffff",
+  activeColor: "#ffffff",
+  activeBackgroundColor: "#155eef",
+  hoverColor: "#155eef",
+  hoverBackgroundColor: "#d1e9ff",
+};
 
 const columns: GaTableColumn<UserRow>[] = [
   {

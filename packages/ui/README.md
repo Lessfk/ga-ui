@@ -287,6 +287,61 @@ function clearSelection() {
 </script>
 ```
 
+### 颜色主题
+
+`theme` 用于配置当前 `GaTable` 实例的颜色。主题支持部分覆盖，未传字段继续使用默认颜色主题，不会影响其他表格实例。
+
+```vue
+<script setup lang="ts">
+import {
+  GaTable,
+  type GaTableColumn,
+  type GaTableTheme,
+} from 'ga-ui-plus/base'
+
+interface UserRow {
+  id: number
+  name: string
+}
+
+const rows: UserRow[] = [{ id: 1, name: '张三' }]
+const columns: GaTableColumn<UserRow>[] = [
+  { key: 'name', prop: 'name', label: '姓名' },
+]
+
+const tableTheme: GaTableTheme = {
+  headerBackgroundColor: '#101828',
+  headerTextColor: '#f9fafb',
+  stripeBackgroundColor: '#f8fafc',
+  hoverBackgroundColor: '#eff8ff',
+  currentRowBackgroundColor: '#d1e9ff',
+}
+</script>
+
+<template>
+  <GaTable
+    :data="rows"
+    :columns="columns"
+    :theme="tableTheme"
+    row-key="id"
+    highlight-current-row
+  />
+</template>
+```
+
+| 主题字段 | 说明 |
+| --- | --- |
+| `backgroundColor` | 表格整体背景色 |
+| `rowBackgroundColor` | 普通数据行背景色 |
+| `textColor` | 表格正文文字颜色 |
+| `headerBackgroundColor` | 表头背景色 |
+| `headerTextColor` | 表头文字颜色 |
+| `borderColor` | 表格边框颜色 |
+| `stripeBackgroundColor` | 斑马纹行背景色 |
+| `hoverBackgroundColor` | 行悬停背景色 |
+| `currentRowBackgroundColor` | 当前行高亮背景色 |
+| `expandedRowBackgroundColor` | 展开行背景色 |
+
 ### GaTable Props
 
 | 属性 | 类型 | 默认值 | 说明 |
@@ -305,6 +360,7 @@ function clearSelection() {
 | `emptyText` | `string` | `'暂无数据'` | 空数据文本，也是默认 `ElEmpty` 的描述 |
 | `loading` | `boolean` | `false` | 是否启用 Element Plus loading 指令 |
 | `loadingText` | `string` | `'加载中...'` | 透传为 `element-loading-text` |
+| `theme` | `GaTableTheme` | 默认颜色主题 | 当前表格实例颜色配置，支持部分覆盖 |
 
 未在上表声明的低频 `ElTable` 属性可直接写在 `GaTable` 上；未由 `GaTable` 声明的 Element Plus 表格事件监听器也会通过 `$attrs` 绑定到底层表格。例如 `table-layout="fixed"`、`scrollbar-always-on` 和 `@selection-change`。完整行为以 [Element Plus Table 文档](https://element-plus.org/zh-CN/component/table.html) 为准。
 
@@ -915,19 +971,23 @@ function viewUser(row: UserRow) {
 
 ### GaTablePagination Props
 
-`GaTablePaginationProps<Row>` 是 `Omit<GaTableProps<Row>, 'height' | 'maxHeight'> & GaPaginationProps`。表格和分页共享同一个 `size`，因此 `size` 同时控制两者。
+`GaTablePaginationProps<Row>` 是 `Omit<GaTableProps<Row>, 'height' | 'maxHeight' | 'theme'> & Omit<GaPaginationProps, 'theme'>`，并另外提供 `tableTheme` 与 `paginationTheme`。表格和分页共享同一个 `size`，因此 `size` 同时控制两者。
 
 | 属性组 | 属性 | 默认行为 |
 | --- | --- | --- |
 | 表格数据与列 | `data`、`columns`、`rowKey` | 与 `GaTable` 相同：`[]`、`[]`、`undefined` |
 | 表格外观 | `border`、`stripe`、`fit`、`showHeader` | 均为 `true` |
 | 表格状态 | `highlightCurrentRow`、`emptyText`、`loading`、`loadingText` | 与 `GaTable` 相同：`false`、`'暂无数据'`、`false`、`'加载中...'` |
+| 主题配置 | `tableTheme` | 传给内部 `GaTable` 的实例级颜色主题，支持部分覆盖 |
+| 主题配置 | `paginationTheme` | 传给内部 `GaPagination` 的实例级颜色主题，支持部分覆盖 |
 | 共享尺寸 | `size` | 同时传给 `GaTable` 与 `GaPagination`；未传时使用子组件默认行为 |
 | 分页模型 | `currentPage`、`pageSize` | 与 `GaPagination` 相同：`1`、`10` |
 | 分页数据 | `total`、`pageSizes` | 与 `GaPagination` 相同：`100`、`[10, 20, 30, 40, 50]` |
-| 分页外观 | `layout`、`background`、`position`、`theme` | 与 `GaPagination` 相同；`theme` 会传给内部分页组件 |
+| 分页外观 | `layout`、`background`、`position` | 与 `GaPagination` 相同 |
 
 `height` 和 `maxHeight` 被有意排除，不能用于控制内部表格；请通过父容器高度控制整个组合组件。
+
+> 迁移提示：`GaTablePagination` 不再接受含义不明确的 `theme`。原来的 `:theme="paginationTheme"` 需要改为 `:pagination-theme="paginationTheme"`；表格主题使用 `:table-theme="tableTheme"`。
 
 ### GaTablePagination Events
 
@@ -1185,6 +1245,7 @@ function openSystemMenu() {
 | `GaDialogHeaderSlotProps` | `header` 插槽作用域，包含 `close`、`titleId`、`titleClass` |
 | `GaDialogExpose` | `GaDialog` 暴露实例类型，包含 `DialogInstance \| undefined` 的 `dialogRef` |
 | `GaTableProps<Row>` | `GaTable` Props |
+| `GaTableTheme` | `GaTable` 的实例级颜色主题配置 |
 | `GaTableRowKey<Row>` | `rowKey` 的字符串或函数类型 |
 | `GaTableColumn<Row>` | 配置式列定义 |
 | `GaTableCellScope<Row>` | 配置列命名插槽的作用域 |
