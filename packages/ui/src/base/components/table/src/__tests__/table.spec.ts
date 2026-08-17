@@ -132,6 +132,18 @@ function mountTable(options: Parameters<typeof mount>[1] = {}) {
 }
 
 describe('GaTable', () => {
+  it('keeps the expanded row theme background while hovering', () => {
+    expect(normalizedTableStyles).toContain(
+      '.el-table.ga-table .el-table__expanded-cell:hover { background-color: var(--el-table-expanded-cell-bg-color) !important; }',
+    )
+  })
+
+  it('applies the header theme background to grouped headers', () => {
+    expect(normalizedTableStyles).toContain(
+      '.el-table.ga-table thead.is-group th.el-table__cell { background: var(--el-table-header-bg-color); }',
+    )
+  })
+
   it('themes striped rows without overriding hover or current rows', () => {
     expect(normalizedTableStyles).toContain(
       '.el-table.ga-table.el-table--striped { .el-table__body { tr.el-table__row--striped:not(.hover-row):not(.current-row) { td.el-table__cell { background-color: var(--ga-table-stripe-bg-color); } } } }',

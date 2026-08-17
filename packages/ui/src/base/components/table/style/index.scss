@@ -17,6 +17,14 @@
     }
 }
 
+.el-table.ga-table .el-table__expanded-cell:hover {
+    background-color: var(--el-table-expanded-cell-bg-color) !important;
+}
+
+.el-table.ga-table thead.is-group th.el-table__cell {
+    background: var(--el-table-header-bg-color);
+}
+
 .el-table.ga-table.el-table--striped {
     .el-table__body {
         tr.el-table__row--striped:not(.hover-row):not(.current-row) {
