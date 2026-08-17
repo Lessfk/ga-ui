@@ -10,6 +10,7 @@ const tableStyles = readFileSync(
   'src/base/components/table/style/index.scss',
   'utf8',
 )
+const normalizedTableStyles = tableStyles.replace(/\s+/g, ' ')
 
 const slotRow = {
   name: '张三',
@@ -132,9 +133,9 @@ function mountTable(options: Parameters<typeof mount>[1] = {}) {
 
 describe('GaTable', () => {
   it('themes striped rows without overriding hover or current rows', () => {
-    expect(tableStyles).toContain('var(--ga-table-stripe-bg-color)')
-    expect(tableStyles).toContain(':not(.hover-row)')
-    expect(tableStyles).toContain(':not(.current-row)')
+    expect(normalizedTableStyles).toContain(
+      '.el-table.ga-table.el-table--striped { .el-table__body { tr.el-table__row--striped:not(.hover-row):not(.current-row) { td.el-table__cell { background-color: var(--ga-table-stripe-bg-color); } } } }',
+    )
   })
 
   it('applies the complete default color theme', () => {
