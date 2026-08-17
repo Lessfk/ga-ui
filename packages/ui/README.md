@@ -983,7 +983,7 @@ function viewUser(row: UserRow) {
 | 共享尺寸 | `size` | 同时传给 `GaTable` 与 `GaPagination`；未传时使用子组件默认行为 |
 | 分页模型 | `currentPage`、`pageSize` | 与 `GaPagination` 相同：`1`、`10` |
 | 分页数据 | `total`、`pageSizes` | 与 `GaPagination` 相同：`100`、`[10, 20, 30, 40, 50]` |
-| 分页外观 | `layout`、`background`、`position` | 与 `GaPagination` 相同 |
+| 分页外观 | `layout`、`background`、`position` | `layout`、`position` 与 `GaPagination` 相同；`background` 默认为 `true` |
 
 `height` 和 `maxHeight` 被有意排除，不能用于控制内部表格；请通过父容器高度控制整个组合组件。
 
