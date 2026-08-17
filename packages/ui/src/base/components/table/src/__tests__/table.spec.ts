@@ -195,6 +195,66 @@ describe('GaTable', () => {
     expect(style.getPropertyValue('--el-table-bg-color')).toBe('#ffffff')
   })
 
+  it('lets consumer CSS variables override theme variables', () => {
+    const wrapper = mountTable({
+      props: {
+        theme: {
+          backgroundColor: '#101828',
+        },
+      },
+      attrs: {
+        style: {
+          '--el-table-bg-color': '#fef3c7',
+        },
+      },
+    })
+    const style = (wrapper.find('.el-table-stub').element as HTMLElement).style
+
+    expect(style.getPropertyValue('--el-table-bg-color')).toBe('#fef3c7')
+  })
+
+  it('updates forwarded attributes and consumer styles dynamically', async () => {
+    const wrapper = mountTable({
+      attrs: {
+        'table-layout': 'fixed',
+        style: {
+          width: '80%',
+          '--consumer-table-token': '#409eff',
+        },
+      },
+    })
+
+    await wrapper.setProps({
+      'table-layout': 'auto',
+      style: {
+        width: '90%',
+        '--consumer-table-token': '#67c23a',
+      },
+    } as never)
+
+    const table = wrapper.find('.el-table-stub')
+    const style = (table.element as HTMLElement).style
+
+    expect(table.attributes('table-layout')).toBe('auto')
+    expect(style.width).toBe('90%')
+    expect(style.getPropertyValue('--consumer-table-token')).toBe('#67c23a')
+  })
+
+  it('keeps theme defaults when fields are explicitly undefined', () => {
+    const wrapper = mountTable({
+      props: {
+        theme: {
+          backgroundColor: undefined,
+          hoverBackgroundColor: undefined,
+        },
+      },
+    })
+    const style = (wrapper.find('.el-table-stub').element as HTMLElement).style
+
+    expect(style.getPropertyValue('--el-table-bg-color')).toBe('#ffffff')
+    expect(style.getPropertyValue('--el-table-row-hover-bg-color')).toBe('#f6f6f6')
+  })
+
   it('does not forward theme to ElTable', () => {
     const wrapper = mountTable({
       props: {

@@ -1,5 +1,5 @@
 <template>
-  <ElTable ref="tableRef" v-loading="props.loading" v-bind="tableAttrs" class="ga-table" :style="tableStyle" :data="props.data"
+  <ElTable ref="tableRef" v-loading="props.loading" v-bind="getTableAttrs()" class="ga-table" :style="getTableStyle()" :data="props.data"
       :height="props.height" :max-height="props.maxHeight" :row-key="props.rowKey" :border="props.border"
       :stripe="props.stripe" :size="props.size" :fit="props.fit" :show-header="props.showHeader"
       :highlight-current-row="props.highlightCurrentRow" :empty-text="props.emptyText"
@@ -83,8 +83,21 @@ const defaultTheme: Required<GaTableTheme> = {
 }
 
 const currentTheme = computed<Required<GaTableTheme>>(() => ({
-  ...defaultTheme,
-  ...props.theme,
+  backgroundColor: props.theme?.backgroundColor ?? defaultTheme.backgroundColor,
+  rowBackgroundColor: props.theme?.rowBackgroundColor ?? defaultTheme.rowBackgroundColor,
+  textColor: props.theme?.textColor ?? defaultTheme.textColor,
+  headerBackgroundColor:
+    props.theme?.headerBackgroundColor ?? defaultTheme.headerBackgroundColor,
+  headerTextColor: props.theme?.headerTextColor ?? defaultTheme.headerTextColor,
+  borderColor: props.theme?.borderColor ?? defaultTheme.borderColor,
+  stripeBackgroundColor:
+    props.theme?.stripeBackgroundColor ?? defaultTheme.stripeBackgroundColor,
+  hoverBackgroundColor:
+    props.theme?.hoverBackgroundColor ?? defaultTheme.hoverBackgroundColor,
+  currentRowBackgroundColor:
+    props.theme?.currentRowBackgroundColor ?? defaultTheme.currentRowBackgroundColor,
+  expandedRowBackgroundColor:
+    props.theme?.expandedRowBackgroundColor ?? defaultTheme.expandedRowBackgroundColor,
 }))
 
 const themeStyle = computed<CSSProperties>(() => ({
@@ -100,12 +113,12 @@ const themeStyle = computed<CSSProperties>(() => ({
   '--el-table-expanded-cell-bg-color': currentTheme.value.expandedRowBackgroundColor,
 }))
 
-const tableAttrs = computed(() => {
+const getTableAttrs = () => {
   const { style: _style, ...forwardedAttrs } = attrs
   return forwardedAttrs
-})
+}
 
-const tableStyle = computed(() => [themeStyle.value, attrs.style])
+const getTableStyle = () => [themeStyle.value, attrs.style]
 
 const slots: Slots = useSlots()
 const tableRef = ref<TableInstance>()
