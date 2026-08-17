@@ -63,7 +63,28 @@ describe('GaPagination', () => {
       '--el-pagination-button-color: #606266',
     )
     expect(style).toContain(
+      '--el-pagination-bg-color: #fafafa',
+    )
+    expect(style).toContain(
+      '--el-pagination-button-bg-color: #fafafa',
+    )
+    expect(style).toContain(
+      '--ga-pagination-active-color: #fff',
+    )
+    expect(style).toContain(
       '--ga-pagination-active-bg-color: linear-gradient(135deg,#4b4b52, #1d1d22)',
+    )
+    expect(style).toContain(
+      '--el-pagination-hover-color: #1c1c1a',
+    )
+    expect(style).toContain(
+      '--ga-pagination-hover-bg-color: #EDEDED',
+    )
+    expect(style).toContain(
+      '--el-pagination-button-disabled-color: #606266',
+    )
+    expect(style).toContain(
+      '--el-pagination-button-disabled-bg-color: #fafafa',
     )
   })
 
