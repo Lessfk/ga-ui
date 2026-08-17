@@ -57,13 +57,13 @@ describe('GaPagination', () => {
       '--ga-pagination-text-color: #606266',
     )
     expect(style).toContain(
-      '--ga-pagination-background: var(--ga-pagination-default-background, transparent)',
+      '--ga-pagination-background: #fafafa',
     )
     expect(style).toContain(
-      '--el-pagination-button-color: #2b3b5e',
+      '--el-pagination-button-color: #606266',
     )
     expect(style).toContain(
-      '--ga-pagination-active-bg-color: #ffffff',
+      '--ga-pagination-active-bg-color: linear-gradient(135deg,#4b4b52, #1d1d22)',
     )
   })
 
@@ -94,7 +94,7 @@ describe('GaPagination', () => {
       '--ga-pagination-active-bg-color: #409eff',
     )
     expect(pagination.attributes('style')).toContain(
-      '--el-pagination-button-color: #2b3b5e',
+      '--el-pagination-button-color: #606266',
     )
     expect(pagination.attributes('style')).toContain('width: 75%')
     expect(wrapper.findComponent(ElPaginationStub).props('theme')).toBeUndefined()
@@ -109,7 +109,7 @@ describe('GaPagination', () => {
       '--ga-pagination-active-bg-color: #67c23a',
     )
     expect(pagination.attributes('style')).toContain(
-      '--ga-pagination-active-color: #2b3b5e',
+      '--ga-pagination-active-color: #fff',
     )
   })
 
@@ -152,7 +152,7 @@ describe('GaPagination', () => {
       total: 100,
       pageSizes: [10, 20, 30, 40, 50],
       size: 'default',
-      background: true,
+      background: false,
       layout: 'total, sizes, prev, pager, next, jumper',
     })
   })
