@@ -16,6 +16,7 @@
       :empty-text="props.emptyText"
       :loading="props.loading"
       :loading-text="props.loadingText"
+      :theme="props.tableTheme"
       height="100%"
     >
       <template
@@ -38,7 +39,7 @@
       :layout="props.layout"
       :background="props.background"
       :position="props.position"
-      :theme="props.theme"
+      :theme="props.paginationTheme"
       @current-change="handleCurrentChange"
       @size-change="handleSizeChange"
     />

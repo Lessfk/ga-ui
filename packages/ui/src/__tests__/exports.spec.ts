@@ -90,6 +90,19 @@ const tablePaginationProps: GaTablePaginationProps<{ id: number }> = {
   currentPage: 1,
   pageSize: 10,
   total: 1,
+  tableTheme: {
+    headerBackgroundColor: '#f6f6f6',
+  },
+  paginationTheme: {
+    activeBackgroundColor: '#409eff',
+  },
+}
+
+const legacyTablePaginationProps: GaTablePaginationProps<{ id: number }> = {
+  // @ts-expect-error GaTablePagination no longer accepts the legacy theme prop
+  theme: {
+    activeBackgroundColor: '#409eff',
+  },
 }
 
 const paginationTheme: GaPaginationTheme = {
@@ -153,6 +166,7 @@ void baseTypeContract
 void rootTypeContract
 void businessDialogTypeContract
 void tablePaginationProps
+void legacyTablePaginationProps
 void paginationTheme
 void tableTheme
 void asideMenuProps

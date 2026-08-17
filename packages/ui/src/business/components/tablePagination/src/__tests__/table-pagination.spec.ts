@@ -45,6 +45,7 @@ const GaTableStub = defineComponent({
       default: undefined,
     },
     loadingText: String,
+    theme: Object,
   },
   setup(_, { attrs, slots }) {
     return () => h(
@@ -117,7 +118,11 @@ describe('GaTablePagination', () => {
     const data = [{ id: 1 }]
     const columns = [{ key: 'id', prop: 'id' }]
     const rowKey = (row: { id: number }) => String(row.id)
-    const theme = {
+    const tableTheme = {
+      headerBackgroundColor: '#f6f6f6',
+      currentRowBackgroundColor: '#ecf5ff',
+    }
+    const paginationTheme = {
       activeColor: '#ffffff',
       activeBackgroundColor: '#409eff',
     }
@@ -140,7 +145,8 @@ describe('GaTablePagination', () => {
         pageSizes: [10, 20, 40],
         layout: 'prev, pager, next',
         background: false,
-        theme,
+        tableTheme,
+        paginationTheme,
       },
     })
 
@@ -171,7 +177,8 @@ describe('GaTablePagination', () => {
       layout: 'prev, pager, next',
       background: false,
     })
-    expect(pagination.props('theme')).toEqual(theme)
+    expect(table.props('theme')).toEqual(tableTheme)
+    expect(pagination.props('theme')).toEqual(paginationTheme)
     expect(table.attributes()).not.toHaveProperty('total')
     expect(table.attributes()).not.toHaveProperty('layout')
     expect(pagination.attributes()).not.toHaveProperty('data')
@@ -187,7 +194,8 @@ describe('GaTablePagination', () => {
       'page-sizes',
       'layout',
       'background',
-      'theme',
+      'paginationTheme',
+      'pagination-theme',
     ]) {
       expect(table.vm.$attrs).not.toHaveProperty(attrName)
     }
@@ -208,6 +216,8 @@ describe('GaTablePagination', () => {
       'loading',
       'loadingText',
       'loading-text',
+      'tableTheme',
+      'table-theme',
     ]) {
       expect(pagination.vm.$attrs).not.toHaveProperty(attrName)
     }
@@ -271,12 +281,14 @@ describe('GaTablePagination', () => {
       'pageSizes',
       'layout',
       'background',
-      'theme',
+      'tableTheme',
+      'paginationTheme',
     ]) {
       expect(runtimeProps).toHaveProperty(propName)
     }
     expect(runtimeProps).not.toHaveProperty('height')
     expect(runtimeProps).not.toHaveProperty('maxHeight')
+    expect(runtimeProps).not.toHaveProperty('theme')
     expect(runtimeProps).not.toHaveProperty('tableProps')
     expect(runtimeProps).not.toHaveProperty('paginationProps')
   })
