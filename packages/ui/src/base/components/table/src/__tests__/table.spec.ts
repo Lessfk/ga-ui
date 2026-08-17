@@ -1,8 +1,15 @@
+import { readFileSync } from 'node:fs'
+
 import { mount } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
 import { describe, expect, it } from 'vitest'
 
 import GaTable from '../index.vue'
+
+const tableStyles = readFileSync(
+  'src/base/components/table/style/index.scss',
+  'utf8',
+)
 
 const slotRow = {
   name: '张三',
@@ -124,6 +131,12 @@ function mountTable(options: Parameters<typeof mount>[1] = {}) {
 }
 
 describe('GaTable', () => {
+  it('themes striped rows without overriding hover or current rows', () => {
+    expect(tableStyles).toContain('var(--ga-table-stripe-bg-color)')
+    expect(tableStyles).toContain(':not(.hover-row)')
+    expect(tableStyles).toContain(':not(.current-row)')
+  })
+
   it('applies the complete default color theme', () => {
     const wrapper = mountTable()
     const style = (wrapper.find('.el-table-stub').element as HTMLElement).style
