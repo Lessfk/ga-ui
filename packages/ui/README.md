@@ -765,7 +765,7 @@ const paginationTheme: GaPaginationTheme = {
 
 ## GaTablePagination
 
-`GaTablePagination` 将 `GaTable` 与 `GaPagination` 组合为一个两行 Grid。它使用扁平 Props：`GaTableProps<Row>`（排除 `height`、`maxHeight`）与 `GaPaginationProps` 的交集，不需要 `tableProps` 或 `paginationProps` 对象。
+`GaTablePagination` 将 `GaTable` 与 `GaPagination` 组合为一个两行 Grid。它使用扁平 Props：排除 `height`、`maxHeight` 与两侧 `theme` 后组合表格和分页 Props，并通过 `tableTheme`、`paginationTheme` 分别配置内部组件，不需要 `tableProps` 或 `paginationProps` 对象。
 
 ### 基础用法
 
