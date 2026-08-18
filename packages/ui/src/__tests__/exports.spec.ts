@@ -4,6 +4,7 @@ import { GaDialog as DialogBarrel } from '../base/components/dialog'
 import { GaPagination as PaginationBarrel } from '../base/components/pagination'
 import { GaTable as TableBarrel } from '../base/components/table'
 import { GaAsideMenu as AsideMenuBarrel } from '../business/components/asideMenu'
+import { GaSearchBar as SearchBarBarrel } from '../business/components/searchBar'
 import { GaTablePagination as TablePaginationBarrel } from '../business/components/tablePagination'
 import type {
   GaDialogEmits,
@@ -18,6 +19,8 @@ import type {
 } from '../base'
 // @ts-expect-error GaDialog public types are not exported from the business entry
 import type { GaDialogProps as BusinessGaDialogProps } from '../business'
+// @ts-expect-error GaSearchBar public types are not exported from the base entry
+import type { GaSearchBarProps as BaseSearchBarProps } from '../base'
 import type {
   GaAsideMenuEmits,
   GaAsideMenuExpose,
@@ -25,6 +28,19 @@ import type {
   GaAsideMenuSlotProps,
   GaAsideMenuTheme,
   GaAsideMenuToggleSlotProps,
+  GaSearchBarEmits,
+  GaSearchBarExpose,
+  GaSearchBarProps,
+  GaSearchBaseField,
+  GaSearchChangePayload,
+  GaSearchCustomField,
+  GaSearchDateField,
+  GaSearchField,
+  GaSearchInputField,
+  GaSearchLabelMode,
+  GaSearchModel,
+  GaSearchOption,
+  GaSearchSelectField,
   GaTablePaginationProps,
 } from '../business'
 import type {
@@ -40,6 +56,19 @@ import type {
   GaDialogProps as RootGaDialogProps,
   GaPaginationProps as RootGaPaginationProps,
   GaPaginationTheme as RootGaPaginationTheme,
+  GaSearchBarEmits as RootGaSearchBarEmits,
+  GaSearchBarExpose as RootGaSearchBarExpose,
+  GaSearchBarProps as RootGaSearchBarProps,
+  GaSearchBaseField as RootGaSearchBaseField,
+  GaSearchChangePayload as RootGaSearchChangePayload,
+  GaSearchCustomField as RootGaSearchCustomField,
+  GaSearchDateField as RootGaSearchDateField,
+  GaSearchField as RootGaSearchField,
+  GaSearchInputField as RootGaSearchInputField,
+  GaSearchLabelMode as RootGaSearchLabelMode,
+  GaSearchModel as RootGaSearchModel,
+  GaSearchOption as RootGaSearchOption,
+  GaSearchSelectField as RootGaSearchSelectField,
   GaTableColumn as RootGaTableColumn,
   GaTablePaginationProps as RootGaTablePaginationProps,
   GaTableProps as RootGaTableProps,
@@ -75,13 +104,42 @@ type RootTypeContract = [
   RootGaAsideMenuSlotProps,
   RootGaAsideMenuTheme,
   RootGaAsideMenuToggleSlotProps,
+  RootGaSearchBarProps,
+  RootGaSearchBarEmits,
+  RootGaSearchBarExpose,
+  RootGaSearchBaseField,
+  RootGaSearchChangePayload,
+  RootGaSearchCustomField,
+  RootGaSearchDateField,
+  RootGaSearchField,
+  RootGaSearchInputField,
+  RootGaSearchLabelMode,
+  RootGaSearchModel,
+  RootGaSearchOption,
+  RootGaSearchSelectField,
+]
+
+type BusinessSearchTypeContract = [
+  GaSearchBaseField,
+  GaSearchChangePayload,
+  GaSearchCustomField,
+  GaSearchDateField,
+  GaSearchInputField,
+  GaSearchLabelMode,
+  GaSearchOption,
+  GaSearchSelectField,
 ]
 
 type BusinessDialogTypeContract = BusinessGaDialogProps
+type BaseSearchBarTypeContract = BaseSearchBarProps
 
 const baseTypeContract: BaseTypeContract | undefined = undefined
 const rootTypeContract: RootTypeContract | undefined = undefined
 const businessDialogTypeContract: BusinessDialogTypeContract | undefined =
+  undefined
+const businessSearchTypeContract: BusinessSearchTypeContract | undefined =
+  undefined
+const baseSearchBarTypeContract: BaseSearchBarTypeContract | undefined =
   undefined
 
 const tablePaginationProps: GaTablePaginationProps<{ id: number }> = {
@@ -144,6 +202,53 @@ const asideMenuToggleSlot: GaAsideMenuToggleSlotProps = {
   toggle: () => undefined,
 }
 
+const searchFields: GaSearchField[] = [
+  { key: 'keyword', type: 'input', label: '关键词' },
+  {
+    key: 'status',
+    type: 'select',
+    label: '状态',
+    options: [{ label: '启用', value: 1 }],
+  },
+  {
+    key: 'createdAt',
+    type: 'daterange',
+    label: '创建日期',
+    format: 'YYYY-MM-DD',
+    valueFormat: 'YYYY-MM-DD',
+  },
+]
+const searchModel: GaSearchModel = {
+  keyword: '',
+  status: undefined,
+}
+const searchBarProps: GaSearchBarProps = {
+  modelValue: searchModel,
+  fields: searchFields,
+}
+
+function checkSearchBarEmits(emit: GaSearchBarEmits) {
+  emit('update:modelValue', { keyword: 'alice' })
+  emit('update:collapsed', false)
+  emit('search', { keyword: 'alice' })
+  emit('reset', { keyword: '' })
+  emit('change', {
+    key: 'keyword',
+    value: 'alice',
+    model: { keyword: 'alice' },
+    field: searchFields[0],
+  })
+  emit('invalid', { keyword: [{ message: '必填' }] })
+}
+
+function checkSearchBarExpose(expose: GaSearchBarExpose) {
+  void expose.search()
+  expose.reset()
+  void expose.validate()
+  expose.clearValidate()
+  expose.toggle()
+}
+
 function checkAsideMenuEmits(emit: GaAsideMenuEmits) {
   emit('update:collapse', true)
   emit('toggle', false)
@@ -165,6 +270,8 @@ function checkAsideMenuExpose(expose: GaAsideMenuExpose) {
 void baseTypeContract
 void rootTypeContract
 void businessDialogTypeContract
+void businessSearchTypeContract
+void baseSearchBarTypeContract
 void tablePaginationProps
 void legacyTablePaginationProps
 void paginationTheme
@@ -175,6 +282,11 @@ void asideMenuSlot
 void asideMenuToggleSlot
 void checkAsideMenuEmits
 void checkAsideMenuExpose
+void searchFields
+void searchModel
+void searchBarProps
+void checkSearchBarEmits
+void checkSearchBarExpose
 
 describe('library exports', () => {
   it('exports only base components from the base entry', async () => {
@@ -185,6 +297,7 @@ describe('library exports', () => {
     expect(base.GaPagination).toBe(PaginationBarrel)
     expect(base).not.toHaveProperty('GaTablePagination')
     expect(base).not.toHaveProperty('GaAsideMenu')
+    expect(base).not.toHaveProperty('GaSearchBar')
   })
 
   it('exports only business components from the business entry', async () => {
@@ -192,6 +305,7 @@ describe('library exports', () => {
 
     expect(business.GaTablePagination).toBe(TablePaginationBarrel)
     expect(business.GaAsideMenu).toBe(AsideMenuBarrel)
+    expect(business.GaSearchBar).toBe(SearchBarBarrel)
     expect(business).not.toHaveProperty('GaDialog')
     expect(business).not.toHaveProperty('GaTable')
     expect(business).not.toHaveProperty('GaPagination')
@@ -205,5 +319,6 @@ describe('library exports', () => {
     expect(library.GaPagination).toBe(PaginationBarrel)
     expect(library.GaTablePagination).toBe(TablePaginationBarrel)
     expect(library.GaAsideMenu).toBe(AsideMenuBarrel)
+    expect(library.GaSearchBar).toBe(SearchBarBarrel)
   })
 })
