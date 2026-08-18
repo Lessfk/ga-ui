@@ -69,7 +69,7 @@ const tableTheme: GaTableTheme = {
   backgroundColor: "#ffffff",
   rowBackgroundColor: "#ffffff",
   textColor: "#344054",
-  headerBackgroundColor: "#101828",
+  headerBackgroundColor: "#4F7DB2",
   headerTextColor: "#f9fafb",
   borderColor: "#d0d5dd",
   stripeBackgroundColor: "#f8fafc",
@@ -79,13 +79,38 @@ const tableTheme: GaTableTheme = {
 };
 
 const paginationTheme: GaPaginationTheme = {
-  backgroundColor: "#f8fafc",
-  buttonColor: "#344054",
+  backgroundColor: "#EEEEEF",
+  textColor: "#606266",
+  buttonColor: "#7A7475",
   buttonBackgroundColor: "#ffffff",
   activeColor: "#ffffff",
-  activeBackgroundColor: "#155eef",
-  hoverColor: "#155eef",
-  hoverBackgroundColor: "#d1e9ff",
+  activeBackgroundColor: "#4F7DB2",
+  hoverColor: "#ffffff",
+  hoverBackgroundColor: "#4f7db299",
+  disabledColor: "#606266",
+  disabledBackgroundColor: "#fafafa",
+
+  // backgroundColor: "#EEEEEF",
+  //  textColor: '#606266',
+  // buttonColor: "#7A7475",
+  // buttonBackgroundColor: "#ffffff",
+  // activeColor: "#ffffff",
+  // activeBackgroundColor: "#4F7DB2",//539ED7
+  // hoverColor: "#ffffff",
+  // hoverBackgroundColor: "#9CB5D1",
+  //    disabledColor: '#606266',
+  //  disabledBackgroundColor: '#fafafa',
+
+  //   backgroundColor: '#fafafa',
+  // textColor: '#606266',
+  // buttonColor: '#606266',
+  // buttonBackgroundColor: '#fafafa',
+  // activeColor: '#fff',
+  // activeBackgroundColor: 'linear-gradient(135deg,#4b4b52, #1d1d22)',
+  // hoverColor: '#1c1c1a',
+  // hoverBackgroundColor: '#EDEDED',
+  // disabledColor: '#606266',
+  // disabledBackgroundColor: '#fafafa',
 };
 
 const columns: GaTableColumn<UserRow>[] = [

@@ -1,16 +1,32 @@
 <template>
-  <ElTable ref="tableRef" v-loading="props.loading" v-bind="getTableAttrs()" class="ga-table" :style="getTableStyle()" :data="props.data"
-      :height="props.height" :max-height="props.maxHeight" :row-key="props.rowKey" :border="props.border"
-      :stripe="props.stripe" :size="props.size" :fit="props.fit" :show-header="props.showHeader"
-      :highlight-current-row="props.highlightCurrentRow" :empty-text="props.emptyText"
-      :element-loading-text="props.loadingText">
-
+  <ElTable
+    ref="tableRef"
+    v-loading="props.loading"
+    v-bind="getTableAttrs()"
+    class="ga-table"
+    :style="getTableStyle()"
+    :data="props.data"
+    :height="props.height"
+    :max-height="props.maxHeight"
+    :row-key="props.rowKey"
+    :border="props.border"
+    :stripe="props.stripe"
+    :size="props.size"
+    :fit="props.fit"
+    :show-header="props.showHeader"
+    :highlight-current-row="props.highlightCurrentRow"
+    :empty-text="props.emptyText"
+    :element-loading-text="props.loadingText"
+  >
     <!-- 列前置内容 -->
     <slot name="column-prepend" />
 
     <!-- 自定义列内容 -->
-    <ElTableColumn v-for="(column, index) in props.columns" :key="getColumnKey(column, index)"
-      v-bind="getColumnProps(column)">
+    <ElTableColumn
+      v-for="(column, index) in props.columns"
+      :key="getColumnKey(column, index)"
+      v-bind="getColumnProps(column)"
+    >
       <template v-if="column.slot && slots[column.slot]" #default="scope">
         <slot :name="column.slot" v-bind="scope" />
       </template>
@@ -30,7 +46,6 @@
         <ElEmpty :description="props.emptyText" />
       </slot>
     </template>
-
   </ElTable>
 </template>
 
@@ -72,14 +87,14 @@ const attrs = useAttrs()
 const defaultTheme: Required<GaTableTheme> = {
   backgroundColor: '#ffffff',
   rowBackgroundColor: '#ffffff',
-  textColor: '#303133',
-  headerBackgroundColor: '#f6f6f6',
-  headerTextColor: '#2b3b5e',
-  borderColor: '#e5e7eb',
-  stripeBackgroundColor: 'var(--el-fill-color-lighter)',
-  hoverBackgroundColor: '#f6f6f6',
-  currentRowBackgroundColor: '#ecf5ff',
-  expandedRowBackgroundColor: '#fafafa',
+  textColor: '#344054',
+  headerBackgroundColor: '#4F7DB2',
+  headerTextColor: '#f9fafb',
+  borderColor: '#d0d5dd',
+  stripeBackgroundColor: '#f8fafc',
+  hoverBackgroundColor: '#eff8ff',
+  currentRowBackgroundColor: '#d1e9ff',
+  expandedRowBackgroundColor: '#f2f4f7',
 }
 
 const currentTheme = computed<Required<GaTableTheme>>(() => ({

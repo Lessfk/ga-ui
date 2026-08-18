@@ -42,14 +42,14 @@ const props = withDefaults(defineProps<GaPaginationProps>(), {
 const attrs = useAttrs()
 
 const defaultTheme: Required<GaPaginationTheme> = {
-  backgroundColor: '#fafafa',
+  backgroundColor: '#EEEEEF',
   textColor: '#606266',
-  buttonColor: '#606266',
-  buttonBackgroundColor: '#fafafa',
-  activeColor: '#fff',
-  activeBackgroundColor: 'linear-gradient(135deg,#4b4b52, #1d1d22)',
-  hoverColor: '#1c1c1a',
-  hoverBackgroundColor: '#EDEDED',
+  buttonColor: '#7A7475',
+  buttonBackgroundColor: '#ffffff',
+  activeColor: '#ffffff',
+  activeBackgroundColor: '#4F7DB2',
+  hoverColor: '#ffffff',
+  hoverBackgroundColor: '#4f7db299',
   disabledColor: '#606266',
   disabledBackgroundColor: '#fafafa',
 }

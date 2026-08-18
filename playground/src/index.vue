@@ -1,94 +1,52 @@
 <template>
-  <ElAside
-    v-bind="$attrs"
-    class="ga-aside-menu"
-    :class="{ 'is-collapse': currentCollapse }"
-    :style="themeStyle"
-    :width="currentWidth"
+  <ElTable
+    ref="tableRef"
+    v-loading="props.loading"
+    v-bind="getTableAttrs()"
+    class="ga-table"
+    :style="getTableStyle()"
+    :data="props.data"
+    :height="props.height"
+    :max-height="props.maxHeight"
+    :row-key="props.rowKey"
+    :border="props.border"
+    :stripe="props.stripe"
+    :size="props.size"
+    :fit="props.fit"
+    :show-header="props.showHeader"
+    :highlight-current-row="props.highlightCurrentRow"
+    :empty-text="props.emptyText"
+    :element-loading-text="props.loadingText"
   >
-    <div v-if="slots.header" class="ga-aside-menu__header">
-      <slot name="header" :collapse="currentCollapse" />
-    </div>
+    <!-- 列前置内容 -->
+    <slot name="column-prepend" />
 
-    <ElScrollbar class="ga-aside-menu__scrollbar">
-      <ElMenu
-        ref="menuRef"
-        v-bind="menuProps"
-        class="ga-aside-menu__menu"
-        mode="vertical"
-        :collapse="currentCollapse"
-        :popper-class="menuPopperClass"
-        :popper-style="menuPopperStyle"
-        @select="handleSelect"
-        @open="handleOpen"
-        @close="handleClose"
-      >
-        <slot />
-      </ElMenu>
-    </ElScrollbar>
+    <!-- 自定义列内容 -->
+    <ElTableColumn
+      v-for="(column, index) in props.columns"
+      :key="getColumnKey(column, index)"
+      v-bind="getColumnProps(column)"
+    >
+      <template v-if="column.slot && slots[column.slot]" #default="scope">
+        <slot :name="column.slot" v-bind="scope" />
+      </template>
+    </ElTableColumn>
 
-    <div v-if="slots.footer" class="ga-aside-menu__footer">
-      <slot name="footer" :collapse="currentCollapse" />
-    </div>
+    <!-- 自定义表格内容 -->
+    <slot />
 
-    <div class="ga-aside-menu__collapse">
-      <slot name="collapse" :collapse="currentCollapse" :toggle="toggle">
-        <button
-          type="button"
-          class="ga-aside-menu__collapse-button"
-          :aria-label="currentCollapse ? '展开菜单' : '折叠菜单'"
-          :title="currentCollapse ? '展开菜单' : '折叠菜单'"
-          @click="toggle"
-        >
-          <svg
-            v-if="currentCollapse"
-            aria-hidden="true"
-            class="ga-aside-menu__trigger-icon"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path
-              d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12"
-            />
-            <path d="M15 4v16" />
-            <path d="M9 10l2 2l-2 2" />
-          </svg>
+    <!-- 插入至表格最后一行之后的内容 -->
+    <template v-if="slots.append" #append>
+      <slot name="append" />
+    </template>
 
-          <svg
-            v-else
-            aria-hidden="true"
-            class="ga-aside-menu__trigger-icon"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path
-              d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12"
-            />
-            <path d="M9 4v16" />
-            <path d="M15 10l-2 2l2 2" />
-          </svg>
-
-          <span v-if="!currentCollapse">折叠菜单</span>
-        </button>
+    <!-- 当数据为空时自定义的内容 -->
+    <template #empty>
+      <slot name="empty">
+        <ElEmpty :description="props.emptyText" />
       </slot>
-    </div>
-  </ElAside>
+    </template>
+  </ElTable>
 </template>
 
 <script setup lang="ts">
