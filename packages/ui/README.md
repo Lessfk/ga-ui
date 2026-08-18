@@ -1,6 +1,6 @@
 # ga-ui-plus
 
-ga-ui-plus 是一个基于 Vue 3 与 Element Plus 的 ESM 组件库，提供通用对话框、表格、分页、侧边栏菜单以及表格分页组合组件。本文档面向通过 npm 包消费组件的项目，是当前公开 API 的使用指南。
+ga-ui-plus 是一个基于 Vue 3 与 Element Plus 的 ESM 组件库，提供通用对话框、表格、分页、搜索栏、侧边栏菜单以及表格分页组合组件。本文档面向通过 npm 包消费组件的项目，是当前公开 API 的使用指南。
 
 ## 特性
 
@@ -9,6 +9,8 @@ ga-ui-plus 是一个基于 Vue 3 与 Element Plus 的 ESM 组件库，提供通�
 - `GaDialog` 默认提供自绘的全屏/还原与关闭按钮；确认、取消等 footer 业务按钮仍由使用方提供，并支持属性透传。
 - 同时支持配置式 `GaTableColumn` 与手写 `ElTableColumn`。
 - 提供 `GaTablePagination`，用扁平 Props 组合表格和分页。
+- 提供 `GaSearchBar`，以数据驱动方式配置搜索字段，并通过插槽扩展字段与操作区域。
+- `GaSearchBar` 支持折叠和响应式布局，便于组织不同屏幕尺寸下的搜索条件。
 - 提供 `GaAsideMenu`，由 `ElAside`、`ElScrollbar`、`ElMenu` 组合的侧边栏菜单，支持头部/底部插槽、折叠与自定义宽度。
 - 按基础组件、业务组件和聚合入口导出，便于按需组织依赖。
 
@@ -44,15 +46,15 @@ import 'ga-ui-plus/style.css'
 | 导出路径 | 运行时导出 | 类型导出 |
 | --- | --- | --- |
 | `ga-ui-plus/base` | `GaDialog`、`GaTable`、`GaPagination` | 对应的对话框、表格、列、实例与分页类型 |
-| `ga-ui-plus/business` | `GaTablePagination`、`GaAsideMenu` | 对应的表格分页与侧边栏菜单类型 |
-| `ga-ui-plus` | 上述四个组件 | 上述全部公开类型；这是聚合入口 |
+| `ga-ui-plus/business` | `GaTablePagination`、`GaSearchBar`、`GaAsideMenu` | 对应的表格分页、搜索栏与侧边栏菜单类型 |
+| `ga-ui-plus` | 上述全部组件 | 上述全部公开类型；这是聚合入口 |
 | `ga-ui-plus/style.css` | 样式文件 | 不适用 |
 
 按职责导入：
 
 ```ts
 import { GaDialog, GaPagination, GaTable } from 'ga-ui-plus/base'
-import { GaTablePagination } from 'ga-ui-plus/business'
+import { GaSearchBar, GaTablePagination } from 'ga-ui-plus/business'
 ```
 
 也可以统一从聚合入口导入：
@@ -61,6 +63,7 @@ import { GaTablePagination } from 'ga-ui-plus/business'
 import {
   GaDialog,
   GaPagination,
+  GaSearchBar,
   GaTable,
   GaTablePagination,
   type GaTableColumn,
@@ -1004,6 +1007,206 @@ function viewUser(row: UserRow) {
 
 组合组件会把收到的所有插槽及其作用域转发给内部 `GaTable`，因此可使用 `GaTable` 的 `column-prepend`、默认插槽、配置列命名插槽、`empty` 和 `append`。这些插槽不会转发给分页组件。
 
+## GaSearchBar
+
+`GaSearchBar` 是一个数据驱动的搜索栏组件。通过 `fields` 描述字段类型、标签和布局，通过 `v-model` 管理搜索模型；组件负责表单展示、折叠和校验流程，查询数据、异步选项、远程搜索与分页状态由消费方维护。
+
+组件可从业务入口导入：
+
+```ts
+import { GaSearchBar } from 'ga-ui-plus/business'
+```
+
+也可以从聚合入口导入：
+
+```ts
+import { GaSearchBar } from 'ga-ui-plus'
+```
+
+### 基础用法
+
+下面的例子包含输入框、选择器和日期范围字段。日期字段的 `format` 用于显示，`valueFormat` 用于模型值：
+
+```vue
+<template>
+  <GaSearchBar
+    ref="searchBar"
+    v-model="model"
+    v-model:collapsed="collapsed"
+    :fields="fields"
+    label-mode="placeholder"
+    @search="handleSearch"
+    @reset="handleReset"
+  >
+    <template #append>
+      <span>共 {{ resultCount }} 条</span>
+    </template>
+  </GaSearchBar>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import {
+  GaSearchBar,
+  type GaSearchBarExpose,
+  type GaSearchField,
+  type GaSearchModel,
+} from 'ga-ui-plus/business'
+
+const searchBar = ref<GaSearchBarExpose>()
+const collapsed = ref(true)
+const resultCount = ref(0)
+const model = ref<GaSearchModel>({
+  keyword: '',
+  status: undefined,
+  createdAt: [],
+})
+
+const fields: GaSearchField[] = [
+  {
+    key: 'keyword',
+    type: 'input',
+    label: '关键词',
+    placeholder: '请输入关键词',
+  },
+  {
+    key: 'status',
+    type: 'select',
+    label: '状态',
+    options: [
+      { label: '启用', value: 'enabled' },
+      { label: '停用', value: 'disabled' },
+    ],
+  },
+  {
+    key: 'createdAt',
+    type: 'daterange',
+    label: '创建日期',
+    format: 'YYYY年MM月DD日',
+    valueFormat: 'YYYY-MM-DD',
+  },
+]
+
+function handleSearch(value: GaSearchModel) {
+  void value
+  // 在这里请求列表数据，并由消费方维护分页。
+}
+
+function handleReset(value: GaSearchModel) {
+  void value
+}
+</script>
+```
+
+### 字段类型与标签模式
+
+内置字段类型共有 8 种：`input`、`textarea`、`select`、`date`、`datetime`、`daterange`、`datetimerange` 和 `custom`。`select` 可通过 `options` 提供选项；日期类型支持 `format` 与 `valueFormat`；`custom` 通过 `field-{key}` 插槽自行渲染。
+
+`labelMode` 支持 `label`、`placeholder` 和 `none`：`label` 显示表单标签，`placeholder` 将标签作为字段占位提示，`none` 不显示标签。字段也可以通过自身的 `labelMode` 覆盖搜索栏默认值。
+
+### 日期格式
+
+`format` 是日期控件的显示格式，决定输入框中展示的文本；`valueFormat` 是 `v-model` 中保存的值格式。两者可以相同，也可以分别设置为用户可读格式和接口需要的值格式。
+
+### 响应式布局
+
+每个字段可使用 `span`、`xs`、`sm`、`md`、`lg`、`xl` 设置栅格占比。默认值为 `span=6`、`xs=24`、`sm=12`、`md=8`、`lg=6`、`xl=6`。
+
+### 异步选项、远程搜索与分页
+
+异步选项和远程搜索逻辑由消费方维护：`GaSearchBar` 不请求数据，也不触发远程搜索。分页同样由消费方维护，组件不会自动重置或修改页码；消费方可在 `search`、`reset` 等事件中自行更新列表和分页状态。
+
+### GaSearchBar Props
+
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `modelValue` | `GaSearchModel` | 必填 | 搜索模型，支持 `v-model` |
+| `fields` | `GaSearchField[]` | 必填 | 搜索字段定义 |
+| `labelMode` | `GaSearchLabelMode` | `'label'` | 默认标签模式 |
+| `labelWidth` | `string \| number` | `'auto'` | 表单标签宽度 |
+| `gutter` | `number` | `16` | 字段栅格间距 |
+| `collapsed` | `boolean` | `true` | 是否折叠，支持 `v-model:collapsed` |
+| `collapsedCount` | `number` | `3` | 折叠时显示的字段数量 |
+| `loading` | `boolean` | `false` | 是否处于加载状态 |
+| `disabled` | `boolean` | `false` | 是否禁用搜索栏 |
+| `rules` | `FormRules` | `undefined` | Element Plus 表单校验规则 |
+| `validateOnSearch` | `boolean` | `false` | 搜索前是否校验表单 |
+| `showSearch` | `boolean` | `true` | 是否显示搜索按钮 |
+| `showReset` | `boolean` | `true` | 是否显示重置按钮 |
+| `showCollapse` | `boolean` | `true` | 是否显示折叠按钮 |
+
+### GaSearchField
+
+所有字段共有以下属性：
+
+| 属性 | 类型 | 说明 |
+| --- | --- | --- |
+| `key` | `string` | 字段键，必填 |
+| `type` | `'input' \| 'textarea' \| 'select' \| 'date' \| 'datetime' \| 'daterange' \| 'datetimerange' \| 'custom'` | 字段类型，必填 |
+| `label` | `string` | 字段标签 |
+| `labelMode` | `GaSearchLabelMode` | 当前字段的标签模式 |
+| `placeholder` | `string` | 占位提示 |
+| `ariaLabel` | `string` | 无可见标签时的无障碍标签 |
+| `defaultValue` | `unknown` | 重置时优先使用的默认值 |
+| `disabled` | `boolean` | 是否禁用当前字段 |
+| `hidden` | `boolean` | 是否隐藏当前字段 |
+| `span` | `number` | 默认栅格占比，默认 `6` |
+| `xs` | `number` | `xs` 断点栅格占比，默认 `24` |
+| `sm` | `number` | `sm` 断点栅格占比，默认 `12` |
+| `md` | `number` | `md` 断点栅格占比，默认 `8` |
+| `lg` | `number` | `lg` 断点栅格占比，默认 `6` |
+| `xl` | `number` | `xl` 断点栅格占比，默认 `6` |
+| `componentProps` | `Record<string, unknown>` | 透传给内置字段组件的属性 |
+
+字段类型专属属性如下：
+
+| 字段类型 | 专属属性 | 说明 |
+| --- | --- | --- |
+| `input` | 无 | 单行输入 |
+| `textarea` | 无 | 多行输入 |
+| `select` | `options?: GaSearchOption[]` | 选择项；异步更新由消费方维护 |
+| `date`、`datetime`、`daterange`、`datetimerange` | `format`、`valueFormat` | 日期显示格式和值格式 |
+| `custom` | 无 | 通过 `field-{key}` 插槽自定义内容 |
+
+### GaSearchBar Events
+
+| 事件 | 参数 | 触发时机 |
+| --- | --- | --- |
+| `update:modelValue` | `(model: GaSearchModel)` | 搜索模型变化 |
+| `update:collapsed` | `(collapsed: boolean)` | 折叠状态变化 |
+| `search` | `(model: GaSearchModel)` | 执行搜索 |
+| `reset` | `(model: GaSearchModel)` | 执行重置 |
+| `change` | `({ key, value, model, field }: GaSearchChangePayload)` | 字段值变化 |
+| `invalid` | `(fields: unknown)` | 校验失败；`fields` 为 Element Plus 返回的校验字段信息 |
+
+### GaSearchBar Slots
+
+| 插槽 | 作用域 | 说明 |
+| --- | --- | --- |
+| `field-{key}` | `{ field, value, disabled, update }` | 自定义指定字段的渲染；`update(value)` 更新字段值 |
+| `prepend` | 无 | 搜索栏内容前置区域 |
+| `append` | 无 | 搜索栏内容后置区域 |
+| `actions` | `{ search, reset, validate, clearValidate, collapsed, toggle, loading, disabled }` | 自定义操作区域 |
+
+### 重置规则
+
+执行重置时，字段存在 `defaultValue` 则优先使用该值；否则使用组件首次捕获的 initial value。`fields` 中未声明的模型键会保留，不会被重置逻辑删除。分页不属于组件模型，页码需要由消费方自行维护。
+
+### 访问表单与方法
+
+通过组件 ref 可访问 `formRef`，以及以下实例方法：
+
+| 暴露项 | 类型 | 说明 |
+| --- | --- | --- |
+| `formRef` | `FormInstance \| undefined` | 内部 Element Plus 表单实例 |
+| `search()` | `Promise<boolean>` | 执行搜索流程并返回是否成功 |
+| `reset()` | `void` | 按重置规则恢复模型 |
+| `validate()` | `Promise<boolean>` | 校验表单并返回是否通过 |
+| `clearValidate()` | `void` | 清除表单校验状态 |
+| `toggle()` | `void` | 切换折叠状态 |
+
+内部表单使用组件维护的 draft 值；调用暴露方法时应在组件挂载后执行。
+
 ## GaAsideMenu
 
 `GaAsideMenu` 由 Element Plus 的 `ElAside`、`ElScrollbar` 与 `ElMenu` 组合而成。菜单固定为纵向模式，默认插槽可以直接放置原生 `ElSubMenu`、`ElMenuItem` 与 `ElMenuItemGroup`，因此 Element Plus 菜单的插槽、图标和路由能力都可以继续使用。`theme` 可统一配置侧栏、菜单项及折叠弹出层的主题颜色。
@@ -1256,6 +1459,19 @@ function openSystemMenu() {
 | `GaTableColumnFixed` | 固定列类型 |
 | `GaPaginationProps` | `GaPagination` Props |
 | `GaTablePaginationProps<Row>` | 扁平的表格分页组合 Props |
+| `GaSearchModel` | 搜索栏模型，保留字符串键值的搜索条件 |
+| `GaSearchLabelMode` | 搜索栏标签模式：`label`、`placeholder` 或 `none` |
+| `GaSearchBaseField` | 搜索字段公共属性 |
+| `GaSearchInputField` | `input`/`textarea` 搜索字段类型 |
+| `GaSearchOption` | 选择字段选项 |
+| `GaSearchSelectField` | `select` 搜索字段类型 |
+| `GaSearchDateField` | 日期与日期范围搜索字段类型 |
+| `GaSearchCustomField` | 自定义搜索字段类型 |
+| `GaSearchField` | 全部搜索字段类型的联合类型 |
+| `GaSearchBarProps` | `GaSearchBar` Props |
+| `GaSearchChangePayload` | 搜索字段变化事件参数 |
+| `GaSearchBarEmits` | `GaSearchBar` 事件签名 |
+| `GaSearchBarExpose` | `GaSearchBar` 暴露实例类型 |
 | `GaAsideMenuSlotProps` | `header`/`footer` 插槽作用域，包含 `collapse` |
 | `GaAsideMenuTheme` | `GaAsideMenu` 主题颜色配置 |
 | `GaAsideMenuToggleSlotProps` | `collapse` 插槽作用域，包含 `collapse` 与 `toggle()` |
@@ -1274,6 +1490,10 @@ import { ElButton } from 'element-plus'
 import { ref } from 'vue'
 import {
   GaTable,
+  GaSearchBar,
+  type GaSearchBarProps,
+  type GaSearchField,
+  type GaSearchModel,
   type GaPaginationProps,
   type GaTableCellScope,
   type GaTableColumn,
@@ -1309,6 +1529,15 @@ const combinedProps: GaTablePaginationProps<UserRow> = {
   ...paginationProps,
 }
 
+const searchModel: GaSearchModel = { keyword: '' }
+const searchFields: GaSearchField[] = [
+  { key: 'keyword', type: 'input', label: '关键词' },
+]
+const searchProps: GaSearchBarProps = {
+  modelValue: searchModel,
+  fields: searchFields,
+}
+
 function getStatusText(scope: GaTableCellScope<UserRow>) {
   return `${scope.$index + 1}: ${scope.row.status}`
 }
@@ -1321,6 +1550,7 @@ function clearSelection() {
 
 void combinedProps
 void getStatusText
+void searchProps
 </script>
 ```
 
@@ -1331,6 +1561,7 @@ void getStatusText
 - `GaDialog` 显式转发 `v-model`、全屏状态更新与对话框生命周期事件，并将其他 `$attrs` 绑定到内部 `ElDialog`。底层原生关闭按钮始终关闭，默认标题栏使用自绘全屏和关闭按钮；自绘关闭按钮通过 Element Plus 的 `handleClose` 流程执行 `beforeClose`。传入 `header` 插槽会替换整套默认标题栏。组件不内置 `footer` 内容或确认、取消等业务按钮。
 - `GaTable` 使用 `inheritAttrs: false`，并将普通 `$attrs` 直接绑定到内部 `ElTable`；未声明的 Element Plus 表格事件也随监听器一起透传。
 - `GaPagination` 使用相同策略，将普通 `$attrs` 绑定到内部 `ElPagination`。组件当前不转发分页插槽。
+- `GaSearchBar` 将普通 `$attrs` 绑定在根 `<div>`；内部 `ElForm` 使用组件维护的 draft 值。内置字段通过内置组件渲染，自定义字段通过 `field-{key}` 插槽扩展。异步选项、远程搜索与分页均由消费方管理，组件不会请求数据、触发远程搜索或重置页码。
 - `GaAsideMenu` 固定菜单 `mode="vertical"`，菜单内容通过默认插槽直接使用 Element Plus 菜单节点。`collapse`、`width`、`collapseWidth` 与 `theme` 由组件接管，其余菜单 Props 传给内部 `ElMenu`；主题变量会同时传给折叠子菜单弹层，并与 `popperClass`、`popperStyle` 合并。普通 `$attrs` 绑定在根部 `ElAside`。`select`/`open`/`close` 事件原样转发，其中 `routerResult` 使用 `Promise<unknown>` 表达。父容器需要提供明确高度，内部 `ElScrollbar` 才能正确滚动。
 - `GaTablePagination` 的普通 `$attrs` 绑定在根 `<div>`，包括 `class`、`style`、`id` 和普通监听器；它们不会自动分发给内部表格或分页。组件只转发明确声明的四个分页事件，不会透传 `selection-change` 等表格事件；选择列只展示选择 UI。需要读取选择结果时，请使用 `GaTable` 与 `GaPagination` 组合。
 - `GaTablePagination` 当前不暴露底层 `tableRef`。需要调用 `clearSelection`、`doLayout` 等表格实例方法时，请使用 `GaTable` 与 `GaPagination` 组合。
