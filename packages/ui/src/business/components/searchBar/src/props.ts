@@ -11,4 +11,4 @@ export type {
   GaSearchModel,
   GaSearchOption,
   GaSearchSelectField,
-} from '../types'
+} from '../types/index'

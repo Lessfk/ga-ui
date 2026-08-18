@@ -127,4 +127,38 @@ describe('SearchInputField', () => {
 
     expect(wrapper.emitted('search')).toBeUndefined()
   })
+
+  it('prevents native form submission only when input Enter searches', async () => {
+    const input = mount(SearchInputField, {
+      props: {
+        field: { key: 'keyword', type: 'input', label: '关键词' },
+        disabled: false,
+        ariaLabel: '关键词',
+      },
+      global: { stubs: { ElInput: ElInputStub } },
+    })
+    const textarea = mount(SearchInputField, {
+      props: {
+        field: { key: 'notes', type: 'textarea', label: '备注' },
+        disabled: false,
+        ariaLabel: '备注',
+      },
+      global: { stubs: { ElInput: ElInputStub } },
+    })
+    const inputEnter = new KeyboardEvent('keydown', {
+      key: 'Enter',
+      cancelable: true,
+    })
+    const textareaEnter = new KeyboardEvent('keydown', {
+      key: 'Enter',
+      cancelable: true,
+    })
+
+    input.get('.el-input-stub').element.dispatchEvent(inputEnter)
+    textarea.get('.el-input-stub').element.dispatchEvent(textareaEnter)
+    await input.vm.$nextTick()
+
+    expect(inputEnter.defaultPrevented).toBe(true)
+    expect(textareaEnter.defaultPrevented).toBe(false)
+  })
 })

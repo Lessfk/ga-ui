@@ -53,6 +53,7 @@ function handleEnter(event: Event) {
     !keyboardEvent.isComposing &&
     keyboardEvent.keyCode !== 229
   ) {
+    keyboardEvent.preventDefault()
     emit('search')
   }
 }
