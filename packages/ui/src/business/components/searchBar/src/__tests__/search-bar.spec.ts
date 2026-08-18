@@ -3,6 +3,7 @@ import { defineComponent, h, inject, nextTick, ref } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import GaSearchBar from '../index.vue'
+import type { GaSearchBarExpose } from '../props'
 
 const clearValidateSpy = vi.fn()
 
@@ -20,9 +21,15 @@ const ElFormStub = defineComponent({
       'formValidationFailure',
       undefined,
     )
+    const formValidation = inject<(() => Promise<boolean>) | undefined>(
+      'formValidation',
+      undefined,
+    )
     expose({
       validate: () =>
-        validationFailure
+        formValidation
+          ? formValidation()
+          : validationFailure
           ? Promise.reject(validationFailure)
           : Promise.resolve(true),
       clearValidate: clearValidateSpy,
@@ -443,5 +450,288 @@ describe('GaSearchBar layout', () => {
     })
     await wrapper.setProps({ fields: duplicateFields })
     expect(warn).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('GaSearchBar actions', () => {
+  it('validates before search and emits a cloned draft model', async () => {
+    const model = { keyword: 'alice' }
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: model,
+        fields: [{ key: 'keyword', type: 'input', label: '关键词' }],
+        validateOnSearch: true,
+      },
+    })
+
+    const searched = await (
+      wrapper.vm as unknown as GaSearchBarExpose
+    ).search()
+
+    expect(searched).toBe(true)
+    expect(wrapper.emitted('search')).toEqual([[{ keyword: 'alice' }]])
+    expect(wrapper.emitted('search')?.[0][0]).not.toBe(model)
+  })
+
+  it('searches the latest same-tick field update', async () => {
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: { keyword: '' },
+        fields: [{ key: 'keyword', type: 'input', label: '关键词' }],
+      },
+    })
+    const field = wrapper.findComponent(SearchFieldRendererStub)
+
+    field.vm.$emit('update:modelValue', 'alice')
+    const searched = await (
+      wrapper.vm as unknown as GaSearchBarExpose
+    ).search()
+
+    expect(searched).toBe(true)
+    expect(wrapper.emitted('search')).toEqual([[{ keyword: 'alice' }]])
+  })
+
+  it('emits invalid and blocks search after failed validation', async () => {
+    const invalidFields = { keyword: [{ message: '必填' }] }
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: { keyword: '' },
+        fields: [{ key: 'keyword', type: 'input', label: '关键词' }],
+        validateOnSearch: true,
+      },
+      global: {
+        provide: { formValidationFailure: invalidFields },
+      },
+    })
+
+    const searched = await (
+      wrapper.vm as unknown as GaSearchBarExpose
+    ).search()
+
+    expect(searched).toBe(false)
+    expect(wrapper.emitted('search')).toBeUndefined()
+    expect(wrapper.emitted('invalid')).toEqual([[invalidFields]])
+  })
+
+  it('rethrows validator errors instead of reporting invalid fields', async () => {
+    const validatorError = new Error('validator failed')
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: { keyword: '' },
+        fields: [{ key: 'keyword', type: 'input', label: '关键词' }],
+        validateOnSearch: true,
+      },
+      global: {
+        provide: { formValidationFailure: validatorError },
+      },
+    })
+    const exposed = wrapper.vm as unknown as GaSearchBarExpose
+
+    await expect(exposed.validate()).rejects.toBe(validatorError)
+    await expect(exposed.search()).rejects.toBe(validatorError)
+    expect(wrapper.emitted('invalid')).toBeUndefined()
+    expect(wrapper.emitted('search')).toBeUndefined()
+  })
+
+  it('blocks concurrent searches while asynchronous validation is pending', async () => {
+    let resolveValidation!: (valid: boolean) => void
+    const validationPromise = new Promise<boolean>((resolve) => {
+      resolveValidation = resolve
+    })
+    const formValidation = vi.fn(() => validationPromise)
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: { keyword: 'alice' },
+        fields: [{ key: 'keyword', type: 'input', label: '关键词' }],
+        validateOnSearch: true,
+      },
+      global: {
+        provide: { formValidation },
+      },
+    })
+    const exposed = wrapper.vm as unknown as GaSearchBarExpose
+
+    const firstSearch = exposed.search()
+    const secondSearch = exposed.search()
+    const validationCalls = formValidation.mock.calls.length
+    resolveValidation(true)
+    const results = await Promise.all([firstSearch, secondSearch])
+
+    expect(validationCalls).toBe(1)
+    expect(results).toEqual([true, false])
+    expect(wrapper.emitted('search')).toEqual([[{ keyword: 'alice' }]])
+  })
+
+  it('emits the model snapshot that began asynchronous validation', async () => {
+    let resolveValidation!: (valid: boolean) => void
+    const validationPromise = new Promise<boolean>((resolve) => {
+      resolveValidation = resolve
+    })
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: { keyword: 'alice' },
+        fields: [{ key: 'keyword', type: 'input', label: '关键词' }],
+        validateOnSearch: true,
+      },
+      global: {
+        provide: {
+          formValidation: () => validationPromise,
+        },
+      },
+    })
+    const exposed = wrapper.vm as unknown as GaSearchBarExpose
+
+    const searching = exposed.search()
+    wrapper
+      .findComponent(SearchFieldRendererStub)
+      .vm.$emit('update:modelValue', 'bob')
+    resolveValidation(true)
+
+    expect(await searching).toBe(true)
+    expect(wrapper.emitted('search')).toEqual([[{ keyword: 'alice' }]])
+  })
+
+  it('blocks searches while loading or disabled', async () => {
+    const loading = mountSearchBar({
+      props: {
+        modelValue: {},
+        fields: [],
+        loading: true,
+      },
+    })
+    const disabled = mountSearchBar({
+      props: {
+        modelValue: {},
+        fields: [],
+        disabled: true,
+      },
+    })
+
+    expect(
+      await (loading.vm as unknown as GaSearchBarExpose).search(),
+    ).toBe(false)
+    expect(
+      await (disabled.vm as unknown as GaSearchBarExpose).search(),
+    ).toBe(false)
+    expect(loading.emitted('search')).toBeUndefined()
+    expect(disabled.emitted('search')).toBeUndefined()
+  })
+
+  it('resets defaults and initial fields while preserving current unknown keys', async () => {
+    const initialModel = {
+      keyword: 'initial',
+      status: 'disabled',
+      page: 2,
+    }
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: initialModel,
+        fields: [
+          { key: 'keyword', type: 'input', label: '关键词' },
+          {
+            key: 'status',
+            type: 'select',
+            label: '状态',
+            defaultValue: 'enabled',
+            options: [],
+          },
+        ],
+      },
+    })
+
+    await wrapper.setProps({
+      modelValue: {
+        keyword: 'changed',
+        status: 'pending',
+        page: 8,
+      },
+    })
+    ;(wrapper.vm as unknown as GaSearchBarExpose).reset()
+
+    const resetModel = {
+      keyword: 'initial',
+      status: 'enabled',
+      page: 8,
+    }
+    const updates = wrapper.emitted('update:modelValue') ?? []
+    expect(updates[updates.length - 1]?.[0]).toEqual(resetModel)
+    expect(wrapper.emitted('reset')).toEqual([[resetModel]])
+    expect(wrapper.emitted('reset')?.[0][0]).not.toBe(initialModel)
+    expect(clearValidateSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('captures the first value of fields added after mount', async () => {
+    const keywordField = {
+      key: 'keyword',
+      type: 'input' as const,
+      label: '关键词',
+    }
+    const statusField = {
+      key: 'status',
+      type: 'select' as const,
+      label: '状态',
+      options: [],
+    }
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: { keyword: 'initial' },
+        fields: [keywordField],
+      },
+    })
+
+    await wrapper.setProps({
+      modelValue: { keyword: 'changed', status: 'enabled' },
+      fields: [keywordField, statusField],
+    })
+    await wrapper.setProps({
+      modelValue: { keyword: 'changed-again', status: 'disabled' },
+    })
+    ;(wrapper.vm as unknown as GaSearchBarExpose).reset()
+
+    expect(wrapper.emitted('reset')).toEqual([
+      [{ keyword: 'initial', status: 'enabled' }],
+    ])
+  })
+
+  it('routes default form submit and reset button through component actions', async () => {
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: { keyword: 'initial' },
+        fields: [{ key: 'keyword', type: 'input', label: '关键词' }],
+      },
+    })
+    wrapper
+      .findComponent(SearchFieldRendererStub)
+      .vm.$emit('update:modelValue', 'changed')
+
+    expect(wrapper.get('[data-action="search"]').attributes('type')).toBe(
+      'submit',
+    )
+    await wrapper.get('.el-form-stub').trigger('submit')
+    await wrapper.get('[data-action="reset"]').trigger('click')
+
+    expect(wrapper.emitted('search')).toEqual([[{ keyword: 'changed' }]])
+    expect(wrapper.emitted('reset')).toEqual([[{ keyword: 'initial' }]])
+  })
+
+  it('exposes form methods and routes renderer search through the same guard', async () => {
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: { keyword: '' },
+        fields: [{ key: 'keyword', type: 'input', label: '关键词' }],
+      },
+    })
+    const exposed = wrapper.vm as unknown as GaSearchBarExpose
+
+    expect(exposed.formRef).toBeDefined()
+    expect(await exposed.validate()).toBe(true)
+    exposed.clearValidate()
+    exposed.toggle()
+    wrapper.findComponent(SearchFieldRendererStub).vm.$emit('search')
+    await wrapper.vm.$nextTick()
+
+    expect(clearValidateSpy).toHaveBeenCalledTimes(1)
+    expect(wrapper.emitted('update:collapsed')).toHaveLength(1)
+    expect(wrapper.emitted('search')).toEqual([[{ keyword: '' }]])
   })
 })

@@ -59,21 +59,23 @@
               :clearValidate="clearValidate"
               :collapsed="currentCollapsed"
               :toggle="toggle"
-              :loading="props.loading"
+              :loading="searchLoading"
               :disabled="props.disabled"
             >
               <div class="ga-search-bar__actions">
                 <ElButton
                   v-if="props.showSearch"
+                  data-action="search"
                   type="primary"
                   native-type="submit"
-                  :loading="props.loading"
-                  :disabled="props.disabled"
+                  :loading="searchLoading"
+                  :disabled="props.disabled || searching"
                 >
                   查询
                 </ElButton>
                 <ElButton
                   v-if="props.showReset"
+                  data-action="reset"
                   native-type="button"
                   :disabled="props.disabled"
                   @click="reset"
@@ -120,6 +122,7 @@ import {
 
 import SearchFieldRenderer from './field-renderer.vue'
 import {
+  buildResetModel,
   captureInitialValues,
   cloneSearchModel,
 } from './field'
@@ -155,6 +158,7 @@ const formRef = ref<FormInstance>()
 const draftModel = ref(cloneSearchModel(props.modelValue))
 const initialValues = captureInitialValues(props.modelValue, props.fields)
 const currentCollapsed = ref(props.collapsed)
+const searching = ref(false)
 const warnedDuplicateKeys = new Set<string>()
 
 const defaultColumnProps = {
@@ -173,6 +177,7 @@ const canCollapse = computed(
     props.showCollapse &&
     visibleFields.value.length > props.collapsedCount,
 )
+const searchLoading = computed(() => props.loading || searching.value)
 const displayedFields = computed(() =>
   currentCollapsed.value && canCollapse.value
     ? visibleFields.value.slice(0, props.collapsedCount)
@@ -200,6 +205,21 @@ watch(
   (collapsed) => {
     currentCollapsed.value = collapsed
   },
+)
+
+watch(
+  () => props.fields,
+  (fields) => {
+    const values = captureInitialValues(props.modelValue, fields)
+
+    for (const field of fields) {
+      if (Object.prototype.hasOwnProperty.call(initialValues, field.key)) {
+        continue
+      }
+      initialValues[field.key] = values[field.key]
+    }
+  },
+  { deep: true },
 )
 
 watchEffect(() => {
@@ -280,16 +300,64 @@ function toggle() {
 }
 
 async function validate() {
-  return true
+  if (!formRef.value) return true
+
+  try {
+    return await formRef.value.validate()
+  } catch (error) {
+    if (error instanceof Error) throw error
+    return false
+  }
 }
 
 async function search() {
-  return false
+  if (props.loading || props.disabled || searching.value) return false
+
+  const model = cloneSearchModel(draftModel.value)
+  searching.value = true
+
+  try {
+    if (props.validateOnSearch && formRef.value) {
+      const valid = await formRef.value.validate()
+      if (!valid) return false
+    }
+
+    emit('search', model)
+    return true
+  } catch (error) {
+    if (error instanceof Error) throw error
+    emit('invalid', error)
+    return false
+  } finally {
+    searching.value = false
+  }
 }
 
-function clearValidate() {}
+function clearValidate() {
+  formRef.value?.clearValidate()
+}
 
-function reset() {}
+function reset() {
+  const model = buildResetModel(
+    draftModel.value,
+    props.fields,
+    initialValues,
+  )
+
+  draftModel.value = model
+  emit('update:modelValue', cloneSearchModel(model))
+  clearValidate()
+  emit('reset', cloneSearchModel(model))
+}
+
+defineExpose({
+  formRef,
+  search,
+  reset,
+  validate,
+  clearValidate,
+  toggle,
+})
 </script>
 
 <style lang="scss">
