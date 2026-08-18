@@ -57,28 +57,28 @@ describe('GaPagination', () => {
       '--ga-pagination-text-color: #606266',
     )
     expect(style).toContain(
-      '--ga-pagination-background: #fafafa',
+      '--ga-pagination-background: #EEEEEF',
     )
     expect(style).toContain(
-      '--el-pagination-button-color: #606266',
+      '--el-pagination-button-color: #7A7475',
     )
     expect(style).toContain(
-      '--el-pagination-bg-color: #fafafa',
+      '--el-pagination-bg-color: #ffffff',
     )
     expect(style).toContain(
-      '--el-pagination-button-bg-color: #fafafa',
+      '--el-pagination-button-bg-color: #ffffff',
     )
     expect(style).toContain(
-      '--ga-pagination-active-color: #fff',
+      '--ga-pagination-active-color: #ffffff',
     )
     expect(style).toContain(
-      '--ga-pagination-active-bg-color: linear-gradient(135deg,#4b4b52, #1d1d22)',
+      '--ga-pagination-active-bg-color: #4F7DB2',
     )
     expect(style).toContain(
-      '--el-pagination-hover-color: #1c1c1a',
+      '--el-pagination-hover-color: #ffffff',
     )
     expect(style).toContain(
-      '--ga-pagination-hover-bg-color: #EDEDED',
+      '--ga-pagination-hover-bg-color: #4f7db299',
     )
     expect(style).toContain(
       '--el-pagination-button-disabled-color: #606266',
@@ -115,7 +115,7 @@ describe('GaPagination', () => {
       '--ga-pagination-active-bg-color: #409eff',
     )
     expect(pagination.attributes('style')).toContain(
-      '--el-pagination-button-color: #606266',
+      '--el-pagination-button-color: #7A7475',
     )
     expect(pagination.attributes('style')).toContain('width: 75%')
     expect(wrapper.findComponent(ElPaginationStub).props('theme')).toBeUndefined()
@@ -130,7 +130,7 @@ describe('GaPagination', () => {
       '--ga-pagination-active-bg-color: #67c23a',
     )
     expect(pagination.attributes('style')).toContain(
-      '--ga-pagination-active-color: #fff',
+      '--ga-pagination-active-color: #ffffff',
     )
   })
 

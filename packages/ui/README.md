@@ -727,7 +727,7 @@ const paginationTheme: GaPaginationTheme = {
 
 | 主题字段 | 说明 |
 | --- | --- |
-| `backgroundColor` | 整个分页容器背景，默认 `#fafafa`；组合组件可通过 `paginationTheme` 覆盖 |
+| `backgroundColor` | 整个分页容器背景，默认 `#EEEEEF`；组合组件可通过 `paginationTheme` 覆盖 |
 | `textColor` | 总数、每页数量和跳转说明文字颜色 |
 | `buttonColor` | 普通分页按钮和页码文字颜色 |
 | `buttonBackgroundColor` | 普通分页按钮和页码背景色 |

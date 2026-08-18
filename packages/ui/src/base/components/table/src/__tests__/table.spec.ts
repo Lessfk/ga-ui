@@ -159,16 +159,14 @@ describe('GaTable', () => {
 
     expect(style.getPropertyValue('--el-table-bg-color')).toBe('#ffffff')
     expect(style.getPropertyValue('--el-table-tr-bg-color')).toBe('#ffffff')
-    expect(style.getPropertyValue('--el-table-text-color')).toBe('#303133')
-    expect(style.getPropertyValue('--el-table-header-bg-color')).toBe('#f6f6f6')
-    expect(style.getPropertyValue('--el-table-header-text-color')).toBe('#2b3b5e')
-    expect(style.getPropertyValue('--el-table-border-color')).toBe('#e5e7eb')
-    expect(style.getPropertyValue('--ga-table-stripe-bg-color')).toBe(
-      'var(--el-fill-color-lighter)',
-    )
-    expect(style.getPropertyValue('--el-table-row-hover-bg-color')).toBe('#f6f6f6')
-    expect(style.getPropertyValue('--el-table-current-row-bg-color')).toBe('#ecf5ff')
-    expect(style.getPropertyValue('--el-table-expanded-cell-bg-color')).toBe('#fafafa')
+    expect(style.getPropertyValue('--el-table-text-color')).toBe('#344054')
+    expect(style.getPropertyValue('--el-table-header-bg-color')).toBe('#4F7DB2')
+    expect(style.getPropertyValue('--el-table-header-text-color')).toBe('#f9fafb')
+    expect(style.getPropertyValue('--el-table-border-color')).toBe('#d0d5dd')
+    expect(style.getPropertyValue('--ga-table-stripe-bg-color')).toBe('#f8fafc')
+    expect(style.getPropertyValue('--el-table-row-hover-bg-color')).toBe('#eff8ff')
+    expect(style.getPropertyValue('--el-table-current-row-bg-color')).toBe('#d1e9ff')
+    expect(style.getPropertyValue('--el-table-expanded-cell-bg-color')).toBe('#f2f4f7')
   })
 
   it('merges a partial theme with defaults', () => {
@@ -281,7 +279,7 @@ describe('GaTable', () => {
     const style = (wrapper.find('.el-table-stub').element as HTMLElement).style
 
     expect(style.getPropertyValue('--el-table-bg-color')).toBe('#ffffff')
-    expect(style.getPropertyValue('--el-table-row-hover-bg-color')).toBe('#f6f6f6')
+    expect(style.getPropertyValue('--el-table-row-hover-bg-color')).toBe('#eff8ff')
   })
 
   it('does not forward theme to ElTable', () => {
