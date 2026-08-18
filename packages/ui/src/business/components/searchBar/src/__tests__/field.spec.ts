@@ -53,9 +53,15 @@ describe('search field helpers', () => {
       'aria-label': 'ignored',
       'onUpdate:modelValue': () => undefined,
       onChange: () => undefined,
+      onChangeOnce: () => undefined,
+      onKeydownCapture: () => undefined,
+      onKeyup: () => undefined,
     })
 
-    expect(result).toEqual({ clearable: true })
+    expect(result).toEqual({
+      clearable: true,
+      onKeyup: expect.any(Function),
+    })
   })
 
   it('clones nested query values without sharing arrays or dates', () => {

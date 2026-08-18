@@ -12,8 +12,12 @@ const controlledPropKeys = new Set([
   'aria-label',
   'onUpdate:modelValue',
   'onChange',
-  'onKeyup',
+  'onKeydown',
 ])
+
+function normalizeListenerKey(key: string) {
+  return key.replace(/(?:Once|Capture|Passive)+$/, '')
+}
 
 export function sanitizeComponentProps(
   source: Record<string, unknown> = {},
@@ -23,7 +27,13 @@ export function sanitizeComponentProps(
 
   return Object.fromEntries(
     Object.entries(source).filter(
-      ([key]) => !controlledPropKeys.has(key) && !extraKeys.has(key),
+      ([key]) => {
+        const normalizedKey = normalizeListenerKey(key)
+        return (
+          !controlledPropKeys.has(normalizedKey) &&
+          !extraKeys.has(normalizedKey)
+        )
+      },
     ),
   )
 }
