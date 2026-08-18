@@ -1,7 +1,7 @@
 <template>
   <ElSelect
     v-bind="componentProps"
-    :model-value="props.modelValue"
+    :model-value="selectValue"
     :disabled="props.disabled"
     :placeholder="props.placeholder"
     :aria-label="props.ariaLabel"
@@ -20,6 +20,7 @@
 
 <script setup lang="ts">
 import { ElOption, ElSelect } from 'element-plus'
+import type { SelectProps } from 'element-plus'
 import { computed } from 'vue'
 
 import { sanitizeComponentProps } from '../field'
@@ -41,6 +42,13 @@ const emit = defineEmits<{
 const componentProps = computed(() =>
   sanitizeComponentProps(props.field.componentProps),
 )
+const selectValue = computed(
+  () => asElementSelectValue(props.modelValue),
+)
+
+function asElementSelectValue(value: unknown): SelectProps['modelValue'] {
+  return value as SelectProps['modelValue']
+}
 
 function getOptionKey(value: GaSearchOption['value']) {
   return `${typeof value}:${String(value)}`

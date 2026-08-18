@@ -1,7 +1,7 @@
 <template>
   <ElDatePicker
     v-bind="componentProps"
-    :model-value="props.modelValue"
+    :model-value="dateValue"
     :type="props.field.type"
     :format="props.field.format"
     :value-format="props.field.valueFormat"
@@ -17,6 +17,7 @@
 
 <script setup lang="ts">
 import { ElDatePicker } from 'element-plus'
+import type { DatePickerProps } from 'element-plus'
 import { computed } from 'vue'
 
 import { sanitizeComponentProps } from '../field'
@@ -43,9 +44,16 @@ const componentProps = computed(() =>
     'endPlaceholder',
   ]),
 )
+const dateValue = computed(
+  () => asElementDateValue(props.modelValue),
+)
 const isRange = computed(
   () =>
     props.field.type === 'daterange' ||
     props.field.type === 'datetimerange',
 )
+
+function asElementDateValue(value: unknown): DatePickerProps['modelValue'] {
+  return value as DatePickerProps['modelValue']
+}
 </script>

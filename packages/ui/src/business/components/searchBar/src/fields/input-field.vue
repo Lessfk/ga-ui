@@ -45,11 +45,13 @@ const inputType = computed(() =>
   props.field.type === 'input' ? 'text' : 'textarea',
 )
 
-function handleEnter(event: KeyboardEvent) {
+function handleEnter(event: Event) {
+  const keyboardEvent = event as KeyboardEvent
+
   if (
     props.field.type === 'input' &&
-    !event.isComposing &&
-    event.keyCode !== 229
+    !keyboardEvent.isComposing &&
+    keyboardEvent.keyCode !== 229
   ) {
     emit('search')
   }
