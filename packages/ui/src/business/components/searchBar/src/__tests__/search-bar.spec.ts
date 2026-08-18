@@ -189,6 +189,39 @@ describe('GaSearchBar layout', () => {
     expect(wrapper.text()).not.toContain('隐藏')
   })
 
+  it('默认折叠按钮隐藏时，自定义 actions 仍能控制字段折叠', async () => {
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: {},
+        fields: [
+          { key: 'keyword', type: 'input', label: '关键词' },
+          { key: 'status', type: 'select', label: '状态', options: [] },
+        ],
+        collapsed: true,
+        collapsedCount: 1,
+        showSearch: false,
+        showReset: false,
+        showCollapse: false,
+      },
+      slots: {
+        actions: ({ toggle }: { toggle: () => void }) =>
+          h(
+            'button',
+            { class: 'custom-collapse-toggle', type: 'button', onClick: toggle },
+            '展开',
+          ),
+      },
+    })
+
+    expect(wrapper.findAll('.search-field-renderer-stub')).toHaveLength(1)
+    expect(wrapper.find('[data-action="toggle"]').exists()).toBe(false)
+
+    await wrapper.get('.custom-collapse-toggle').trigger('click')
+
+    expect(wrapper.emitted('update:collapsed')).toEqual([[false]])
+    expect(wrapper.findAll('.search-field-renderer-stub')).toHaveLength(2)
+  })
+
   it('uses per-field label modes and responsive columns', () => {
     const wrapper = mountSearchBar({
       props: {

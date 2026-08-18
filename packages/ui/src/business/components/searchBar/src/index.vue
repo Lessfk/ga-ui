@@ -83,7 +83,7 @@
                   重置
                 </ElButton>
                 <ElButton
-                  v-if="canCollapse"
+                  v-if="props.showCollapse && hasCollapsibleFields"
                   data-action="toggle"
                   type="primary"
                   link
@@ -172,14 +172,12 @@ const defaultColumnProps = {
 const visibleFields = computed(() =>
   props.fields.filter((field) => !field.hidden),
 )
-const canCollapse = computed(
-  () =>
-    props.showCollapse &&
-    visibleFields.value.length > props.collapsedCount,
+const hasCollapsibleFields = computed(
+  () => visibleFields.value.length > props.collapsedCount,
 )
 const searchLoading = computed(() => props.loading || searching.value)
 const displayedFields = computed(() =>
-  currentCollapsed.value && canCollapse.value
+  currentCollapsed.value && hasCollapsibleFields.value
     ? visibleFields.value.slice(0, props.collapsedCount)
     : visibleFields.value,
 )
@@ -188,7 +186,7 @@ function shouldShowActions() {
     Boolean(slots.actions) ||
     props.showSearch ||
     props.showReset ||
-    canCollapse.value
+    (props.showCollapse && hasCollapsibleFields.value)
   )
 }
 
