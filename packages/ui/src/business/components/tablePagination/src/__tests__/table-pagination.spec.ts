@@ -79,6 +79,10 @@ const GaPaginationStub = defineComponent({
       type: Boolean,
       default: undefined,
     },
+    disabled: {
+      type: Boolean,
+      default: undefined,
+    },
     theme: Object,
   },
   emits: ['current-change', 'size-change'],
@@ -176,6 +180,7 @@ describe('GaTablePagination', () => {
       pageSizes: [10, 20, 40],
       layout: 'prev, pager, next',
       background: false,
+      disabled: true,
     })
     expect(table.props('theme')).toEqual(tableTheme)
     expect(pagination.props('theme')).toEqual(paginationTheme)
@@ -235,6 +240,7 @@ describe('GaTablePagination', () => {
       loading: false,
     })
     expect(wrapper.findComponent(GaPaginationStub).props('background')).toBe(true)
+    expect(wrapper.findComponent(GaPaginationStub).props('disabled')).toBe(false)
   })
 
   it('uses one size prop for both table and pagination', () => {
@@ -289,6 +295,7 @@ describe('GaTablePagination', () => {
     expect(runtimeProps).not.toHaveProperty('height')
     expect(runtimeProps).not.toHaveProperty('maxHeight')
     expect(runtimeProps).not.toHaveProperty('theme')
+    expect(runtimeProps).not.toHaveProperty('disabled')
     expect(runtimeProps).not.toHaveProperty('tableProps')
     expect(runtimeProps).not.toHaveProperty('paginationProps')
   })

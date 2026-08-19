@@ -9,7 +9,7 @@ import type {
 export type GaTablePaginationProps<
   Row extends GaTableRow = GaTableRow,
 > = Omit<GaTableProps<Row>, 'height' | 'maxHeight' | 'theme'>
-  & Omit<GaPaginationProps, 'theme'>
+  & Omit<GaPaginationProps, 'theme' | 'disabled'>
   & {
     tableTheme?: GaTableTheme
     paginationTheme?: GaPaginationTheme

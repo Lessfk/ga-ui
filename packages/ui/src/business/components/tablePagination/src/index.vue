@@ -38,6 +38,7 @@
       :size="props.size"
       :layout="props.layout"
       :background="props.background"
+      :disabled="props.loading"
       :position="props.position"
       :theme="props.paginationTheme"
       @current-change="handleCurrentChange"
