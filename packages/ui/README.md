@@ -752,10 +752,11 @@ const paginationTheme: GaPaginationTheme = {
 | `size` | `ComponentSize` | `'default'` | 分页尺寸 |
 | `layout` | `string` | `'total, sizes, prev, pager, next, jumper'` | 分页布局 |
 | `background` | `boolean` | `false` | 是否为分页按钮添加背景 |
+| `disabled` | `boolean` | `false` | 是否禁用分页交互 |
 | `position` | `'left' \| 'center' \| 'right'` | `'right'` | 水平对齐方式 |
 | `theme` | `GaPaginationTheme` | 默认颜色主题 | 当前分页实例的颜色配置，支持部分覆盖 |
 
-未声明的属性与监听器经 `$attrs` 透传到底层 `ElPagination`，例如 `disabled`、`hide-on-single-page`。更多低频能力参见 [Element Plus Pagination 文档](https://element-plus.org/zh-CN/component/pagination.html)。
+未声明的属性与监听器经 `$attrs` 透传到底层 `ElPagination`，例如 `hide-on-single-page`。更多低频能力参见 [Element Plus Pagination 文档](https://element-plus.org/zh-CN/component/pagination.html)。
 
 ### GaPagination Events
 
@@ -974,13 +975,13 @@ function viewUser(row: UserRow) {
 
 ### GaTablePagination Props
 
-`GaTablePaginationProps<Row>` 是 `Omit<GaTableProps<Row>, 'height' | 'maxHeight' | 'theme'> & Omit<GaPaginationProps, 'theme'>`，并另外提供 `tableTheme` 与 `paginationTheme`。表格和分页共享同一个 `size`，因此 `size` 同时控制两者。
+`GaTablePaginationProps<Row>` 是 `Omit<GaTableProps<Row>, 'height' | 'maxHeight' | 'theme'> & Omit<GaPaginationProps, 'theme' | 'disabled'>`，并另外提供 `tableTheme` 与 `paginationTheme`。表格和分页共享同一个 `size`，因此 `size` 同时控制两者；`loading` 同时控制表格加载状态和分页禁用状态。
 
 | 属性组 | 属性 | 默认行为 |
 | --- | --- | --- |
 | 表格数据与列 | `data`、`columns`、`rowKey` | 与 `GaTable` 相同：`[]`、`[]`、`undefined` |
 | 表格外观 | `border`、`stripe`、`fit`、`showHeader` | 均为 `true` |
-| 表格状态 | `highlightCurrentRow`、`emptyText`、`loading`、`loadingText` | 与 `GaTable` 相同：`false`、`'暂无数据'`、`false`、`'加载中...'` |
+| 表格状态 | `highlightCurrentRow`、`emptyText`、`loading`、`loadingText` | 与 `GaTable` 相同：`false`、`'暂无数据'`、`false`、`'加载中...'`；`loading=true` 时分页同时禁用 |
 | 主题配置 | `tableTheme` | 传给内部 `GaTable` 的实例级颜色主题，支持部分覆盖 |
 | 主题配置 | `paginationTheme` | 传给内部 `GaPagination` 的实例级颜色主题，支持部分覆盖 |
 | 共享尺寸 | `size` | 同时传给 `GaTable` 与 `GaPagination`；未传时使用子组件默认行为 |
