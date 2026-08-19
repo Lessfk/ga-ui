@@ -21,6 +21,10 @@ const ElPaginationStub = defineComponent({
     size: String,
     layout: String,
     background: Boolean,
+    disabled: {
+      type: Boolean,
+      default: undefined,
+    },
     theme: Object,
   },
   emits: ['current-change', 'size-change'],
@@ -202,17 +206,31 @@ describe('GaPagination', () => {
     })
   })
 
-  it('forwards disabled and hide-on-single-page attributes to ElPagination', () => {
+  it('declares disabled with a false default and passes it to ElPagination', () => {
+    const wrapper = mountPagination()
+    const runtimeProps = (
+      GaPagination as unknown as {
+        props?: Record<string, unknown>
+      }
+    ).props ?? {}
+
+    expect(runtimeProps).toHaveProperty('disabled')
+    expect(wrapper.findComponent(ElPaginationStub).props('disabled')).toBe(false)
+  })
+
+  it('passes disabled and keeps forwarding hide-on-single-page', () => {
     const wrapper = mountPagination({
-      attrs: {
+      props: {
         disabled: true,
+      },
+      attrs: {
         'hide-on-single-page': true,
       },
     })
 
-    const pagination = wrapper.find('.el-pagination-stub')
+    const pagination = wrapper.findComponent(ElPaginationStub)
 
-    expect(pagination.attributes('disabled')).toBe('true')
+    expect(pagination.props('disabled')).toBe(true)
     expect(pagination.attributes('hide-on-single-page')).toBe('true')
   })
 

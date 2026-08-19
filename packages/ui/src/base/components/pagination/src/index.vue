@@ -11,6 +11,7 @@
     :size="props.size"
     :layout="props.layout"
     :background="props.background"
+    :disabled="props.disabled"
     @current-change="handleCurrentChange"
     @size-change="handleSizeChange"
   />
@@ -36,6 +37,7 @@ const props = withDefaults(defineProps<GaPaginationProps>(), {
   size: 'default',
   layout: 'total, sizes, prev, pager, next, jumper',
   background: false,
+  disabled: false,
   position: 'right',
 })
 

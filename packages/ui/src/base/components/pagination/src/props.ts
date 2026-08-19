@@ -21,6 +21,7 @@ export interface GaPaginationProps {
   size?: ComponentSize
   layout?: string
   background?: boolean
+  disabled?: boolean
   position?: 'left' | 'center' | 'right'
   theme?: GaPaginationTheme
 }
