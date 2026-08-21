@@ -1,54 +1,113 @@
 <template>
-  <ElTable
-    ref="tableRef"
-    v-loading="props.loading"
-    v-bind="getTableAttrs()"
-    class="ga-table"
-    :style="getTableStyle()"
-    :data="props.data"
-    :height="props.height"
-    :max-height="props.maxHeight"
-    :row-key="props.rowKey"
-    :border="props.border"
-    :stripe="props.stripe"
-    :size="props.size"
-    :fit="props.fit"
-    :show-header="props.showHeader"
-    :highlight-current-row="props.highlightCurrentRow"
-    :empty-text="props.emptyText"
-    :element-loading-text="props.loadingText"
-  >
-    <!-- 列前置内容 -->
-    <slot name="column-prepend" />
-
-    <!-- 自定义列内容 -->
-    <ElTableColumn
-      v-for="(column, index) in props.columns"
-      :key="getColumnKey(column, index)"
-      v-bind="getColumnProps(column)"
+  <div v-bind="$attrs" class="ga-search-bar">
+    <ElForm
+      ref="formRef"
+      class="ga-search-bar__form"
+      :model="draftModel"
+      :rules="props.rules"
+      :label-position="props.labelPosition"
+      :label-width="props.labelWidth"
+      :size="props.size"
+      @submit.prevent="search"
     >
-      <template v-if="column.slot && slots[column.slot]" #default="scope">
-        <slot :name="column.slot" v-bind="scope" />
-      </template>
-    </ElTableColumn>
+      <ElRow :gutter="props.gutter">
+        <slot name="prepend" />
 
-    <!-- 自定义表格内容 -->
-    <slot />
+        <ElCol
+          v-for="field in displayedFields"
+          :key="field.key"
+          v-bind="getColumnProps(field)"
+          class="ga-search-bar__field-col"
+        >
+          <ElFormItem
+            class="ga-search-bar__item"
+            :prop="field.key"
+            :label="getFieldLabel(field)"
+            :label-width="getFieldLabelWidth(field)"
+          >
+            <SearchFieldRenderer
+              :model-value="draftModel[field.key]"
+              :field="field"
+              :disabled="props.disabled || field.disabled === true"
+              @update:model-value="updateField(field, $event)"
+              @change="emitFieldChange(field, $event)"
+            >
+              <template v-if="hasFieldSlot(field)" #default="slotProps">
+                <slot :name="getFieldSlotName(field)" v-bind="slotProps" />
+              </template>
+            </SearchFieldRenderer>
+          </ElFormItem>
+        </ElCol>
 
-    <!-- 插入至表格最后一行之后的内容 -->
-    <template v-if="slots.append" #append>
-      <slot name="append" />
-    </template>
+        <slot name="append" />
 
-    <!-- 当数据为空时自定义的内容 -->
-    <template #empty>
-      <slot name="empty">
-        <ElEmpty :description="props.emptyText" />
-      </slot>
-    </template>
-  </ElTable>
+        <ElCol
+          v-if="shouldShowActions()"
+          v-bind="defaultColumnProps"
+          class="ga-search-bar__actions-col"
+        >
+          <ElFormItem class="ga-search-bar__actions-item" :label-width="0">
+            <slot name="actions" v-bind="actionSlotProps">
+              <div class="ga-search-bar__actions">
+                <slot name="actions-prepend" v-bind="actionSlotProps" />
+
+                <slot
+                  v-if="props.actionsShowSearch"
+                  name="action-search"
+                  v-bind="actionSlotProps"
+                >
+                  <ElButton
+                    data-action="search"
+                    type="primary"
+                    native-type="submit"
+                    :loading="searchLoading"
+                    :disabled="props.actionsDisabled || searching"
+                  >
+                    查询
+                  </ElButton>
+                </slot>
+
+                <slot
+                  v-if="props.actionsShowReset"
+                  name="action-reset"
+                  v-bind="actionSlotProps"
+                >
+                  <ElButton
+                    data-action="reset"
+                    native-type="button"
+                    :disabled="props.actionsDisabled"
+                    @click="reset"
+                  >
+                    重置
+                  </ElButton>
+                </slot>
+
+                <slot name="actions-append" v-bind="actionSlotProps" />
+
+                <slot
+                  v-if="props.actionsShowCollapse && hasCollapsibleFields"
+                  name="action-collapse"
+                  v-bind="actionSlotProps"
+                >
+                  <ElButton
+                    data-action="toggle"
+                    type="primary"
+                    link
+                    native-type="button"
+                    :disabled="props.actionsDisabled"
+                    @click="toggle"
+                  >
+                    {{ currentCollapsed ? "展开" : "收起" }}
+                  </ElButton>
+                </slot>
+              </div>
+            </slot>
+          </ElFormItem>
+        </ElCol>
+      </ElRow>
+    </ElForm>
+  </div>
 </template>
-
 <script setup lang="ts">
 import { ElDialog } from "element-plus";
 import type { DialogInstance } from "element-plus";

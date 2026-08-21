@@ -39,11 +39,10 @@
       </ElButton>
     </template>
 
-    <template #actions-append="{ actionsDisabled: actionDisabled,  actionsLoading: actionLoading, }">
+    <template #actions-append>
       <ElButton
         native-type="button"
-        :disabled="actionDisabled"
-        :loading="actionLoading"
+        :loading="myDisabled"
         @click="handleExport"
       >
         导出
@@ -69,6 +68,8 @@ import { ref, computed } from "vue";
 const searchBarRef = ref<GaSearchBarExpose>();
 const actionsLoading = ref<boolean>(false);
 const actionsDisabled = ref<boolean>(false);
+  const myDisabled = ref<boolean>(false);
+
 const query = ref<GaSearchModel>({
   keyword: "",
 });
@@ -149,8 +150,8 @@ const myReset = async (reset: () => void) => {
 };
 
 const handleExport = () => {
-  actionsLoading.value = true
-    actionsDisabled.value = true
+  myDisabled.value = true
+  //   actionsDisabled.value = true
       alert("导出");
 
 

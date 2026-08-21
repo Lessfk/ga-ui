@@ -33,10 +33,7 @@
               @change="emitFieldChange(field, $event)"
             >
               <template v-if="hasFieldSlot(field)" #default="slotProps">
-                <slot
-                  :name="getFieldSlotName(field)"
-                  v-bind="slotProps"
-                />
+                <slot :name="getFieldSlotName(field)" v-bind="slotProps" />
               </template>
             </SearchFieldRenderer>
           </ElFormItem>
@@ -50,10 +47,7 @@
           class="ga-search-bar__actions-col"
         >
           <ElFormItem class="ga-search-bar__actions-item" :label-width="0">
-            <slot
-              name="actions"
-              v-bind="actionSlotProps"
-            >
+            <slot name="actions" v-bind="actionSlotProps">
               <div class="ga-search-bar__actions">
                 <slot name="actions-prepend" v-bind="actionSlotProps" />
 
@@ -88,6 +82,8 @@
                   </ElButton>
                 </slot>
 
+                <slot name="actions-append" v-bind="actionSlotProps" />
+
                 <slot
                   v-if="props.actionsShowCollapse && hasCollapsibleFields"
                   name="action-collapse"
@@ -101,11 +97,9 @@
                     :disabled="props.actionsDisabled"
                     @click="toggle"
                   >
-                    {{ currentCollapsed ? '展开' : '收起' }}
+                    {{ currentCollapsed ? "展开" : "收起" }}
                   </ElButton>
                 </slot>
-
-                <slot name="actions-append" v-bind="actionSlotProps" />
               </div>
             </slot>
           </ElFormItem>
