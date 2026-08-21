@@ -23,11 +23,10 @@ const fields: GaSearchField[] = [
 ]
 
 describe('search field helpers', () => {
-  it('generates placeholders by field family', () => {
-    expect(resolveFieldPlaceholder(fields[0], 'placeholder')).toBe('请输入关键词')
-    expect(resolveFieldPlaceholder(fields[1], 'placeholder')).toBe('请选择状态')
-    expect(resolveFieldPlaceholder(fields[2], 'placeholder')).toBe('请选择创建日期')
-    expect(resolveFieldPlaceholder(fields[0], 'none')).toBeUndefined()
+  it('does not generate placeholders from label mode', () => {
+    expect(resolveFieldPlaceholder(fields[0])).toBeUndefined()
+    expect(resolveFieldPlaceholder(fields[1])).toBeUndefined()
+    expect(resolveFieldPlaceholder(fields[2])).toBeUndefined()
   })
 
   it('keeps explicit placeholders and accessible labels', () => {
@@ -39,7 +38,7 @@ describe('search field helpers', () => {
       ariaLabel: '用户关键词',
     }
 
-    expect(resolveFieldPlaceholder(field, 'placeholder')).toBe('姓名或手机号')
+    expect(resolveFieldPlaceholder(field)).toBe('姓名或手机号')
     expect(resolveFieldAriaLabel(field)).toBe('用户关键词')
   })
 

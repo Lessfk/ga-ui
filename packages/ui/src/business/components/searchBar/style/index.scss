@@ -18,6 +18,10 @@
     }
   }
 
+  &__actions-col {
+    margin-left: auto;
+  }
+
   &__actions-item {
     .el-form-item__content {
       justify-content: flex-end;

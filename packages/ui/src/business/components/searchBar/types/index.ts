@@ -5,13 +5,16 @@ import type {
 } from 'element-plus'
 
 export type GaSearchModel = Record<string, unknown>
-export type GaSearchLabelMode = 'label' | 'placeholder' | 'none'
+export type GaSearchLabelMode = 'label' | 'none'
+export type GaSearchLabelPosition = 'left' | 'right' | 'top'
+export type GaSearchSize = 'large' | 'default' | 'small'
 
 export interface GaSearchBaseField {
   key: string
   type: string
   label: string
   labelMode?: GaSearchLabelMode
+  labelWidth?: string | number
   placeholder?: string
   ariaLabel?: string
   defaultValue?: unknown
@@ -61,17 +64,20 @@ export interface GaSearchBarProps {
   modelValue: GaSearchModel
   fields: GaSearchField[]
   labelMode?: GaSearchLabelMode
+  labelPosition?: GaSearchLabelPosition
   labelWidth?: string | number
+  size?: GaSearchSize
   gutter?: number
   collapsed?: boolean
   collapsedCount?: number
-  loading?: boolean
   disabled?: boolean
+  actionsLoading?: boolean
+  actionsDisabled?: boolean
   rules?: FormRules
   validateOnSearch?: boolean
-  showSearch?: boolean
-  showReset?: boolean
-  showCollapse?: boolean
+  actionsShowSearch?: boolean
+  actionsShowReset?: boolean
+  actionsShowCollapse?: boolean
 }
 
 export interface GaSearchChangePayload {

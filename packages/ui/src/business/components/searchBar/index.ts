@@ -14,7 +14,9 @@ export type {
   GaSearchField,
   GaSearchInputField,
   GaSearchLabelMode,
+  GaSearchLabelPosition,
   GaSearchModel,
   GaSearchOption,
   GaSearchSelectField,
+  GaSearchSize,
 } from './types/index'

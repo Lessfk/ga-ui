@@ -5,8 +5,9 @@
       class="ga-search-bar__form"
       :model="draftModel"
       :rules="props.rules"
+      :label-position="props.labelPosition"
       :label-width="props.labelWidth"
-      :disabled="props.disabled"
+      :size="props.size"
       @submit.prevent="search"
     >
       <ElRow :gutter="props.gutter">
@@ -28,10 +29,8 @@
               :model-value="draftModel[field.key]"
               :field="field"
               :disabled="props.disabled || field.disabled === true"
-              :label-mode="getFieldLabelMode(field)"
               @update:model-value="updateField(field, $event)"
               @change="emitFieldChange(field, $event)"
-              @search="search"
             >
               <template v-if="hasFieldSlot(field)" #default="slotProps">
                 <slot
@@ -53,46 +52,60 @@
           <ElFormItem class="ga-search-bar__actions-item" :label-width="0">
             <slot
               name="actions"
-              :search="search"
-              :reset="reset"
-              :validate="validate"
-              :clearValidate="clearValidate"
-              :collapsed="currentCollapsed"
-              :toggle="toggle"
-              :loading="searchLoading"
-              :disabled="props.disabled"
+              v-bind="actionSlotProps"
             >
               <div class="ga-search-bar__actions">
-                <ElButton
-                  v-if="props.showSearch"
-                  data-action="search"
-                  type="primary"
-                  native-type="submit"
-                  :loading="searchLoading"
-                  :disabled="props.disabled || searching"
+                <slot name="actions-prepend" v-bind="actionSlotProps" />
+
+                <slot
+                  v-if="props.actionsShowSearch"
+                  name="action-search"
+                  v-bind="actionSlotProps"
                 >
-                  查询
-                </ElButton>
-                <ElButton
-                  v-if="props.showReset"
-                  data-action="reset"
-                  native-type="button"
-                  :disabled="props.disabled"
-                  @click="reset"
+                  <ElButton
+                    data-action="search"
+                    type="primary"
+                    native-type="submit"
+                    :loading="searchLoading"
+                    :disabled="props.actionsDisabled || searching"
+                  >
+                    查询
+                  </ElButton>
+                </slot>
+
+                <slot
+                  v-if="props.actionsShowReset"
+                  name="action-reset"
+                  v-bind="actionSlotProps"
                 >
-                  重置
-                </ElButton>
-                <ElButton
-                  v-if="props.showCollapse && hasCollapsibleFields"
-                  data-action="toggle"
-                  type="primary"
-                  link
-                  native-type="button"
-                  :disabled="props.disabled"
-                  @click="toggle"
+                  <ElButton
+                    data-action="reset"
+                    native-type="button"
+                    :disabled="props.actionsDisabled"
+                    @click="reset"
+                  >
+                    重置
+                  </ElButton>
+                </slot>
+
+                <slot
+                  v-if="props.actionsShowCollapse && hasCollapsibleFields"
+                  name="action-collapse"
+                  v-bind="actionSlotProps"
                 >
-                  {{ currentCollapsed ? '展开' : '收起' }}
-                </ElButton>
+                  <ElButton
+                    data-action="toggle"
+                    type="primary"
+                    link
+                    native-type="button"
+                    :disabled="props.actionsDisabled"
+                    @click="toggle"
+                  >
+                    {{ currentCollapsed ? '展开' : '收起' }}
+                  </ElButton>
+                </slot>
+
+                <slot name="actions-append" v-bind="actionSlotProps" />
               </div>
             </slot>
           </ElFormItem>
@@ -139,16 +152,19 @@ defineOptions({
 
 const props = withDefaults(defineProps<GaSearchBarProps>(), {
   labelMode: 'label',
+  labelPosition: 'right',
   labelWidth: 'auto',
+  size: 'default',
   gutter: 16,
   collapsed: true,
   collapsedCount: 3,
-  loading: false,
   disabled: false,
+  actionsLoading: false,
+  actionsDisabled: false,
   validateOnSearch: false,
-  showSearch: true,
-  showReset: true,
-  showCollapse: true,
+  actionsShowSearch: true,
+  actionsShowReset: true,
+  actionsShowCollapse: true,
 })
 
 const emit = defineEmits<GaSearchBarEmits>()
@@ -163,11 +179,6 @@ const warnedDuplicateKeys = new Set<string>()
 
 const defaultColumnProps = {
   span: 6,
-  xs: 24,
-  sm: 12,
-  md: 8,
-  lg: 6,
-  xl: 6,
 }
 const visibleFields = computed(() =>
   props.fields.filter((field) => !field.hidden),
@@ -175,18 +186,32 @@ const visibleFields = computed(() =>
 const hasCollapsibleFields = computed(
   () => visibleFields.value.length > props.collapsedCount,
 )
-const searchLoading = computed(() => props.loading || searching.value)
+const searchLoading = computed(
+  () => props.actionsLoading || searching.value,
+)
 const displayedFields = computed(() =>
   currentCollapsed.value && hasCollapsibleFields.value
     ? visibleFields.value.slice(0, props.collapsedCount)
     : visibleFields.value,
 )
+const actionSlotProps = computed(() => ({
+  search,
+  reset,
+  validate,
+  clearValidate,
+  collapsed: currentCollapsed.value,
+  toggle,
+  actionsLoading: searchLoading.value,
+  actionsDisabled: props.actionsDisabled,
+}))
 function shouldShowActions() {
   return (
     Boolean(slots.actions) ||
-    props.showSearch ||
-    props.showReset ||
-    (props.showCollapse && hasCollapsibleFields.value)
+    Boolean(slots['actions-prepend']) ||
+    Boolean(slots['actions-append']) ||
+    props.actionsShowSearch ||
+    props.actionsShowReset ||
+    (props.actionsShowCollapse && hasCollapsibleFields.value)
   )
 }
 
@@ -251,17 +276,19 @@ function getFieldLabel(field: GaSearchField) {
 }
 
 function getFieldLabelWidth(field: GaSearchField) {
-  return getFieldLabelMode(field) === 'label' ? props.labelWidth : 0
+  return getFieldLabelMode(field) === 'label'
+    ? field.labelWidth ?? props.labelWidth
+    : 0
 }
 
 function getColumnProps(field: GaSearchField) {
   return {
     span: field.span ?? defaultColumnProps.span,
-    xs: field.xs ?? defaultColumnProps.xs,
-    sm: field.sm ?? defaultColumnProps.sm,
-    md: field.md ?? defaultColumnProps.md,
-    lg: field.lg ?? defaultColumnProps.lg,
-    xl: field.xl ?? defaultColumnProps.xl,
+    xs: field.xs,
+    sm: field.sm,
+    md: field.md,
+    lg: field.lg,
+    xl: field.xl,
   }
 }
 
@@ -309,11 +336,14 @@ async function validate() {
 }
 
 async function search() {
-  if (props.loading || props.disabled || searching.value) return false
+  if (
+    props.actionsLoading ||
+    props.actionsDisabled ||
+    searching.value
+  ) return false
 
   const model = cloneSearchModel(draftModel.value)
   searching.value = true
-
   try {
     if (props.validateOnSearch && formRef.value) {
       const valid = await formRef.value.validate()
@@ -327,7 +357,7 @@ async function search() {
     emit('invalid', error)
     return false
   } finally {
-    searching.value = false
+    // searching.value = false
   }
 }
 

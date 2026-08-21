@@ -30,7 +30,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:modelValue': [value: string | number]
   change: [value: string | number]
-  search: []
 }>()
 
 const componentProps = computed(() =>
@@ -54,7 +53,6 @@ function handleEnter(event: Event) {
     keyboardEvent.keyCode !== 229
   ) {
     keyboardEvent.preventDefault()
-    emit('search')
   }
 }
 </script>

@@ -15,7 +15,7 @@ function createAdapterStub(name: string, className: string) {
       placeholder: String,
       ariaLabel: String,
     },
-    emits: ['update:modelValue', 'change', 'search'],
+    emits: ['update:modelValue', 'change'],
     setup() {
       return () => h('div', { class: className })
     },
@@ -89,7 +89,6 @@ describe('SearchFieldRenderer', () => {
           modelValue: undefined,
           field,
           disabled: false,
-          labelMode: 'label',
         },
         global: { stubs: adapterStubs },
       })
@@ -104,7 +103,6 @@ describe('SearchFieldRenderer', () => {
         modelValue: 'alice',
         field: { key: 'keyword', type: 'input', label: '关键词' },
         disabled: false,
-        labelMode: 'placeholder',
       },
       slots: {
         default: ({ value, update }) =>
@@ -136,10 +134,10 @@ describe('SearchFieldRenderer', () => {
           key: 'keyword',
           type: 'input',
           label: '关键词',
+          placeholder: '请输入关键词',
           ariaLabel: '用户关键词',
         },
         disabled: true,
-        labelMode: 'placeholder',
       },
       global: { stubs: adapterStubs },
     })
@@ -158,7 +156,6 @@ describe('SearchFieldRenderer', () => {
         modelValue: '',
         field: { key: 'keyword', type: 'input', label: '关键词' },
         disabled: false,
-        labelMode: 'label',
       },
       global: { stubs: adapterStubs },
     })
@@ -166,11 +163,9 @@ describe('SearchFieldRenderer', () => {
 
     input.vm.$emit('update:modelValue', 'alice')
     input.vm.$emit('change', 'alice')
-    input.vm.$emit('search')
 
     expect(wrapper.emitted('update:modelValue')).toEqual([['alice']])
     expect(wrapper.emitted('change')).toEqual([['alice']])
-    expect(wrapper.emitted('search')).toHaveLength(1)
   })
 
   it.each([
@@ -191,7 +186,6 @@ describe('SearchFieldRenderer', () => {
         props: {
           field,
           disabled: false,
-          labelMode: 'label',
         },
         global: { stubs: adapterStubs },
       })
@@ -212,7 +206,6 @@ describe('SearchFieldRenderer', () => {
       props: {
         field: { key: 'departmentId', type: 'custom', label: '部门' },
         disabled: false,
-        labelMode: 'label',
       },
       global: { stubs: adapterStubs },
     })

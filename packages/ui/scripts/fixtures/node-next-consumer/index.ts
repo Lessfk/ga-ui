@@ -108,7 +108,7 @@ const rootSearchFields: GaSearchField[] = [
   rootSearchCustomField,
 ]
 const rootSearchBaseField: GaSearchBaseField = rootSearchFields[0]
-const rootSearchLabelMode: GaSearchLabelMode = 'placeholder'
+const rootSearchLabelMode: GaSearchLabelMode = 'none'
 const rootSearchModel: GaSearchModel = { keyword: '' }
 const rootSearchBarProps: GaSearchBarProps = {
   modelValue: rootSearchModel,

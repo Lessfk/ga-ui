@@ -1035,7 +1035,6 @@ import { GaSearchBar } from 'ga-ui-plus'
     v-model="model"
     v-model:collapsed="collapsed"
     :fields="fields"
-    label-mode="placeholder"
     @search="handleSearch"
     @reset="handleReset"
   >
@@ -1103,7 +1102,22 @@ function handleReset(value: GaSearchModel) {
 
 内置字段类型共有 8 种：`input`、`textarea`、`select`、`date`、`datetime`、`daterange`、`datetimerange` 和 `custom`。`select` 可通过 `options` 提供选项；日期类型支持 `format` 与 `valueFormat`；`custom` 通过 `field-{key}` 插槽自行渲染。
 
-`labelMode` 支持 `label`、`placeholder` 和 `none`：`label` 显示表单标签，`placeholder` 将标签作为字段占位提示，`none` 不显示标签。字段也可以通过自身的 `labelMode` 覆盖搜索栏默认值。
+`labelMode` 只支持 `label` 和 `none`：`label` 显示表单标签，`none` 不显示标签。字段也可以通过自身的 `labelMode` 覆盖搜索栏默认值。该配置不会修改字段的占位提示；占位文字需要通过字段的 `placeholder` 或 `componentProps.placeholder` 单独配置。
+
+`labelPosition` 支持 `left`、`right` 和 `top`，默认值为 `right`。标签较长时可设置为 `top`，避免标签挤压输入区域。`labelWidth` 可在搜索栏上统一配置，也可在字段上单独配置；字段值优先于搜索栏全局值。
+
+`size` 支持 `large`、`default` 和 `small`，默认值为 `default`。该值传给内部 `ElForm`，内置字段与默认操作按钮会继承统一尺寸；需要单独调整某个字段时，可通过该字段的 `componentProps.size` 覆盖。
+
+```ts
+const fields: GaSearchField[] = [
+  {
+    key: 'organizationName',
+    type: 'input',
+    label: '所属业务组织机构名称',
+    labelWidth: 160,
+  },
+]
+```
 
 ### 日期格式
 
@@ -1111,7 +1125,7 @@ function handleReset(value: GaSearchModel) {
 
 ### 响应式布局
 
-每个字段可使用 `span`、`xs`、`sm`、`md`、`lg`、`xl` 设置栅格占比。默认值为 `span=6`、`xs=24`、`sm=12`、`md=8`、`lg=6`、`xl=6`。
+每个字段可使用 `span`、`xs`、`sm`、`md`、`lg`、`xl` 设置栅格占比。`span` 默认值为 `6`；响应式断点没有默认值，仅在字段明确配置时传给 `ElCol`。因此只设置 `span=24` 时，字段会在所有屏幕尺寸下占满一行。
 
 ### 异步选项、远程搜索与分页
 
@@ -1124,17 +1138,20 @@ function handleReset(value: GaSearchModel) {
 | `modelValue` | `GaSearchModel` | 必填 | 搜索模型，支持 `v-model` |
 | `fields` | `GaSearchField[]` | 必填 | 搜索字段定义 |
 | `labelMode` | `GaSearchLabelMode` | `'label'` | 默认标签模式 |
+| `labelPosition` | `'left' \| 'right' \| 'top'` | `'right'` | 标签位置，透传给 `ElForm` |
 | `labelWidth` | `string \| number` | `'auto'` | 表单标签宽度 |
+| `size` | `'large' \| 'default' \| 'small'` | `'default'` | 搜索栏表单控件尺寸 |
 | `gutter` | `number` | `16` | 字段栅格间距 |
 | `collapsed` | `boolean` | `true` | 是否折叠，支持 `v-model:collapsed` |
 | `collapsedCount` | `number` | `3` | 折叠时显示的字段数量 |
-| `loading` | `boolean` | `false` | 是否处于加载状态 |
-| `disabled` | `boolean` | `false` | 是否禁用搜索栏 |
+| `disabled` | `boolean` | `false` | 是否禁用搜索字段，不影响操作区 |
+| `actionsLoading` | `boolean` | `false` | 是否显示查询按钮加载状态，并阻止重复查询 |
+| `actionsDisabled` | `boolean` | `false` | 是否禁用操作区按钮，不影响搜索字段 |
 | `rules` | `FormRules` | `undefined` | Element Plus 表单校验规则 |
 | `validateOnSearch` | `boolean` | `false` | 搜索前是否校验表单 |
-| `showSearch` | `boolean` | `true` | 是否显示搜索按钮 |
-| `showReset` | `boolean` | `true` | 是否显示重置按钮 |
-| `showCollapse` | `boolean` | `true` | 是否显示折叠按钮 |
+| `actionsShowSearch` | `boolean` | `true` | 是否显示搜索按钮 |
+| `actionsShowReset` | `boolean` | `true` | 是否显示重置按钮 |
+| `actionsShowCollapse` | `boolean` | `true` | 是否显示折叠按钮 |
 
 ### GaSearchField
 
@@ -1146,17 +1163,18 @@ function handleReset(value: GaSearchModel) {
 | `type` | `'input' \| 'textarea' \| 'select' \| 'date' \| 'datetime' \| 'daterange' \| 'datetimerange' \| 'custom'` | 字段类型，必填 |
 | `label` | `string` | 字段标签 |
 | `labelMode` | `GaSearchLabelMode` | 当前字段的标签模式 |
+| `labelWidth` | `string \| number` | 当前字段的标签宽度，优先于搜索栏全局值 |
 | `placeholder` | `string` | 占位提示 |
 | `ariaLabel` | `string` | 无可见标签时的无障碍标签 |
 | `defaultValue` | `unknown` | 重置时优先使用的默认值 |
 | `disabled` | `boolean` | 是否禁用当前字段 |
 | `hidden` | `boolean` | 是否隐藏当前字段 |
 | `span` | `number` | 默认栅格占比，默认 `6` |
-| `xs` | `number` | `xs` 断点栅格占比，默认 `24` |
-| `sm` | `number` | `sm` 断点栅格占比，默认 `12` |
-| `md` | `number` | `md` 断点栅格占比，默认 `8` |
-| `lg` | `number` | `lg` 断点栅格占比，默认 `6` |
-| `xl` | `number` | `xl` 断点栅格占比，默认 `6` |
+| `xs` | `number` | `xs` 断点栅格占比，无默认值 |
+| `sm` | `number` | `sm` 断点栅格占比，无默认值 |
+| `md` | `number` | `md` 断点栅格占比，无默认值 |
+| `lg` | `number` | `lg` 断点栅格占比，无默认值 |
+| `xl` | `number` | `xl` 断点栅格占比，无默认值 |
 | `componentProps` | `Record<string, unknown>` | 透传给内置字段组件的属性 |
 
 字段类型专属属性如下：
@@ -1187,7 +1205,44 @@ function handleReset(value: GaSearchModel) {
 | `field-{key}` | `{ field, value, disabled, update }` | 自定义指定字段的渲染；`update(value)` 更新字段值 |
 | `prepend` | 无 | 搜索栏内容前置区域 |
 | `append` | 无 | 搜索栏内容后置区域 |
-| `actions` | `{ search, reset, validate, clearValidate, collapsed, toggle, loading, disabled }` | 自定义操作区域 |
+| `actions` | 操作作用域 | 替换整个操作区域 |
+| `actions-prepend` | 操作作用域 | 在默认操作按钮之前追加内容 |
+| `action-search` | 操作作用域 | 只替换查询按钮 |
+| `action-reset` | 操作作用域 | 只替换重置按钮 |
+| `action-collapse` | 操作作用域 | 只替换展开/收起按钮 |
+| `actions-append` | 操作作用域 | 在默认操作按钮之后追加内容 |
+
+操作作用域包含 `{ search, reset, validate, clearValidate, collapsed, toggle, actionsLoading, actionsDisabled }`。`actions` 插槽优先级最高，存在时会替换整个操作区域，其他细粒度操作插槽不会渲染。
+
+单按钮插槽仍受对应显示属性控制：`action-search` 对应 `actionsShowSearch`，`action-reset` 对应 `actionsShowReset`，`action-collapse` 对应 `actionsShowCollapse`，且折叠按钮仍要求存在可折叠字段。`actions-prepend` 和 `actions-append` 不依赖默认按钮的显示属性，即使所有默认按钮都隐藏，也可以单独撑起操作区域。
+
+```vue
+<GaSearchBar v-model="model" :fields="fields" @search="handleSearch">
+  <template #action-search="{ search, actionsLoading, actionsDisabled }">
+    <ElButton
+      type="success"
+      native-type="button"
+      :loading="actionsLoading"
+      :disabled="actionsDisabled || actionsLoading"
+      @click="search"
+    >
+      开始查询
+    </ElButton>
+  </template>
+
+  <template #actions-append="{ actionsDisabled }">
+    <ElButton :disabled="actionsDisabled" @click="handleExport">
+      导出
+    </ElButton>
+  </template>
+</GaSearchBar>
+```
+
+操作列默认靠当前 Flex 行的最右侧排列。最后一行空间足够时，操作列与字段处于同一行并靠右；空间不足或字段刚好占满时，操作列自动换到下一行并保持右对齐。默认操作按钮和 `actions` 插槽使用相同的布局规则。
+
+表单字段和操作区状态相互独立：`disabled` 只禁用搜索字段，`actionsDisabled` 只禁用操作按钮，`actionsLoading` 只控制查询操作的加载状态。需要在请求期间保持字段可编辑但锁定按钮时，可同时设置 `:actions-loading="loading"` 与 `:actions-disabled="loading"`。
+
+单行输入框按回车不会触发查询，并会阻止浏览器隐式提交表单；文本域的回车仍用于正常换行。查询只会由查询按钮、显式表单提交、自定义操作区调用 `search()`，或外部组件实例调用 `search()` 触发。
 
 ### 重置规则
 
@@ -1461,7 +1516,8 @@ function openSystemMenu() {
 | `GaPaginationProps` | `GaPagination` Props |
 | `GaTablePaginationProps<Row>` | 扁平的表格分页组合 Props |
 | `GaSearchModel` | 搜索栏模型，保留字符串键值的搜索条件 |
-| `GaSearchLabelMode` | 搜索栏标签模式：`label`、`placeholder` 或 `none` |
+| `GaSearchLabelMode` | 搜索栏标签模式：`label` 或 `none` |
+| `GaSearchSize` | 搜索栏尺寸：`large`、`default` 或 `small` |
 | `GaSearchBaseField` | 搜索字段公共属性 |
 | `GaSearchInputField` | `input`/`textarea` 搜索字段类型 |
 | `GaSearchOption` | 选择字段选项 |

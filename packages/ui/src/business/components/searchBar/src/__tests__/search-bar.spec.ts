@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils'
+import { readFileSync } from 'node:fs'
 import { defineComponent, h, inject, nextTick, ref } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -6,6 +7,10 @@ import GaSearchBar from '../index.vue'
 import type { GaSearchBarExpose } from '../props'
 
 const clearValidateSpy = vi.fn()
+const searchBarStyles = readFileSync(
+  'src/business/components/searchBar/style/index.scss',
+  'utf8',
+)
 
 const ElFormStub = defineComponent({
   name: 'ElForm',
@@ -14,6 +19,8 @@ const ElFormStub = defineComponent({
     model: Object,
     rules: Object,
     labelWidth: [String, Number],
+    labelPosition: String,
+    size: String,
     disabled: Boolean,
   },
   setup(_, { attrs, slots, expose }) {
@@ -110,9 +117,8 @@ const SearchFieldRendererStub = defineComponent({
     modelValue: null,
     field: { type: Object, required: true },
     disabled: Boolean,
-    labelMode: String,
   },
-  emits: ['update:modelValue', 'change', 'search'],
+  emits: ['update:modelValue', 'change'],
   setup(props, { emit, slots }) {
     return () =>
       h(
@@ -165,6 +171,12 @@ afterEach(() => {
 })
 
 describe('GaSearchBar layout', () => {
+  it('pushes the actions column to the right edge of its flex row', () => {
+    expect(searchBarStyles).toMatch(
+      /&__actions-col\s*{[\s\S]*?margin-left:\s*auto/,
+    )
+  })
+
   it('renders only collapsed visible fields and excludes hidden fields', () => {
     const wrapper = mountSearchBar({
       props: {
@@ -199,9 +211,9 @@ describe('GaSearchBar layout', () => {
         ],
         collapsed: true,
         collapsedCount: 1,
-        showSearch: false,
-        showReset: false,
-        showCollapse: false,
+        actionsShowSearch: false,
+        actionsShowReset: false,
+        actionsShowCollapse: false,
       },
       slots: {
         actions: ({ toggle }: { toggle: () => void }) =>
@@ -222,11 +234,11 @@ describe('GaSearchBar layout', () => {
     expect(wrapper.findAll('.search-field-renderer-stub')).toHaveLength(2)
   })
 
-  it('uses per-field label modes and responsive columns', () => {
+  it('uses per-field label modes without adding responsive defaults', () => {
     const wrapper = mountSearchBar({
       props: {
         modelValue: {},
-        labelMode: 'placeholder',
+        labelMode: 'none',
         labelWidth: 96,
         fields: [
           {
@@ -259,16 +271,64 @@ describe('GaSearchBar layout', () => {
       sm: 12,
       md: 8,
       lg: 6,
-      xl: 6,
     })
-    expect(columns[1].props()).toMatchObject({
-      span: 6,
-      xs: 24,
-      sm: 12,
-      md: 8,
-      lg: 6,
-      xl: 6,
+    expect(columns[0].props('xl')).toBeUndefined()
+    expect(columns[1].props('span')).toBe(6)
+    for (const breakpoint of ['xs', 'sm', 'md', 'lg', 'xl']) {
+      expect(columns[1].props(breakpoint)).toBeUndefined()
+    }
+  })
+
+  it('passes label position and lets fields override the label width', () => {
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: {},
+        labelPosition: 'top',
+        labelWidth: 96,
+        fields: [
+          {
+            key: 'keyword',
+            type: 'input',
+            label: '很长的关键词标签',
+            labelWidth: 160,
+          },
+          {
+            key: 'status',
+            type: 'select',
+            label: '状态',
+            options: [],
+          },
+        ],
+      },
     })
+
+    expect(wrapper.findComponent(ElFormStub).props()).toMatchObject({
+      labelPosition: 'top',
+      labelWidth: 96,
+    })
+
+    const items = wrapper.findAllComponents(ElFormItemStub)
+    expect(items[0].props('labelWidth')).toBe(160)
+    expect(items[1].props('labelWidth')).toBe(96)
+  })
+
+  it('passes the default and configured size to ElForm', async () => {
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: {},
+        fields: [],
+      },
+    })
+    const runtimeProps = (
+      GaSearchBar as unknown as { props?: Record<string, unknown> }
+    ).props ?? {}
+
+    expect(runtimeProps).toHaveProperty('size')
+    expect(wrapper.findComponent(ElFormStub).props('size')).toBe('default')
+
+    await wrapper.setProps({ size: 'small' })
+
+    expect(wrapper.findComponent(ElFormStub).props('size')).toBe('small')
   })
 
   it('emits immutable model and change payloads', async () => {
@@ -333,14 +393,182 @@ describe('GaSearchBar layout', () => {
     expect(wrapper.find('.actions-slot').exists()).toBe(true)
   })
 
+  it('separates field disabled state from default action controls', () => {
+    const actionsDisabled = mountSearchBar({
+      props: {
+        modelValue: {},
+        fields: [
+          { key: 'keyword', type: 'input', label: '关键词' },
+          { key: 'status', type: 'select', label: '状态', options: [] },
+        ],
+        collapsedCount: 1,
+        actionsDisabled: true,
+      },
+    })
+
+    expect(actionsDisabled.findComponent(ElFormStub).props('disabled')).toBe(false)
+    expect(
+      actionsDisabled.findComponent(SearchFieldRendererStub).props('disabled'),
+    ).toBe(false)
+    for (const action of ['search', 'reset', 'toggle']) {
+      expect(
+        actionsDisabled.get(`[data-action="${action}"]`).attributes(),
+      ).toHaveProperty('disabled')
+    }
+
+    const fieldsDisabled = mountSearchBar({
+      props: {
+        modelValue: {},
+        fields: [{ key: 'keyword', type: 'input', label: '关键词' }],
+        disabled: true,
+      },
+    })
+
+    expect(fieldsDisabled.findComponent(ElFormStub).props('disabled')).toBe(false)
+    expect(
+      fieldsDisabled.findComponent(SearchFieldRendererStub).props('disabled'),
+    ).toBe(true)
+    expect(
+      fieldsDisabled.get('[data-action="search"]').attributes(),
+    ).not.toHaveProperty('disabled')
+    expect(
+      fieldsDisabled.get('[data-action="reset"]').attributes(),
+    ).not.toHaveProperty('disabled')
+  })
+
+  it('uses action-prefixed props and slot scope names only', () => {
+    let actionsScope: Record<string, unknown> = {}
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: {},
+        fields: [],
+        actionsLoading: true,
+        actionsDisabled: true,
+        actionsShowSearch: false,
+        actionsShowReset: false,
+        actionsShowCollapse: false,
+      },
+      slots: {
+        actions: (scope) => {
+          actionsScope = scope
+          return h('div', { class: 'actions-scope' })
+        },
+      },
+    })
+    const runtimeProps = (
+      GaSearchBar as unknown as { props?: Record<string, unknown> }
+    ).props ?? {}
+
+    for (const propName of [
+      'actionsLoading',
+      'actionsDisabled',
+      'actionsShowSearch',
+      'actionsShowReset',
+      'actionsShowCollapse',
+    ]) {
+      expect(runtimeProps).toHaveProperty(propName)
+    }
+    for (const legacyPropName of [
+      'loading',
+      'showSearch',
+      'showReset',
+      'showCollapse',
+    ]) {
+      expect(runtimeProps).not.toHaveProperty(legacyPropName)
+    }
+    expect(actionsScope).toMatchObject({
+      actionsLoading: true,
+      actionsDisabled: true,
+    })
+    expect(actionsScope).not.toHaveProperty('loading')
+    expect(actionsScope).not.toHaveProperty('disabled')
+    expect(wrapper.find('.actions-scope').exists()).toBe(true)
+  })
+
+  it('supports granular slots for every default action', () => {
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: {},
+        fields: [
+          { key: 'keyword', type: 'input', label: '关键词' },
+          { key: 'status', type: 'select', label: '状态', options: [] },
+        ],
+        collapsed: true,
+        collapsedCount: 1,
+      },
+      slots: {
+        'actions-prepend': () => h('span', { class: 'actions-prepend' }),
+        'action-search': () => h('button', { class: 'custom-search' }),
+        'action-reset': () => h('button', { class: 'custom-reset' }),
+        'action-collapse': () => h('button', { class: 'custom-collapse' }),
+        'actions-append': () => h('span', { class: 'actions-append' }),
+      },
+    })
+
+    expect(wrapper.find('.actions-prepend').exists()).toBe(true)
+    expect(wrapper.find('.custom-search').exists()).toBe(true)
+    expect(wrapper.find('.custom-reset').exists()).toBe(true)
+    expect(wrapper.find('.custom-collapse').exists()).toBe(true)
+    expect(wrapper.find('.actions-append').exists()).toBe(true)
+    expect(wrapper.find('[data-action="search"]').exists()).toBe(false)
+    expect(wrapper.find('[data-action="reset"]').exists()).toBe(false)
+    expect(wrapper.find('[data-action="toggle"]').exists()).toBe(false)
+  })
+
+  it('replaces one action while retaining defaults and appending content', async () => {
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: { keyword: 'alice' },
+        fields: [{ key: 'keyword', type: 'input', label: '关键词' }],
+      },
+      slots: {
+        'action-search': ({ search }) =>
+          h(
+            'button',
+            { class: 'custom-search', type: 'button', onClick: search },
+            '自定义查询',
+          ),
+        'actions-append': () =>
+          h('button', { class: 'export-action', type: 'button' }, '导出'),
+      },
+    })
+
+    expect(wrapper.find('[data-action="search"]').exists()).toBe(false)
+    expect(wrapper.find('[data-action="reset"]').exists()).toBe(true)
+    expect(wrapper.find('.export-action').exists()).toBe(true)
+
+    await wrapper.get('.custom-search').trigger('click')
+
+    expect(wrapper.emitted('search')).toEqual([[{ keyword: 'alice' }]])
+  })
+
+  it('shows the actions column for an additive slot without defaults', () => {
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: {},
+        fields: [],
+        actionsShowSearch: false,
+        actionsShowReset: false,
+        actionsShowCollapse: false,
+      },
+      slots: {
+        'actions-append': () =>
+          h('button', { class: 'append-only-action' }, '导出'),
+      },
+    })
+
+    expect(wrapper.find('.ga-search-bar__actions-col').exists()).toBe(true)
+    expect(wrapper.find('.append-only-action').exists()).toBe(true)
+  })
+
   it('hides the actions column when no actions are available', () => {
     const wrapper = mountSearchBar({
       props: {
         modelValue: {},
         fields: [],
-        showSearch: false,
-        showReset: false,
-        showCollapse: false,
+        actionsShowSearch: false,
+        actionsShowReset: false,
+        actionsShowCollapse: false,
       },
     })
 
@@ -357,9 +585,9 @@ describe('GaSearchBar layout', () => {
             {
               modelValue: {},
               fields: [],
-              showSearch: false,
-              showReset: false,
-              showCollapse: false,
+              actionsShowSearch: false,
+              actionsShowReset: false,
+              actionsShowCollapse: false,
             },
             showActions.value
               ? {
@@ -624,15 +852,22 @@ describe('GaSearchBar actions', () => {
     expect(wrapper.emitted('search')).toEqual([[{ keyword: 'alice' }]])
   })
 
-  it('blocks searches while loading or disabled', async () => {
+  it('blocks searches for action state but not disabled fields', async () => {
     const loading = mountSearchBar({
       props: {
         modelValue: {},
         fields: [],
-        loading: true,
+        actionsLoading: true,
       },
     })
-    const disabled = mountSearchBar({
+    const actionsDisabled = mountSearchBar({
+      props: {
+        modelValue: {},
+        fields: [],
+        actionsDisabled: true,
+      },
+    })
+    const fieldsDisabled = mountSearchBar({
       props: {
         modelValue: {},
         fields: [],
@@ -644,10 +879,14 @@ describe('GaSearchBar actions', () => {
       await (loading.vm as unknown as GaSearchBarExpose).search(),
     ).toBe(false)
     expect(
-      await (disabled.vm as unknown as GaSearchBarExpose).search(),
+      await (actionsDisabled.vm as unknown as GaSearchBarExpose).search(),
     ).toBe(false)
+    expect(
+      await (fieldsDisabled.vm as unknown as GaSearchBarExpose).search(),
+    ).toBe(true)
     expect(loading.emitted('search')).toBeUndefined()
-    expect(disabled.emitted('search')).toBeUndefined()
+    expect(actionsDisabled.emitted('search')).toBeUndefined()
+    expect(fieldsDisabled.emitted('search')).toEqual([[{}]])
   })
 
   it('resets defaults and initial fields while preserving current unknown keys', async () => {
@@ -747,7 +986,7 @@ describe('GaSearchBar actions', () => {
     expect(wrapper.emitted('reset')).toEqual([[{ keyword: 'initial' }]])
   })
 
-  it('exposes form methods and routes renderer search through the same guard', async () => {
+  it('exposes form methods', async () => {
     const wrapper = mountSearchBar({
       props: {
         modelValue: { keyword: '' },
@@ -760,11 +999,9 @@ describe('GaSearchBar actions', () => {
     expect(await exposed.validate()).toBe(true)
     exposed.clearValidate()
     exposed.toggle()
-    wrapper.findComponent(SearchFieldRendererStub).vm.$emit('search')
     await wrapper.vm.$nextTick()
 
     expect(clearValidateSpy).toHaveBeenCalledTimes(1)
     expect(wrapper.emitted('update:collapsed')).toHaveLength(1)
-    expect(wrapper.emitted('search')).toEqual([[{ keyword: '' }]])
   })
 })

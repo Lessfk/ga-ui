@@ -81,7 +81,7 @@ describe('SearchInputField', () => {
     expect(wrapper.emitted('change')).toEqual([['bob']])
   })
 
-  it('searches on Enter only for normal inputs', async () => {
+  it('does not search on Enter for inputs or textareas', async () => {
     const input = mount(SearchInputField, {
       props: {
         field: { key: 'keyword', type: 'input', label: '关键词' },
@@ -101,7 +101,7 @@ describe('SearchInputField', () => {
 
     await input.get('.el-input-stub').trigger('keydown.enter')
     await textarea.get('.el-input-stub').trigger('keydown.enter')
-    expect(input.emitted('search')).toHaveLength(1)
+    expect(input.emitted('search')).toBeUndefined()
     expect(textarea.emitted('search')).toBeUndefined()
     expect(textarea.get('textarea').exists()).toBe(true)
   })
@@ -128,7 +128,7 @@ describe('SearchInputField', () => {
     expect(wrapper.emitted('search')).toBeUndefined()
   })
 
-  it('prevents native form submission only when input Enter searches', async () => {
+  it('prevents native form submission for input Enter only', async () => {
     const input = mount(SearchInputField, {
       props: {
         field: { key: 'keyword', type: 'input', label: '关键词' },

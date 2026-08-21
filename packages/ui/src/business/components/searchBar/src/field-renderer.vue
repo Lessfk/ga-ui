@@ -16,7 +16,6 @@
     :ariaLabel="ariaLabel"
     @update:model-value="emit('update:modelValue', $event)"
     @change="emit('change', $event)"
-    @search="emit('search')"
   />
 
   <SearchSelectField
@@ -55,26 +54,21 @@ import {
 import type {
   GaSearchDateField,
   GaSearchField,
-  GaSearchLabelMode,
 } from './props'
 
 const props = defineProps<{
   modelValue?: unknown
   field: GaSearchField
   disabled: boolean
-  labelMode: GaSearchLabelMode
 }>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: unknown]
   change: [value: unknown]
-  search: []
 }>()
 
 const slots = useSlots()
-const placeholder = computed(() =>
-  resolveFieldPlaceholder(props.field, props.labelMode),
-)
+const placeholder = computed(() => resolveFieldPlaceholder(props.field))
 const ariaLabel = computed(() => resolveFieldAriaLabel(props.field))
 const dateField = computed(() =>
   isDateField(props.field) ? props.field : undefined,

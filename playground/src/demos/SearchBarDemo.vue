@@ -24,8 +24,27 @@
             <ElFormItem label="标签模式">
               <ElRadioGroup v-model="labelMode">
                 <ElRadioButton value="label">标签</ElRadioButton>
-                <ElRadioButton value="placeholder">占位</ElRadioButton>
                 <ElRadioButton value="none">无标签</ElRadioButton>
+              </ElRadioGroup>
+            </ElFormItem>
+          </ElCol>
+
+          <ElCol :xs="24" :sm="12" :md="8" :lg="6">
+            <ElFormItem label="标签位置">
+              <ElRadioGroup v-model="labelPosition">
+                <ElRadioButton value="left">左侧</ElRadioButton>
+                <ElRadioButton value="right">右侧</ElRadioButton>
+                <ElRadioButton value="top">顶部</ElRadioButton>
+              </ElRadioGroup>
+            </ElFormItem>
+          </ElCol>
+
+          <ElCol :xs="24" :sm="12" :md="8" :lg="6">
+            <ElFormItem label="组件尺寸">
+              <ElRadioGroup v-model="size">
+                <ElRadioButton value="large">大</ElRadioButton>
+                <ElRadioButton value="default">默认</ElRadioButton>
+                <ElRadioButton value="small">小</ElRadioButton>
               </ElRadioGroup>
             </ElFormItem>
           </ElCol>
@@ -74,12 +93,16 @@
 
         <div class="search-bar-demo__switches">
           <label class="search-bar-demo__switch-item">
-            <span>加载状态</span>
-            <ElSwitch v-model="loading" />
+            <span>操作区加载</span>
+            <ElSwitch v-model="actionsLoading" />
           </label>
           <label class="search-bar-demo__switch-item">
-            <span>整体禁用</span>
+            <span>表单禁用</span>
             <ElSwitch v-model="disabled" />
+          </label>
+          <label class="search-bar-demo__switch-item">
+            <span>操作区禁用</span>
+            <ElSwitch v-model="actionsDisabled" />
           </label>
           <label class="search-bar-demo__switch-item">
             <span>搜索前校验</span>
@@ -87,15 +110,15 @@
           </label>
           <label class="search-bar-demo__switch-item">
             <span>搜索按钮</span>
-            <ElSwitch v-model="showSearch" />
+            <ElSwitch v-model="actionsShowSearch" />
           </label>
           <label class="search-bar-demo__switch-item">
             <span>重置按钮</span>
-            <ElSwitch v-model="showReset" />
+            <ElSwitch v-model="actionsShowReset" />
           </label>
           <label class="search-bar-demo__switch-item">
             <span>折叠按钮</span>
-            <ElSwitch v-model="showCollapse" />
+            <ElSwitch v-model="actionsShowCollapse" />
           </label>
         </div>
       </ElForm>
@@ -114,17 +137,20 @@
         :model-value="query"
         :fields="fields"
         :label-mode="labelMode"
+        :label-position="labelPosition"
         :label-width="labelWidth"
+        :size="size"
         :gutter="gutter"
         :collapsed="collapsed"
         :collapsed-count="collapsedCount"
-        :loading="loading"
         :disabled="disabled"
+        :actions-loading="actionsLoading"
+        :actions-disabled="actionsDisabled"
         :rules="rules"
         :validate-on-search="validateOnSearch"
-        :show-search="showSearch"
-        :show-reset="showReset"
-        :show-collapse="showCollapse"
+        :actions-show-search="actionsShowSearch"
+        :actions-show-reset="actionsShowReset"
+        :actions-show-collapse="actionsShowCollapse"
         @update:model-value="handleModelUpdate"
         @update:collapsed="handleCollapsedUpdate"
         @search="handleSearch"
@@ -160,14 +186,44 @@
           />
         </template>
 
-        <template #append>
+        <template
+          #action-search="{
+            search,
+            actionsLoading: loading,
+            actionsDisabled: actionDisabled,
+          }"
+        >
+          <ElButton
+            type="primary"
+            native-type="button"
+            :icon="Search"
+            :loading="loading"
+            :disabled="actionDisabled || loading"
+            @click="search"
+          >
+            自定义查询
+          </ElButton>
+        </template>
+
+        <template #actions-append="{ actionsDisabled: actionDisabled }">
+          <ElButton
+            native-type="button"
+            :icon="Download"
+            :disabled="actionDisabled"
+            @click="handleExport"
+          >
+            导出
+          </ElButton>
+        </template>
+
+        <!-- <template #append>
           <ElCol :span="24">
             <div class="search-bar-demo__slot-bar search-bar-demo__slot-bar--append">
               <ElTag size="small" effect="plain">append</ElTag>
               <span>模型键数量 {{ Object.keys(query).length }}</span>
             </div>
           </ElCol>
-        </template>
+        </template> -->
       </GaSearchBar>
 
       <div class="search-bar-demo__method-bar">
@@ -205,10 +261,12 @@
         v-model:collapsed="customCollapsed"
         :fields="customFields"
         :collapsed-count="2"
-        label-mode="placeholder"
-        :show-search="false"
-        :show-reset="false"
-        :show-collapse="false"
+        label-mode="none"
+        :actions-loading="true"
+        :actions-disabled="true"
+        :actions-show-search="false"
+        :actions-show-reset="false"
+        :actions-show-collapse="false"
         @search="handleCustomSearch"
         @reset="handleCustomReset"
         @change="handleCustomChange"
@@ -221,8 +279,8 @@
             clearValidate,
             collapsed: actionCollapsed,
             toggle,
-            loading: actionLoading,
-            disabled: actionDisabled,
+            actionsLoading: actionLoading,
+            actionsDisabled: actionDisabled,
           }"
         >
           <div class="search-bar-demo__custom-actions">
@@ -308,6 +366,7 @@ import {
   Brush,
   CircleCheck,
   Delete,
+  Download,
   Fold,
   RefreshLeft,
   Search,
@@ -337,8 +396,10 @@ import {
   type GaSearchChangePayload,
   type GaSearchField,
   type GaSearchLabelMode,
+  type GaSearchLabelPosition,
   type GaSearchModel,
   type GaSearchOption,
+  type GaSearchSize,
 } from 'ga-ui-plus/business'
 
 interface EventRecord {
@@ -373,17 +434,20 @@ const customQuery = ref<GaSearchModel>({
 })
 
 const labelMode = ref<GaSearchLabelMode>('label')
+const labelPosition = ref<GaSearchLabelPosition>('right')
+const size = ref<GaSearchSize>('default')
 const labelWidth = ref(96)
 const gutter = ref(16)
 const collapsed = ref(true)
 const customCollapsed = ref(true)
 const collapsedCount = ref(4)
-const loading = ref(false)
 const disabled = ref(false)
+const actionsLoading = ref(false)
+const actionsDisabled = ref(false)
 const validateOnSearch = ref(true)
-const showSearch = ref(true)
-const showReset = ref(true)
-const showCollapse = ref(true)
+const actionsShowSearch = ref(true)
+const actionsShowReset = ref(true)
+const actionsShowCollapse = ref(true)
 const statusOptionsLoading = ref(true)
 const statusOptions = ref<GaSearchOption[]>([])
 const eventRecords = ref<EventRecord[]>([])
@@ -421,15 +485,12 @@ const fields = computed<GaSearchField[]>(() => [
   {
     key: 'keyword',
     type: 'input',
-    label: '关键词',
+    label: '',
+    labelWidth:"0px",
+    labelMode:"none",
     placeholder: '请输入名称、编号或联系人',
     defaultValue: 'GA',
-    span: 8,
-    xs: 24,
-    sm: 12,
-    md: 8,
-    lg: 8,
-    xl: 6,
+    span: 24,
     componentProps: { clearable: true, maxlength: 40 },
   },
   {
@@ -439,26 +500,17 @@ const fields = computed<GaSearchField[]>(() => [
     placeholder: statusOptionsLoading.value ? '选项加载中' : '请选择状态',
     options: statusOptions.value,
     defaultValue: 'enabled',
-    span: 6,
-    xs: 24,
-    sm: 12,
-    md: 8,
-    lg: 6,
-    xl: 6,
+    span: 12,
     componentProps: { clearable: true, filterable: true },
   },
   {
     key: 'businessDate',
     type: 'date',
-    label: '业务日期',
+    label: '交易方证件号码',
     format: 'YYYY年MM月DD日',
     valueFormat: 'YYYY-MM-DD',
-    span: 5,
-    xs: 24,
-    sm: 12,
-    md: 8,
-    lg: 5,
-    xl: 4,
+    placeholder:"123123123",
+    span: 12,
     componentProps: { clearable: true },
   },
   {
@@ -468,11 +520,6 @@ const fields = computed<GaSearchField[]>(() => [
     format: 'YYYY-MM-DD HH:mm',
     valueFormat: 'YYYY-MM-DD HH:mm:ss',
     span: 5,
-    xs: 24,
-    sm: 12,
-    md: 8,
-    lg: 5,
-    xl: 4,
     componentProps: { clearable: true },
   },
   {
@@ -482,11 +529,6 @@ const fields = computed<GaSearchField[]>(() => [
     format: 'YYYY年MM月DD日',
     valueFormat: 'YYYY-MM-DD',
     span: 12,
-    xs: 24,
-    sm: 24,
-    md: 12,
-    lg: 12,
-    xl: 10,
     componentProps: {
       clearable: true,
       unlinkPanels: true,
@@ -502,11 +544,6 @@ const fields = computed<GaSearchField[]>(() => [
     format: 'YYYY-MM-DD HH:mm',
     valueFormat: 'YYYY-MM-DD HH:mm:ss',
     span: 12,
-    xs: 24,
-    sm: 24,
-    md: 12,
-    lg: 12,
-    xl: 10,
     componentProps: {
       clearable: true,
       rangeSeparator: '至',
@@ -521,11 +558,6 @@ const fields = computed<GaSearchField[]>(() => [
     placeholder: '请输入备注',
     defaultValue: '默认备注',
     span: 12,
-    xs: 24,
-    sm: 24,
-    md: 12,
-    lg: 12,
-    xl: 12,
     componentProps: {
       rows: 2,
       maxlength: 120,
@@ -538,11 +570,6 @@ const fields = computed<GaSearchField[]>(() => [
     type: 'custom',
     label: '部门',
     span: 6,
-    xs: 24,
-    sm: 12,
-    md: 8,
-    lg: 6,
-    xl: 6,
   },
   {
     key: 'quickKey',
@@ -552,11 +579,6 @@ const fields = computed<GaSearchField[]>(() => [
     placeholder: '无可见标签字段',
     ariaLabel: '快捷条件',
     span: 6,
-    xs: 24,
-    sm: 12,
-    md: 8,
-    lg: 6,
-    xl: 6,
     componentProps: { clearable: true },
   },
   {
@@ -565,11 +587,6 @@ const fields = computed<GaSearchField[]>(() => [
     label: '锁定条件',
     disabled: true,
     span: 6,
-    xs: 24,
-    sm: 12,
-    md: 8,
-    lg: 6,
-    xl: 6,
   },
   {
     key: 'internalTrace',
@@ -584,12 +601,14 @@ const customFields = computed<GaSearchField[]>(() => [
     key: 'quickKeyword',
     type: 'input',
     label: '快捷关键词',
+    placeholder: '请输入快捷关键词',
     componentProps: { clearable: true },
   },
   {
     key: 'quickStatus',
     type: 'select',
     label: '快捷状态',
+    placeholder: '请选择快捷状态',
     options: statusOptions.value,
     componentProps: { clearable: true },
   },
@@ -597,6 +616,7 @@ const customFields = computed<GaSearchField[]>(() => [
     key: 'quickDate',
     type: 'date',
     label: '快捷日期',
+    placeholder: '请选择快捷日期',
     format: 'YYYY-MM-DD',
     valueFormat: 'YYYY-MM-DD',
   },
@@ -604,6 +624,7 @@ const customFields = computed<GaSearchField[]>(() => [
     key: 'owner',
     type: 'input',
     label: '负责人',
+    placeholder: '请输入负责人',
     componentProps: { clearable: true },
   },
 ])
@@ -669,6 +690,10 @@ function handleCollapsedUpdate(value: boolean) {
 
 function handleSearch(model: GaSearchModel) {
   recordEvent('search', model)
+}
+
+function handleExport() {
+  recordEvent('export', { ...query.value })
 }
 
 function handleReset(model: GaSearchModel) {

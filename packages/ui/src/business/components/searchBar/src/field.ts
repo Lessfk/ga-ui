@@ -1,6 +1,5 @@
 import type {
   GaSearchField,
-  GaSearchLabelMode,
   GaSearchModel,
 } from './props'
 
@@ -38,19 +37,12 @@ export function sanitizeComponentProps(
   )
 }
 
-export function resolveFieldPlaceholder(
-  field: GaSearchField,
-  labelMode: GaSearchLabelMode,
-) {
+export function resolveFieldPlaceholder(field: GaSearchField) {
   if (field.placeholder !== undefined) return field.placeholder
 
   const componentPlaceholder = field.componentProps?.placeholder
   if (typeof componentPlaceholder === 'string') return componentPlaceholder
-  if (labelMode !== 'placeholder') return undefined
-
-  return field.type === 'input' || field.type === 'textarea'
-    ? `请输入${field.label}`
-    : `请选择${field.label}`
+  return undefined
 }
 
 export function resolveFieldAriaLabel(field: GaSearchField) {
