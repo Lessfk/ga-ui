@@ -351,7 +351,7 @@ async function search() {
     emit('invalid', error)
     return false
   } finally {
-    // searching.value = false
+    searching.value = false
   }
 }
 

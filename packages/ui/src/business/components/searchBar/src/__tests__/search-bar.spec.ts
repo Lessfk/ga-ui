@@ -752,6 +752,30 @@ describe('GaSearchBar actions', () => {
     expect(wrapper.emitted('search')).toEqual([[{ keyword: 'alice' }]])
   })
 
+  it('clears internal searching state after a completed search', async () => {
+    const wrapper = mountSearchBar({
+      props: {
+        modelValue: { keyword: 'alice' },
+        fields: [{ key: 'keyword', type: 'input', label: '关键词' }],
+      },
+    })
+    const exposed = wrapper.vm as unknown as GaSearchBarExpose
+
+    const firstSearch = await exposed.search()
+    const secondSearch = await exposed.search()
+    await nextTick()
+
+    expect(firstSearch).toBe(true)
+    expect(secondSearch).toBe(true)
+    expect(wrapper.emitted('search')).toEqual([
+      [{ keyword: 'alice' }],
+      [{ keyword: 'alice' }],
+    ])
+    expect(wrapper.findAllComponents(ElButtonStub)[0].props('loading')).toBe(
+      false,
+    )
+  })
+
   it('emits invalid and blocks search after failed validation', async () => {
     const invalidFields = { keyword: [{ message: '必填' }] }
     const wrapper = mountSearchBar({

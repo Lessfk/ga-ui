@@ -22,7 +22,7 @@
     @reset="handleReset"
     @change="handleChange"
   >
-    <template
+    <!-- <template
       #action-search="{
         search,
         actionsLoading: actionLoading,
@@ -37,7 +37,7 @@
       >
         查询
       </ElButton>
-    </template>
+    </template> -->
 
     <template #actions-append>
       <ElButton
@@ -122,8 +122,12 @@ const fields = computed<GaSearchField[]>(() => [
 ]);
 
 const handleSearch = (model: GaSearchModel) => {
+    actionsLoading.value = true
   console.log(model, "modelmodel");
   console.log(query.value, "queryquery");
+  setTimeout(()=>{
+    actionsLoading.value = false
+  },3000)
 };
 
 const handleReset = (model: GaSearchModel) => {
