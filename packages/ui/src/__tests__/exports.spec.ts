@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { GaDialog as DialogBarrel } from '../base/components/dialog'
+import { GaMegaMenu as MegaMenuBarrel } from '../base/components/megaMenu'
 import { GaPagination as PaginationBarrel } from '../base/components/pagination'
 import { GaTable as TableBarrel } from '../base/components/table'
 import { GaAsideMenu as AsideMenuBarrel } from '../business/components/asideMenu'
@@ -11,6 +12,13 @@ import type {
   GaDialogExpose,
   GaDialogHeaderSlotProps,
   GaDialogProps,
+  GaMegaMenuEmits,
+  GaMegaMenuExpose,
+  GaMegaMenuMenuItemSlotProps,
+  GaMegaMenuPanelItemSlotProps,
+  GaMegaMenuProps,
+  GaMegaMenuTheme,
+  GaMegaMenuTrigger,
   GaPaginationProps,
   GaPaginationTheme,
   GaTableColumn,
@@ -54,6 +62,13 @@ import type {
   GaDialogExpose as RootGaDialogExpose,
   GaDialogHeaderSlotProps as RootGaDialogHeaderSlotProps,
   GaDialogProps as RootGaDialogProps,
+  GaMegaMenuEmits as RootGaMegaMenuEmits,
+  GaMegaMenuExpose as RootGaMegaMenuExpose,
+  GaMegaMenuMenuItemSlotProps as RootGaMegaMenuMenuItemSlotProps,
+  GaMegaMenuPanelItemSlotProps as RootGaMegaMenuPanelItemSlotProps,
+  GaMegaMenuProps as RootGaMegaMenuProps,
+  GaMegaMenuTheme as RootGaMegaMenuTheme,
+  GaMegaMenuTrigger as RootGaMegaMenuTrigger,
   GaPaginationProps as RootGaPaginationProps,
   GaPaginationTheme as RootGaPaginationTheme,
   GaSearchBarEmits as RootGaSearchBarEmits,
@@ -80,6 +95,13 @@ type BaseTypeContract = [
   GaDialogEmits,
   GaDialogExpose,
   GaDialogHeaderSlotProps,
+  GaMegaMenuProps,
+  GaMegaMenuTheme,
+  GaMegaMenuTrigger,
+  GaMegaMenuEmits,
+  GaMegaMenuExpose,
+  GaMegaMenuMenuItemSlotProps,
+  GaMegaMenuPanelItemSlotProps,
   GaTableProps,
   GaTableColumn,
   GaTableTheme,
@@ -92,6 +114,13 @@ type RootTypeContract = [
   RootGaDialogEmits,
   RootGaDialogExpose,
   RootGaDialogHeaderSlotProps,
+  RootGaMegaMenuProps,
+  RootGaMegaMenuTheme,
+  RootGaMegaMenuTrigger,
+  RootGaMegaMenuEmits,
+  RootGaMegaMenuExpose,
+  RootGaMegaMenuMenuItemSlotProps,
+  RootGaMegaMenuPanelItemSlotProps,
   RootGaTableProps,
   RootGaTableColumn,
   RootGaTableTheme,
@@ -173,6 +202,54 @@ const tableTheme: GaTableTheme = {
   backgroundColor: '#ffffff',
   headerBackgroundColor: '#f6f6f6',
   currentRowBackgroundColor: '#ecf5ff',
+}
+
+const megaMenuTheme: GaMegaMenuTheme = {
+  backgroundColor: '#2f436b',
+  itemActiveBackgroundColor: '#315c96',
+  panelBackgroundColor: '#2f436b',
+  itemBorderRadius: 14,
+}
+
+const megaMenuTrigger: GaMegaMenuTrigger = 'hover'
+
+const megaMenuProps: GaMegaMenuProps = {
+  menus: [
+    { key: 'home', label: '工作台' },
+    {
+      key: 'system',
+      label: '系统管理',
+      groups: [
+        {
+          key: 'settings',
+          title: '设置',
+          items: [{ key: 'users', label: '用户管理' }],
+        },
+      ],
+    },
+  ],
+  trigger: megaMenuTrigger,
+  theme: megaMenuTheme,
+}
+
+function checkMegaMenuEmits(emit: GaMegaMenuEmits) {
+  const menu = megaMenuProps.menus![0]
+  emit('update:activeKey', 'home')
+  emit('update:openKey', 'system')
+  emit('select', {
+    key: 'home',
+    source: 'menu',
+    menu,
+    nativeEvent: {} as MouseEvent,
+  })
+  emit('open', 'system', megaMenuProps.menus![1])
+  emit('close', 'system', megaMenuProps.menus![1])
+}
+
+function checkMegaMenuExpose(expose: GaMegaMenuExpose) {
+  expose.open('system')
+  expose.close()
+  expose.toggle('system')
 }
 
 const asideMenuProps: GaAsideMenuProps = {
@@ -276,6 +353,11 @@ void tablePaginationProps
 void legacyTablePaginationProps
 void paginationTheme
 void tableTheme
+void megaMenuTheme
+void megaMenuTrigger
+void megaMenuProps
+void checkMegaMenuEmits
+void checkMegaMenuExpose
 void asideMenuProps
 void asideMenuTheme
 void asideMenuSlot
@@ -289,10 +371,23 @@ void checkSearchBarEmits
 void checkSearchBarExpose
 
 describe('library exports', () => {
+  it('exports GaMegaMenu from its component barrel, base entry, and root entry', async () => {
+    const [barrel, base, root] = await Promise.all([
+      import('../base/components/megaMenu'),
+      import('../base'),
+      import('../index'),
+    ])
+
+    expect(barrel).toHaveProperty('GaMegaMenu')
+    expect(base.GaMegaMenu).toBe(barrel.GaMegaMenu)
+    expect(root.GaMegaMenu).toBe(barrel.GaMegaMenu)
+  })
+
   it('exports only base components from the base entry', async () => {
     const base = await import('../base')
 
     expect(base.GaDialog).toBe(DialogBarrel)
+    expect(base.GaMegaMenu).toBe(MegaMenuBarrel)
     expect(base.GaTable).toBe(TableBarrel)
     expect(base.GaPagination).toBe(PaginationBarrel)
     expect(base).not.toHaveProperty('GaTablePagination')
@@ -315,6 +410,7 @@ describe('library exports', () => {
     const library = await import('../index')
 
     expect(library.GaDialog).toBe(DialogBarrel)
+    expect(library.GaMegaMenu).toBe(MegaMenuBarrel)
     expect(library.GaTable).toBe(TableBarrel)
     expect(library.GaPagination).toBe(PaginationBarrel)
     expect(library.GaTablePagination).toBe(TablePaginationBarrel)

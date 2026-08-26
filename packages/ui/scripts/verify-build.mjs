@@ -33,6 +33,7 @@ for (const selector of [
   /\.el-dialog\.ga-dialog/,
   /\.el-table\.ga-table/,
   /\.el-pagination\.ga-pagination/,
+  /\.ga-mega-menu(?:\s*,|\s*\{)/,
   /\.ga-table-pagination/,
   /\.el-aside\.ga-aside-menu/,
   /\.ga-search-bar(?:\s*,|\s*\{)/,
@@ -139,7 +140,12 @@ const [base, business, root] = await Promise.all([
   import(new URL('index.js', distUrl)),
 ])
 
-assert.deepEqual(Object.keys(base).sort(), ['GaDialog', 'GaPagination', 'GaTable'])
+assert.deepEqual(Object.keys(base).sort(), [
+  'GaDialog',
+  'GaMegaMenu',
+  'GaPagination',
+  'GaTable',
+])
 assert.deepEqual(Object.keys(business).sort(), [
   'GaAsideMenu',
   'GaSearchBar',
@@ -148,6 +154,7 @@ assert.deepEqual(Object.keys(business).sort(), [
 assert.deepEqual(Object.keys(root).sort(), [
   'GaAsideMenu',
   'GaDialog',
+  'GaMegaMenu',
   'GaPagination',
   'GaSearchBar',
   'GaTable',

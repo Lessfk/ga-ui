@@ -32,7 +32,7 @@ defineOptions({
 const props = withDefaults(defineProps<GaPaginationProps>(), {
   currentPage: 1,
   pageSize: 10,
-  total: 100,
+  total: 0,
   pageSizes: () => [10, 20, 30, 40, 50],
   size: 'default',
   layout: 'total, sizes, prev, pager, next, jumper',

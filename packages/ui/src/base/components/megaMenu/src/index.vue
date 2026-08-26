@@ -1,0 +1,610 @@
+<template>
+  <nav
+    ref="rootRef"
+    class="ga-mega-menu"
+    :style="rootStyle"
+    :aria-label="props.ariaLabel"
+    @mouseenter="clearCloseTimer"
+    @mouseleave="handleRootMouseLeave"
+    @keydown.esc="close"
+  >
+    <div class="ga-mega-menu__menu">
+      <button
+        v-for="menu in props.menus"
+        :key="menu.key"
+        type="button"
+        class="ga-mega-menu__nav-item"
+        :class="{
+          'is-active': activeMenuKey === menu.key,
+          'is-panel-open': currentOpenKey === menu.key,
+        }"
+        :data-menu-key="String(menu.key)"
+        :disabled="menu.disabled"
+        :aria-current="activeMenuKey === menu.key ? 'page' : undefined"
+        :aria-controls="hasPanel(menu) ? panelId(menu) : undefined"
+        :aria-expanded="hasPanel(menu) ? currentOpenKey === menu.key : undefined"
+        :aria-haspopup="hasPanel(menu) ? 'true' : undefined"
+        @click="handleTopMenuClick($event, menu)"
+        @focus="handleMenuFocus(menu)"
+        @mouseenter="handleMenuMouseEnter(menu)"
+      >
+        <slot
+          name="menu-item"
+          :menu="menu"
+          :active="activeMenuKey === menu.key"
+          :open="currentOpenKey === menu.key"
+        >
+          <span v-if="menu.icon" class="ga-mega-menu__icon" aria-hidden="true">
+            <component
+              :is="resolveIconComponent(menu.icon)"
+              v-bind="resolveIconProps(menu.icon)"
+            />
+          </span>
+          <span class="ga-mega-menu__nav-label">{{ menu.label }}</span>
+        </slot>
+      </button>
+    </div>
+
+    <Teleport to="body">
+      <Transition name="ga-mega-menu-panel">
+        <section
+          v-if="openMenu"
+          :id="panelId(openMenu)"
+          ref="panelRef"
+          class="ga-mega-menu__panel"
+          :style="panelStyle"
+          :aria-label="openMenu.label"
+          @mouseenter="clearCloseTimer"
+          @mouseleave="handlePanelMouseLeave"
+          @keydown.esc="close"
+        >
+          <ElScrollbar :max-height="scrollbarMaxHeight">
+            <div v-if="panelGroups.length" class="ga-mega-menu__grid">
+              <section
+                v-for="group in panelGroups"
+                :key="group.key"
+                class="ga-mega-menu__group"
+                :aria-label="group.title"
+              >
+                <slot name="group-title" :menu="openMenu" :group="group">
+                  <h3 v-if="group.title" class="ga-mega-menu__group-title">
+                    {{ group.title }}
+                  </h3>
+                </slot>
+
+                <ul class="ga-mega-menu__list">
+                  <li v-for="item in group.items" :key="item.key">
+                    <button
+                      type="button"
+                      class="ga-mega-menu__item"
+                      :class="{
+                        'is-active': currentActiveKey === item.key,
+                        'is-disabled': item.disabled,
+                        'is-label-only': !hasDescription(item),
+                      }"
+                      :data-item-key="String(item.key)"
+                      :disabled="item.disabled"
+                      @click="
+                        handlePanelItemClick($event, item, group, openMenu)
+                      "
+                    >
+                      <slot
+                        name="panel-item"
+                        :menu="openMenu"
+                        :group="group"
+                        :item="item"
+                        :active="currentActiveKey === item.key"
+                      >
+                        <span
+                          v-if="item.icon"
+                          class="ga-mega-menu__item-icon"
+                          aria-hidden="true"
+                        >
+                          <component
+                            :is="resolveIconComponent(item.icon)"
+                            v-bind="resolveIconProps(item.icon)"
+                          />
+                        </span>
+
+                        <span class="ga-mega-menu__item-content">
+                          <span class="ga-mega-menu__item-label">
+                            {{ item.label }}
+                          </span>
+                          <span
+                            v-if="hasDescription(item)"
+                            class="ga-mega-menu__item-description"
+                          >
+                            {{ item.description }}
+                          </span>
+                        </span>
+                      </slot>
+                    </button>
+                  </li>
+                </ul>
+              </section>
+            </div>
+
+            <div v-else class="ga-mega-menu__empty">
+              <slot name="empty" :menu="openMenu">暂无菜单</slot>
+            </div>
+          </ElScrollbar>
+        </section>
+      </Transition>
+    </Teleport>
+  </nav>
+</template>
+
+<script setup lang="ts">
+import { ElScrollbar } from 'element-plus'
+import {
+  computed,
+  getCurrentInstance,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  toRaw,
+  watch,
+} from 'vue'
+import type { Component, CSSProperties } from 'vue'
+
+import type {
+  GaMegaMenuEmits,
+  GaMegaMenuEmptySlotProps,
+  GaMegaMenuExpose,
+  GaMegaMenuGroup,
+  GaMegaMenuGroupTitleSlotProps,
+  GaMegaMenuIcon,
+  GaMegaMenuIconConfig,
+  GaMegaMenuItem,
+  GaMegaMenuKey,
+  GaMegaMenuMenuItemSlotProps,
+  GaMegaMenuNavItem,
+  GaMegaMenuPanelItemSlotProps,
+  GaMegaMenuProps,
+  GaMegaMenuTheme,
+} from '../types/index'
+
+defineOptions({
+  name: 'GaMegaMenu',
+})
+
+defineSlots<{
+  'menu-item'?: (scope: GaMegaMenuMenuItemSlotProps) => unknown
+  'group-title'?: (scope: GaMegaMenuGroupTitleSlotProps) => unknown
+  'panel-item'?: (scope: GaMegaMenuPanelItemSlotProps) => unknown
+  empty?: (scope: GaMegaMenuEmptySlotProps) => unknown
+}>()
+
+const props = withDefaults(defineProps<GaMegaMenuProps>(), {
+  menus: () => [],
+  activeKey: undefined,
+  openKey: undefined,
+  trigger: 'click',
+  openDelay: 100,
+  closeDelay: 180,
+  minColumnWidth: 240,
+  maxColumnWidth: 420,
+  maxHeight: 'auto',
+  closeOnSelect: true,
+  theme: () => ({}),
+  ariaLabel: '大型菜单导航',
+})
+
+const emit = defineEmits<GaMegaMenuEmits>()
+const instance = getCurrentInstance()
+const rootRef = ref<HTMLElement>()
+const panelRef = ref<HTMLElement>()
+const internalActiveKey = ref<GaMegaMenuKey | undefined>(props.activeKey)
+const internalOpenKey = ref<GaMegaMenuKey | undefined>(props.openKey)
+const panelTop = ref(0)
+const componentId = `ga-mega-menu-${instance?.uid ?? 0}`
+
+let openTimer: ReturnType<typeof setTimeout> | undefined
+let closeTimer: ReturnType<typeof setTimeout> | undefined
+let resizeObserver: ResizeObserver | undefined
+
+const defaultTheme: Required<GaMegaMenuTheme> = {
+  backgroundColor: '#2f436b',
+  textColor: '#ffffff',
+  mutedTextColor: '#b7c4da',
+  itemBackgroundColor: '#3d527c',
+  itemHoverTextColor: '#ffffff',
+  itemHoverBackgroundColor: '#465d89',
+  itemActiveTextColor: '#ffffff',
+  itemActiveBackgroundColor: '#315c96',
+  itemActiveBorderColor: '#4c78b1',
+  panelBackgroundColor: '#2f436b',
+  panelBorderColor: '#415a86',
+  panelShadow: '0 18px 40px rgb(15 31 58 / 28%)',
+  groupTitleColor: '#b7c4da',
+  descriptionColor: '#b7c4da',
+  itemBorderRadius: 14,
+  panelItemBorderRadius: 10,
+  itemGap: 8,
+  itemHorizontalPadding: 24,
+  itemVerticalSpace: 32,
+  iconSize: 26,
+  menuFontSize: 20,
+}
+
+const currentActiveKey = computed(() =>
+  isControlled('activeKey') ? props.activeKey : internalActiveKey.value,
+)
+const currentOpenKey = computed(() =>
+  isControlled('openKey') ? props.openKey : internalOpenKey.value,
+)
+
+const openMenu = computed(() =>
+  props.menus.find(
+    (menu) => menu.key === currentOpenKey.value && hasPanel(menu),
+  ),
+)
+
+const panelGroups = computed(() => openMenu.value?.groups ?? [])
+
+const scrollbarMaxHeight = computed(() =>
+  props.maxHeight === 'auto' ? undefined : props.maxHeight,
+)
+
+const activeMenuKey = computed(() => {
+  const directMenu = props.menus.find(
+    (menu) => menu.key === currentActiveKey.value,
+  )
+  if (directMenu) return directMenu.key
+
+  return props.menus.find((menu) =>
+    menu.groups?.some((group) =>
+      group.items.some((item) => item.key === currentActiveKey.value),
+    ),
+  )?.key
+})
+
+const currentTheme = computed<Required<GaMegaMenuTheme>>(() => {
+  const backgroundColor =
+    props.theme.backgroundColor ?? defaultTheme.backgroundColor
+  const mutedTextColor =
+    props.theme.mutedTextColor ?? defaultTheme.mutedTextColor
+
+  return {
+    ...defaultTheme,
+    ...props.theme,
+    backgroundColor,
+    mutedTextColor,
+    panelBackgroundColor:
+      props.theme.panelBackgroundColor ?? backgroundColor,
+    groupTitleColor: props.theme.groupTitleColor ?? mutedTextColor,
+    descriptionColor: props.theme.descriptionColor ?? mutedTextColor,
+  }
+})
+
+const themeStyle = computed<CSSProperties>(() =>
+  createThemeStyle(currentTheme.value),
+)
+
+const columnStyle = computed<CSSProperties>(() => {
+  const minColumnWidth = normalizePositiveNumber(props.minColumnWidth, 240)
+  const maxColumnWidth = Math.max(
+    normalizePositiveNumber(props.maxColumnWidth, 420),
+    minColumnWidth,
+  )
+
+  return {
+    '--ga-mega-menu-min-column-width': `${minColumnWidth}px`,
+    '--ga-mega-menu-max-column-width': `${maxColumnWidth}px`,
+  }
+})
+
+const rootStyle = computed<CSSProperties>(() => ({
+  ...themeStyle.value,
+  ...columnStyle.value,
+}))
+
+const panelStyle = computed<CSSProperties>(() => ({
+  ...themeStyle.value,
+  ...columnStyle.value,
+  '--ga-mega-menu-panel-top': `${panelTop.value}px`,
+}))
+
+watch(
+  () => props.activeKey,
+  (value) => {
+    internalActiveKey.value = value
+  },
+)
+
+watch(
+  () => props.openKey,
+  (value) => {
+    internalOpenKey.value = value
+  },
+)
+
+watch(currentOpenKey, (value, previousValue) => {
+  void nextTick(updatePanelPosition)
+
+  const previousMenu = menuByKey(previousValue)
+  if (previousValue !== undefined && previousMenu) {
+    emit('close', previousValue, previousMenu)
+  }
+
+  const nextMenu = menuByKey(value)
+  if (value !== undefined && nextMenu) emit('open', value, nextMenu)
+})
+
+watch(() => props.trigger, clearTimers)
+
+function hasPanel(menu: GaMegaMenuNavItem) {
+  return menu.groups !== undefined
+}
+
+function hasDescription(item: GaMegaMenuItem) {
+  return Boolean(item.description?.trim())
+}
+
+function panelId(menu: GaMegaMenuNavItem) {
+  const key = String(menu.key).replace(/[^a-zA-Z0-9_-]/g, '-')
+  return `${componentId}-panel-${key}`
+}
+
+function formatSize(value: string | number) {
+  return typeof value === 'number' ? `${value}px` : value
+}
+
+function normalizePositiveNumber(value: number, fallback: number) {
+  return Number.isFinite(value) ? Math.max(value, 1) : fallback
+}
+
+function optionalSize(value: string | number | undefined) {
+  return value === undefined ? undefined : formatSize(value)
+}
+
+function isControlled(name: 'activeKey' | 'openKey') {
+  const vnodeProps = instance?.vnode.props
+  if (!vnodeProps) return false
+
+  const kebabName = name.replace(/[A-Z]/g, (letter) =>
+    `-${letter.toLowerCase()}`,
+  )
+
+  return [name, kebabName].some((key) =>
+    Object.prototype.hasOwnProperty.call(vnodeProps, key),
+  )
+}
+
+function createThemeStyle(theme: GaMegaMenuTheme): CSSProperties {
+  return {
+    '--ga-mega-menu-bg-color': theme.backgroundColor,
+    '--ga-mega-menu-text-color': theme.textColor,
+    '--ga-mega-menu-muted-text-color': theme.mutedTextColor,
+    '--ga-mega-menu-item-bg-color': theme.itemBackgroundColor,
+    '--ga-mega-menu-item-hover-text-color': theme.itemHoverTextColor,
+    '--ga-mega-menu-item-hover-bg-color': theme.itemHoverBackgroundColor,
+    '--ga-mega-menu-item-active-text-color': theme.itemActiveTextColor,
+    '--ga-mega-menu-item-active-bg-color': theme.itemActiveBackgroundColor,
+    '--ga-mega-menu-item-active-border-color': theme.itemActiveBorderColor,
+    '--ga-mega-menu-panel-bg-color': theme.panelBackgroundColor,
+    '--ga-mega-menu-panel-border-color': theme.panelBorderColor,
+    '--ga-mega-menu-panel-shadow': theme.panelShadow,
+    '--ga-mega-menu-group-title-color': theme.groupTitleColor,
+    '--ga-mega-menu-description-color': theme.descriptionColor,
+    '--ga-mega-menu-item-radius': optionalSize(theme.itemBorderRadius),
+    '--ga-mega-menu-panel-item-radius': optionalSize(
+      theme.panelItemBorderRadius,
+    ),
+    '--ga-mega-menu-item-gap': optionalSize(theme.itemGap),
+    '--ga-mega-menu-item-padding': optionalSize(
+      theme.itemHorizontalPadding,
+    ),
+    '--ga-mega-menu-item-vertical-space': optionalSize(
+      theme.itemVerticalSpace,
+    ),
+    '--ga-mega-menu-icon-size': optionalSize(theme.iconSize),
+    '--ga-mega-menu-font-size': optionalSize(theme.menuFontSize),
+  }
+}
+
+function isIconConfig(icon: GaMegaMenuIcon): icon is GaMegaMenuIconConfig {
+  return typeof icon === 'object' && icon !== null && 'component' in icon
+}
+
+function resolveIconComponent(icon: GaMegaMenuIcon): Component {
+  return toRaw(isIconConfig(icon) ? icon.component : icon)
+}
+
+function resolveIconProps(icon: GaMegaMenuIcon) {
+  return isIconConfig(icon) ? icon.props : undefined
+}
+
+function menuByKey(key: GaMegaMenuKey | undefined) {
+  return props.menus.find((menu) => menu.key === key)
+}
+
+function setActiveKey(key: GaMegaMenuKey) {
+  if (currentActiveKey.value === key) return
+  if (!isControlled('activeKey')) internalActiveKey.value = key
+  emit('update:activeKey', key)
+}
+
+function setOpenKey(key: GaMegaMenuKey | undefined) {
+  if (currentOpenKey.value === key) return
+  if (!isControlled('openKey')) internalOpenKey.value = key
+  emit('update:openKey', key)
+}
+
+function clearOpenTimer() {
+  if (openTimer === undefined) return
+  clearTimeout(openTimer)
+  openTimer = undefined
+}
+
+function clearCloseTimer() {
+  if (closeTimer === undefined) return
+  clearTimeout(closeTimer)
+  closeTimer = undefined
+}
+
+function clearTimers() {
+  clearOpenTimer()
+  clearCloseTimer()
+}
+
+function scheduleOpen(menu: GaMegaMenuNavItem) {
+  clearTimers()
+  const menuKey = menu.key
+  openTimer = setTimeout(() => {
+    const latestMenu = menuByKey(menuKey)
+    if (
+      props.trigger === 'hover' &&
+      latestMenu &&
+      !latestMenu.disabled &&
+      hasPanel(latestMenu)
+    ) {
+      setOpenKey(latestMenu.key)
+    }
+    openTimer = undefined
+  }, Math.max(props.openDelay, 0))
+}
+
+function scheduleClose() {
+  clearTimers()
+  closeTimer = setTimeout(() => {
+    if (props.trigger === 'hover') setOpenKey(undefined)
+    closeTimer = undefined
+  }, Math.max(props.closeDelay, 0))
+}
+
+function handleTopMenuClick(event: MouseEvent, menu: GaMegaMenuNavItem) {
+  if (menu.disabled) return
+  clearTimers()
+
+  if (hasPanel(menu)) {
+    if (props.trigger === 'click') toggle(menu.key)
+    else open(menu.key)
+    return
+  }
+
+  setActiveKey(menu.key)
+  setOpenKey(undefined)
+  emit('select', {
+    key: menu.key,
+    source: 'menu',
+    menu,
+    nativeEvent: event,
+  })
+}
+
+function handleMenuMouseEnter(menu: GaMegaMenuNavItem) {
+  if (props.trigger !== 'hover' || menu.disabled) return
+  if (hasPanel(menu)) scheduleOpen(menu)
+  else scheduleClose()
+}
+
+function handleMenuFocus(menu: GaMegaMenuNavItem) {
+  if (props.trigger !== 'hover' || menu.disabled || !hasPanel(menu)) return
+  clearTimers()
+  setOpenKey(menu.key)
+}
+
+function handleRootMouseLeave() {
+  if (props.trigger === 'hover') scheduleClose()
+}
+
+function handlePanelMouseLeave() {
+  if (props.trigger === 'hover') scheduleClose()
+}
+
+function handlePanelItemClick(
+  event: MouseEvent,
+  item: GaMegaMenuItem,
+  group: GaMegaMenuGroup,
+  menu: GaMegaMenuNavItem,
+) {
+  if (item.disabled) return
+
+  setActiveKey(item.key)
+  const payload = {
+    key: item.key,
+    source: 'panel',
+    menu,
+    group,
+    item,
+    nativeEvent: event,
+  } as const
+
+  if (props.closeOnSelect && currentOpenKey.value !== undefined) {
+    setOpenKey(undefined)
+    void nextTick(() => emit('select', payload))
+    return
+  }
+
+  emit('select', payload)
+}
+
+function open(key: GaMegaMenuKey) {
+  const menu = menuByKey(key)
+  if (!menu || menu.disabled || !hasPanel(menu)) return
+  clearTimers()
+  setOpenKey(key)
+}
+
+function close() {
+  clearTimers()
+  setOpenKey(undefined)
+}
+
+function toggle(key: GaMegaMenuKey) {
+  if (currentOpenKey.value === key) close()
+  else open(key)
+}
+
+function updatePanelPosition() {
+  const bottom = rootRef.value?.getBoundingClientRect().bottom ?? 0
+  panelTop.value = Number.isFinite(bottom) ? Math.max(bottom, 0) : 0
+}
+
+function handleDocumentPointerDown(event: PointerEvent) {
+  const target = event.target
+  if (
+    !(target instanceof Node) ||
+    rootRef.value?.contains(target) ||
+    panelRef.value?.contains(target)
+  ) {
+    return
+  }
+  close()
+}
+
+onMounted(() => {
+  updatePanelPosition()
+  window.addEventListener('resize', updatePanelPosition)
+  window.addEventListener('scroll', updatePanelPosition, true)
+  document.addEventListener('pointerdown', handleDocumentPointerDown)
+
+  if (typeof ResizeObserver !== 'undefined') {
+    resizeObserver = new ResizeObserver(updatePanelPosition)
+    if (rootRef.value) resizeObserver.observe(rootRef.value)
+    if (rootRef.value?.parentElement) {
+      resizeObserver.observe(rootRef.value.parentElement)
+    }
+  }
+})
+
+onBeforeUnmount(() => {
+  clearTimers()
+  resizeObserver?.disconnect()
+  window.removeEventListener('resize', updatePanelPosition)
+  window.removeEventListener('scroll', updatePanelPosition, true)
+  document.removeEventListener('pointerdown', handleDocumentPointerDown)
+})
+
+defineExpose<GaMegaMenuExpose>({
+  open,
+  close,
+  toggle,
+})
+</script>
+
+<style lang="scss">
+@use '../style/index.scss';
+</style>
