@@ -174,7 +174,7 @@ describe('GaPagination', () => {
     expect(wrapper.findComponent(ElPaginationStub).props()).toMatchObject({
       currentPage: 1,
       pageSize: 10,
-      total: 100,
+      total: 0,
       pageSizes: [10, 20, 30, 40, 50],
       size: 'default',
       background: false,

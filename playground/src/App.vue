@@ -6,7 +6,9 @@
     <div class="demo-divider" />
     <TablePaginationDemo /> -->
 
-    <DialogDemo></DialogDemo>
+    <!-- <DialogDemo></DialogDemo> -->
+
+    <MySearchBarDemo></MySearchBarDemo>
   </div>
 </template>
 
@@ -15,7 +17,6 @@ import MegaMenuDemo from './demos/MegaMenuDemo.vue'
 import TablePaginationDemo from './demos/TablePaginationDemo.vue'
 import MySearchBarDemo from './demos/MySearchBarDemo.vue'
 import DialogDemo from './demos/DialogDemo.vue'
-
 </script>
 
 <style scoped>

@@ -747,7 +747,7 @@ const paginationTheme: GaPaginationTheme = {
 | --- | --- | --- | --- |
 | `currentPage` | `number` | `1` | 当前页，支持 `v-model:current-page` |
 | `pageSize` | `number` | `10` | 每页条数，支持 `v-model:page-size` |
-| `total` | `number` | `100` | 总条目数 |
+| `total` | `number` | `0` | 总条目数 |
 | `pageSizes` | `number[]` | `[10, 20, 30, 40, 50]` | 可选的每页条数 |
 | `size` | `ComponentSize` | `'default'` | 分页尺寸 |
 | `layout` | `string` | `'total, sizes, prev, pager, next, jumper'` | 分页布局 |
@@ -986,7 +986,7 @@ function viewUser(row: UserRow) {
 | 主题配置 | `paginationTheme` | 传给内部 `GaPagination` 的实例级颜色主题，支持部分覆盖 |
 | 共享尺寸 | `size` | 同时传给 `GaTable` 与 `GaPagination`；未传时使用子组件默认行为 |
 | 分页模型 | `currentPage`、`pageSize` | 与 `GaPagination` 相同：`1`、`10` |
-| 分页数据 | `total`、`pageSizes` | 与 `GaPagination` 相同：`100`、`[10, 20, 30, 40, 50]` |
+| 分页数据 | `total`、`pageSizes` | 与 `GaPagination` 相同：`0`、`[10, 20, 30, 40, 50]` |
 | 分页外观 | `layout`、`background`、`position` | `layout`、`position` 与 `GaPagination` 相同；`background` 默认为 `true` |
 
 `height` 和 `maxHeight` 被有意排除，不能用于控制内部表格；请通过父容器高度控制整个组合组件。
