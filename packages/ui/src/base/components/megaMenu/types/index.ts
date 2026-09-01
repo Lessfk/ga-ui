@@ -58,7 +58,6 @@ export interface GaMegaMenuTheme {
   menuItemShadow?: string
   menuItemActiveShadow?: string
   panelBackgroundColor?: string
-  panelTextColor?: string
   panelBorderColor?: string
   panelTopBorderColor?: string
   panelShadow?: string

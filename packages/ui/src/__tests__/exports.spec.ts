@@ -218,6 +218,11 @@ const removedMegaMenuTheme: GaMegaMenuTheme = {
   backgroundColor: '#2f436b',
 }
 
+const removedPanelTextColorTheme: GaMegaMenuTheme = {
+  // @ts-expect-error panelTextColor was removed because panel regions own their colors
+  panelTextColor: '#ffffff',
+}
+
 const megaMenuTrigger: GaMegaMenuTrigger = 'hover'
 
 const megaMenuProps: GaMegaMenuProps = {
@@ -362,6 +367,7 @@ void paginationTheme
 void tableTheme
 void megaMenuTheme
 void removedMegaMenuTheme
+void removedPanelTextColorTheme
 void megaMenuTrigger
 void megaMenuProps
 void checkMegaMenuEmits

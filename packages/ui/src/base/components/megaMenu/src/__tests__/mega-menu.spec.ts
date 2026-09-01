@@ -804,6 +804,7 @@ describe('GaMegaMenu', () => {
     )
     expect(megaMenuStyles).not.toContain('--ga-mega-menu-item-bg-color')
     expect(megaMenuStyles).not.toContain('--ga-mega-menu-text-color')
+    expect(megaMenuStyles).not.toContain('--ga-mega-menu-panel-text-color')
   })
 
   it('uses a fixed full-viewport panel without a panelWidth prop', async () => {

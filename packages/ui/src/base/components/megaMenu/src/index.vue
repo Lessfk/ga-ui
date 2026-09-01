@@ -231,7 +231,6 @@ const defaultTheme: Required<GaMegaMenuTheme> = {
   menuItemActiveShadow:
     'inset 0 1px 0 rgb(255 255 255 / 6%), 0 1px 2px rgb(13 29 55 / 22%)',
   panelBackgroundColor: '#2f436b',
-  panelTextColor: '#ffffff',
   panelBorderColor: '#415a86',
   panelTopBorderColor: 'rgb(255 255 255 / 8%)',
   panelShadow: '0 18px 40px rgb(15 31 58 / 28%)',
@@ -447,7 +446,6 @@ function createThemeStyle(theme: GaMegaMenuTheme): CSSProperties {
     '--ga-mega-menu-menu-item-shadow': theme.menuItemShadow,
     '--ga-mega-menu-menu-item-active-shadow': theme.menuItemActiveShadow,
     '--ga-mega-menu-panel-bg-color': theme.panelBackgroundColor,
-    '--ga-mega-menu-panel-text-color': theme.panelTextColor,
     '--ga-mega-menu-panel-border-color': theme.panelBorderColor,
     '--ga-mega-menu-panel-top-border-color': theme.panelTopBorderColor,
     '--ga-mega-menu-panel-shadow': theme.panelShadow,
