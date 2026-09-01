@@ -1331,7 +1331,6 @@ function handleSelect(payload: GaMegaMenuSelectPayload) {
     menuItemHoverBackgroundColor: '#465d89',
     menuItemActiveBackgroundColor: '#315c96',
     panelBackgroundColor: '#f4f7fb',
-    panelTextColor: '#253858',
     panelBorderColor: '#d8e1ed',
     panelGroupTitleColor: '#52657d',
     panelItemTextColor: '#253858',
@@ -1385,7 +1384,6 @@ function handleSelect(payload: GaMegaMenuSelectPayload) {
 | 字段 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `panelBackgroundColor` | `string` | `#2f436b` | 面板背景色 |
-| `panelTextColor` | `string` | `#ffffff` | 面板基础文字颜色 |
 | `panelBorderColor` | `string` | `#415a86` | 面板边框颜色 |
 | `panelTopBorderColor` | `string` | `rgb(255 255 255 / 8%)` | 面板顶部边框颜色 |
 | `panelShadow` | `string` | `0 18px 40px rgb(15 31 58 / 28%)` | 面板阴影 |

@@ -153,7 +153,6 @@ export interface GaMegaMenuTheme {
   menuItemShadow?: string
   menuItemActiveShadow?: string
   panelBackgroundColor?: string
-  panelTextColor?: string
   panelBorderColor?: string
   panelTopBorderColor?: string
   panelShadow?: string
@@ -229,7 +228,6 @@ const defaultTheme: Required<GaMegaMenuTheme> = {
   menuItemActiveShadow:
     'inset 0 1px 0 rgb(255 255 255 / 6%), 0 1px 2px rgb(13 29 55 / 22%)',
   panelBackgroundColor: '#2f436b',
-  panelTextColor: '#ffffff',
   panelBorderColor: '#415a86',
   panelTopBorderColor: 'rgb(255 255 255 / 8%)',
   panelShadow: '0 18px 40px rgb(15 31 58 / 28%)',
@@ -316,7 +314,6 @@ function createThemeStyle(theme: GaMegaMenuTheme): CSSProperties {
     '--ga-mega-menu-menu-item-shadow': theme.menuItemShadow,
     '--ga-mega-menu-menu-item-active-shadow': theme.menuItemActiveShadow,
     '--ga-mega-menu-panel-bg-color': theme.panelBackgroundColor,
-    '--ga-mega-menu-panel-text-color': theme.panelTextColor,
     '--ga-mega-menu-panel-border-color': theme.panelBorderColor,
     '--ga-mega-menu-panel-top-border-color': theme.panelTopBorderColor,
     '--ga-mega-menu-panel-shadow': theme.panelShadow,
@@ -481,7 +478,6 @@ values with these declarations:
 
 ```scss
 &__panel {
-  color: var(--ga-mega-menu-panel-text-color, #ffffff);
   background: var(--ga-mega-menu-panel-bg-color, #2f436b);
   border-color: var(--ga-mega-menu-panel-border-color, #415a86);
   border-top-color: var(--ga-mega-menu-panel-top-border-color, rgb(255 255 255 / 8%));
@@ -635,7 +631,6 @@ ocean: {
   menuItemIconSize: 25,
   menuItemFontSize: 16,
   panelBackgroundColor: '#f4f7fb',
-  panelTextColor: '#253858',
   panelBorderColor: '#d8e1ed',
   panelTopBorderColor: '#d8e1ed',
   panelGroupTitleColor: '#52657d',
