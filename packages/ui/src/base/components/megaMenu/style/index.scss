@@ -3,14 +3,14 @@
   width: 100%;
   min-width: 0;
   height: 100%;
-  color: var(--ga-mega-menu-text-color, #ffffff);
-  background: var(--ga-mega-menu-bg-color, #2f436b);
+  color: var(--ga-mega-menu-menu-item-text-color, #ffffff);
+  background: var(--ga-mega-menu-menu-bg-color, #2f436b);
 
   &__menu {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--ga-mega-menu-item-gap, 8px);
+    gap: var(--ga-mega-menu-menu-gap, 8px);
     width: 100%;
     min-width: 0;
     height: 100%;
@@ -28,23 +28,29 @@
     flex: 0 0 auto;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: var(--ga-mega-menu-menu-item-gap, 10px);
     width: max-content;
-    height: calc(100% - var(--ga-mega-menu-item-vertical-space, 32px));
+    height: calc(
+      100% - var(--ga-mega-menu-menu-item-vertical-space, 32px)
+    );
     min-height: 32px;
-    padding: 0 var(--ga-mega-menu-item-padding, 24px);
+    padding: 0 var(--ga-mega-menu-menu-item-horizontal-padding, 24px);
     box-sizing: border-box;
-    color: var(--ga-mega-menu-text-color, #ffffff);
+    color: var(--ga-mega-menu-menu-item-text-color, #ffffff);
     font: inherit;
-    font-size: var(--ga-mega-menu-font-size, 20px);
-    font-weight: 700;
+    font-size: var(--ga-mega-menu-menu-item-font-size, 20px);
+    font-weight: var(--ga-mega-menu-menu-item-font-weight, 700);
     line-height: 1;
     letter-spacing: 0;
     white-space: nowrap;
-    background: var(--ga-mega-menu-item-bg-color, #3d527c);
-    border: 1px solid transparent;
-    border-radius: var(--ga-mega-menu-item-radius, 14px);
-    box-shadow: 0 1px 1px rgb(15 31 58 / 18%);
+    background: var(--ga-mega-menu-menu-item-bg-color, #3d527c);
+    border: 1px solid
+      var(--ga-mega-menu-menu-item-border-color, transparent);
+    border-radius: var(--ga-mega-menu-menu-item-radius, 14px);
+    box-shadow: var(
+      --ga-mega-menu-menu-item-shadow,
+      0 1px 1px rgb(15 31 58 / 18%)
+    );
     cursor: pointer;
     transition:
       color 160ms ease,
@@ -55,32 +61,55 @@
 
   &__nav-item:hover,
   &__nav-item:focus-visible {
-    color: var(--ga-mega-menu-item-hover-text-color, #ffffff);
-    background: var(--ga-mega-menu-item-hover-bg-color, #465d89);
-    border-color: rgb(255 255 255 / 12%);
+    color: var(--ga-mega-menu-menu-item-hover-text-color, #ffffff);
+    background: var(--ga-mega-menu-menu-item-hover-bg-color, #465d89);
+    border-color: var(
+      --ga-mega-menu-menu-item-hover-border-color,
+      rgb(255 255 255 / 12%)
+    );
   }
 
-  &__nav-item:focus-visible,
+  &__nav-item:focus-visible {
+    outline: 2px solid
+      var(--ga-mega-menu-menu-item-focus-outline-color, #8db7f0);
+    outline-offset: 2px;
+  }
+
   &__item:focus-visible {
-    outline: 2px solid #8db7f0;
+    outline: 2px solid
+      var(--ga-mega-menu-panel-item-focus-outline-color, #8db7f0);
     outline-offset: 2px;
   }
 
   &__nav-item.is-active,
   &__nav-item.is-panel-open {
-    color: var(--ga-mega-menu-item-active-text-color, #ffffff);
-    background: var(--ga-mega-menu-item-active-bg-color, #315c96);
-    border-color: var(--ga-mega-menu-item-active-border-color, #4c78b1);
-    box-shadow:
+    color: var(--ga-mega-menu-menu-item-active-text-color, #ffffff);
+    background: var(--ga-mega-menu-menu-item-active-bg-color, #315c96);
+    border-color: var(
+      --ga-mega-menu-menu-item-active-border-color,
+      #4c78b1
+    );
+    box-shadow: var(
+      --ga-mega-menu-menu-item-active-shadow,
       inset 0 1px 0 rgb(255 255 255 / 6%),
-      0 1px 2px rgb(13 29 55 / 22%);
+      0 1px 2px rgb(13 29 55 / 22%)
+    );
   }
 
   &__nav-item:disabled {
-    color: rgb(255 255 255 / 45%);
+    color: var(
+      --ga-mega-menu-menu-item-disabled-text-color,
+      rgb(255 255 255 / 45%)
+    );
     cursor: not-allowed;
-    background: rgb(255 255 255 / 8%);
-    border-color: transparent;
+    background: var(
+      --ga-mega-menu-menu-item-disabled-bg-color,
+      rgb(255 255 255 / 8%)
+    );
+    border-color: var(
+      --ga-mega-menu-menu-item-disabled-border-color,
+      transparent
+    );
     box-shadow: none;
   }
 
@@ -94,16 +123,20 @@
   }
 
   &__icon {
-    font-size: var(--ga-mega-menu-icon-size, 26px);
+    font-size: var(--ga-mega-menu-menu-item-icon-size, 26px);
   }
 
   &__item-icon {
-    width: 38px;
-    height: 38px;
+    width: var(--ga-mega-menu-panel-item-icon-box-size, 38px);
+    height: var(--ga-mega-menu-panel-item-icon-box-size, 38px);
     align-self: center;
-    font-size: 20px;
-    background: rgb(255 255 255 / 8%);
-    border-radius: calc(var(--ga-mega-menu-panel-item-radius, 10px) - 2px);
+    color: var(--ga-mega-menu-panel-item-icon-color, #ffffff);
+    font-size: var(--ga-mega-menu-panel-item-icon-size, 20px);
+    background: var(
+      --ga-mega-menu-panel-item-icon-bg-color,
+      rgb(255 255 255 / 8%)
+    );
+    border-radius: var(--ga-mega-menu-panel-item-icon-radius, 8px);
   }
 
   &__icon > *,
@@ -120,13 +153,13 @@
     width: 100vw;
     overflow: hidden;
     box-sizing: border-box;
-    color: var(--ga-mega-menu-text-color, #ffffff);
-    background: var(
-      --ga-mega-menu-panel-bg-color,
-      var(--ga-mega-menu-bg-color, #2f436b)
-    );
+    color: var(--ga-mega-menu-panel-text-color, #ffffff);
+    background: var(--ga-mega-menu-panel-bg-color, #2f436b);
     border: 1px solid var(--ga-mega-menu-panel-border-color, #415a86);
-    border-top-color: rgb(255 255 255 / 8%);
+    border-top-color: var(
+      --ga-mega-menu-panel-top-border-color,
+      rgb(255 255 255 / 8%)
+    );
     box-shadow: var(
       --ga-mega-menu-panel-shadow,
       0 18px 40px rgb(15 31 58 / 28%)
@@ -136,8 +169,8 @@
   &__grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 24px;
-    padding: 24px;
+    gap: var(--ga-mega-menu-panel-gap, 24px);
+    padding: var(--ga-mega-menu-panel-padding, 24px);
   }
 
   &__group {
@@ -147,21 +180,19 @@
   }
 
   &__group-title {
-    margin: 0 0 10px;
-    padding: 0 12px;
-    color: var(
-      --ga-mega-menu-group-title-color,
-      var(--ga-mega-menu-muted-text-color, #b7c4da)
-    );
-    font-size: 13px;
-    font-weight: 600;
+    margin: 0 0 var(--ga-mega-menu-panel-group-title-margin-bottom, 10px);
+    padding: 0
+      var(--ga-mega-menu-panel-group-title-horizontal-padding, 12px);
+    color: var(--ga-mega-menu-panel-group-title-color, #b7c4da);
+    font-size: var(--ga-mega-menu-panel-group-title-font-size, 13px);
+    font-weight: var(--ga-mega-menu-panel-group-title-font-weight, 600);
     line-height: 20px;
     letter-spacing: 0;
   }
 
   &__list {
     display: grid;
-    gap: 8px;
+    gap: var(--ga-mega-menu-panel-item-list-gap, 8px);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -170,16 +201,17 @@
   &__item {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
+    gap: var(--ga-mega-menu-panel-item-gap, 12px);
     width: 100%;
-    min-height: 64px;
-    padding: 12px;
+    min-height: var(--ga-mega-menu-panel-item-min-height, 64px);
+    padding: var(--ga-mega-menu-panel-item-padding, 12px);
     box-sizing: border-box;
-    color: var(--ga-mega-menu-text-color, #ffffff);
+    color: var(--ga-mega-menu-panel-item-text-color, #ffffff);
     font: inherit;
     text-align: left;
-    background: var(--ga-mega-menu-item-bg-color, #3d527c);
-    border: 1px solid transparent;
+    background: var(--ga-mega-menu-panel-item-bg-color, #3d527c);
+    border: 1px solid
+      var(--ga-mega-menu-panel-item-border-color, transparent);
     border-radius: var(--ga-mega-menu-panel-item-radius, 10px);
     cursor: pointer;
     transition:
@@ -190,9 +222,12 @@
 
   &__item:hover,
   &__item:focus-visible {
-    color: var(--ga-mega-menu-item-hover-text-color, #ffffff);
-    background: var(--ga-mega-menu-item-hover-bg-color, #465d89);
-    border-color: rgb(255 255 255 / 12%);
+    color: var(--ga-mega-menu-panel-item-hover-text-color, #ffffff);
+    background: var(--ga-mega-menu-panel-item-hover-bg-color, #465d89);
+    border-color: var(
+      --ga-mega-menu-panel-item-hover-border-color,
+      rgb(255 255 255 / 12%)
+    );
   }
 
   &__item.is-label-only {
@@ -200,17 +235,29 @@
   }
 
   &__item.is-active {
-    color: var(--ga-mega-menu-item-active-text-color, #ffffff);
-    background: var(--ga-mega-menu-item-active-bg-color, #315c96);
-    border-color: var(--ga-mega-menu-item-active-border-color, #4c78b1);
+    color: var(--ga-mega-menu-panel-item-active-text-color, #ffffff);
+    background: var(--ga-mega-menu-panel-item-active-bg-color, #315c96);
+    border-color: var(
+      --ga-mega-menu-panel-item-active-border-color,
+      #4c78b1
+    );
   }
 
   &__item:disabled,
   &__item.is-disabled {
-    color: rgb(255 255 255 / 42%);
+    color: var(
+      --ga-mega-menu-panel-item-disabled-text-color,
+      rgb(255 255 255 / 42%)
+    );
     cursor: not-allowed;
-    background: rgb(255 255 255 / 6%);
-    border-color: transparent;
+    background: var(
+      --ga-mega-menu-panel-item-disabled-bg-color,
+      rgb(255 255 255 / 6%)
+    );
+    border-color: var(
+      --ga-mega-menu-panel-item-disabled-border-color,
+      transparent
+    );
   }
 
   &__item-content {
@@ -222,8 +269,8 @@
 
   &__item-label {
     overflow: hidden;
-    font-size: 14px;
-    font-weight: 700;
+    font-size: var(--ga-mega-menu-panel-item-label-font-size, 14px);
+    font-weight: var(--ga-mega-menu-panel-item-label-font-weight, 700);
     line-height: 22px;
     letter-spacing: 0;
     text-overflow: ellipsis;
@@ -234,20 +281,20 @@
     display: -webkit-box;
     margin-top: 2px;
     overflow: hidden;
-    color: var(
-      --ga-mega-menu-description-color,
-      var(--ga-mega-menu-muted-text-color, #b7c4da)
+    color: var(--ga-mega-menu-panel-item-description-color, #b7c4da);
+    font-size: var(--ga-mega-menu-panel-item-description-font-size, 12px);
+    line-height: var(
+      --ga-mega-menu-panel-item-description-line-height,
+      18px
     );
-    font-size: 12px;
-    line-height: 18px;
     letter-spacing: 0;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
   }
 
   &__empty {
-    padding: 48px 24px;
-    color: var(--ga-mega-menu-muted-text-color, #b7c4da);
+    padding: var(--ga-mega-menu-panel-empty-padding, 48px 24px);
+    color: var(--ga-mega-menu-panel-empty-text-color, #b7c4da);
     text-align: center;
   }
 }

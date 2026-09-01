@@ -759,6 +759,53 @@ describe('GaMegaMenu', () => {
     )
   })
 
+  it('styles menu and panel regions with independent CSS variables', () => {
+    expect(megaMenuStyles).toContain(
+      'var(--ga-mega-menu-menu-bg-color',
+    )
+    expect(megaMenuStyles).toContain(
+      'var(--ga-mega-menu-menu-item-bg-color',
+    )
+    expect(megaMenuStyles).toContain(
+      'var(--ga-mega-menu-menu-item-hover-bg-color',
+    )
+    expect(megaMenuStyles).toContain(
+      'var(--ga-mega-menu-menu-item-active-bg-color',
+    )
+    expect(megaMenuStyles).toMatch(
+      /var\(\s*--ga-mega-menu-menu-item-disabled-bg-color/,
+    )
+    expect(megaMenuStyles).toContain(
+      'var(--ga-mega-menu-menu-item-focus-outline-color',
+    )
+    expect(megaMenuStyles).toContain(
+      'var(--ga-mega-menu-panel-bg-color',
+    )
+    expect(megaMenuStyles).toContain(
+      'var(--ga-mega-menu-panel-item-bg-color',
+    )
+    expect(megaMenuStyles).toContain(
+      'var(--ga-mega-menu-panel-item-hover-bg-color',
+    )
+    expect(megaMenuStyles).toContain(
+      'var(--ga-mega-menu-panel-item-active-bg-color',
+    )
+    expect(megaMenuStyles).toMatch(
+      /var\(\s*--ga-mega-menu-panel-item-disabled-bg-color/,
+    )
+    expect(megaMenuStyles).toContain(
+      'var(--ga-mega-menu-panel-item-focus-outline-color',
+    )
+    expect(megaMenuStyles).toMatch(
+      /var\(\s*--ga-mega-menu-panel-item-icon-bg-color/,
+    )
+    expect(megaMenuStyles).toContain(
+      'var(--ga-mega-menu-panel-empty-padding',
+    )
+    expect(megaMenuStyles).not.toContain('--ga-mega-menu-item-bg-color')
+    expect(megaMenuStyles).not.toContain('--ga-mega-menu-text-color')
+  })
+
   it('uses a fixed full-viewport panel without a panelWidth prop', async () => {
     const component = await loadMegaMenu()
     const runtimeProps =
@@ -773,6 +820,9 @@ describe('GaMegaMenu', () => {
   })
 
   it('inherits root and menu height without fixed 64px minimums', () => {
-    expect(megaMenuStyles.match(/min-height:\s*64px;/g)).toHaveLength(1)
+    expect(megaMenuStyles).not.toMatch(/min-height:\s*64px;/)
+    expect(megaMenuStyles).toContain(
+      'min-height: var(--ga-mega-menu-panel-item-min-height, 64px)',
+    )
   })
 })
