@@ -205,10 +205,17 @@ const tableTheme: GaTableTheme = {
 }
 
 const megaMenuTheme: GaMegaMenuTheme = {
+  menuBackgroundColor: '#2f436b',
+  menuItemActiveBackgroundColor: '#315c96',
+  menuItemBorderRadius: 14,
+  panelBackgroundColor: '#f8fafc',
+  panelItemTextColor: '#1e293b',
+  panelItemBackgroundColor: '#ffffff',
+}
+
+const removedMegaMenuTheme: GaMegaMenuTheme = {
+  // @ts-expect-error shared backgroundColor was removed by the split theme API
   backgroundColor: '#2f436b',
-  itemActiveBackgroundColor: '#315c96',
-  panelBackgroundColor: '#2f436b',
-  itemBorderRadius: 14,
 }
 
 const megaMenuTrigger: GaMegaMenuTrigger = 'hover'
@@ -354,6 +361,7 @@ void legacyTablePaginationProps
 void paginationTheme
 void tableTheme
 void megaMenuTheme
+void removedMegaMenuTheme
 void megaMenuTrigger
 void megaMenuProps
 void checkMegaMenuEmits

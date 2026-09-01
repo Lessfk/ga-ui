@@ -1263,6 +1263,213 @@ const fields: GaSearchField[] = [
 
 内部表单使用组件维护的 draft 值；调用暴露方法时应在组件挂载后执行。
 
+## GaMegaMenu
+
+`GaMegaMenu` 是面向 PC 端头部导航的大型菜单组件。一级菜单使用原生按钮渲染，包含分组数据的菜单可以通过 `click` 或 `hover` 打开 Teleport 到 `body` 的二级面板。一级菜单和二级面板使用完全独立的主题字段，未传入的字段会继续使用组件默认的深海蓝样式。
+
+### 基础用法
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import type {
+  GaMegaMenuKey,
+  GaMegaMenuNavItem,
+  GaMegaMenuSelectPayload,
+} from 'ga-ui-plus'
+
+const activeKey = ref<GaMegaMenuKey>('overview')
+const openKey = ref<GaMegaMenuKey>()
+
+const menus: GaMegaMenuNavItem[] = [
+  { key: 'overview', label: '工作台' },
+  {
+    key: 'system',
+    label: '系统管理',
+    groups: [
+      {
+        key: 'organization',
+        title: '组织管理',
+        items: [
+          { key: 'users', label: '用户管理', description: '维护用户与状态' },
+          { key: 'roles', label: '角色管理', description: '配置角色权限' },
+        ],
+      },
+    ],
+  },
+]
+
+function handleSelect(payload: GaMegaMenuSelectPayload) {
+  console.log(payload.key, payload.source)
+}
+</script>
+
+<template>
+  <GaMegaMenu
+    v-model:active-key="activeKey"
+    v-model:open-key="openKey"
+    :menus="menus"
+    trigger="click"
+    @select="handleSelect"
+  />
+</template>
+```
+
+`menus` 中没有 `groups` 的一级菜单会直接触发选择；包含 `groups` 的菜单用于打开面板。`select` 事件统一返回 `{ key, source, menu, group?, item?, nativeEvent }`，其中 `source` 为 `menu` 或 `panel`。
+
+### 分区主题
+
+一级菜单使用 `menu*`、`menuItem*` 字段，二级面板使用 `panel*`、`panelGroupTitle*`、`panelItem*`、`panelEmpty*` 字段。两部分不会互相回退，可以组合成深色导航与浅色面板：
+
+```vue
+<GaMegaMenu
+  :menus="menus"
+  :theme="{
+    menuBackgroundColor: '#2f436b',
+    menuItemTextColor: '#ffffff',
+    menuItemBackgroundColor: '#3d527c',
+    menuItemHoverBackgroundColor: '#465d89',
+    menuItemActiveBackgroundColor: '#315c96',
+    panelBackgroundColor: '#f4f7fb',
+    panelTextColor: '#253858',
+    panelBorderColor: '#d8e1ed',
+    panelGroupTitleColor: '#52657d',
+    panelItemTextColor: '#253858',
+    panelItemBackgroundColor: '#ffffff',
+    panelItemHoverBackgroundColor: '#eaf2ff',
+    panelItemDescriptionColor: '#66788e',
+    panelItemIconColor: '#315c96',
+    panelItemIconBackgroundColor: '#e6eef8',
+  }"
+/>
+```
+
+所有主题字段均为可选。尺寸、间距、圆角和行高字段接收 `string | number`；数字会转换为 `px`，字符串会原样作为 CSS 值使用。
+
+#### 一级菜单容器
+
+| 字段 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `menuBackgroundColor` | `string` | `#2f436b` | 一级菜单容器背景色 |
+| `menuGap` | `string \| number` | `8px` | 一级菜单项之间的间距 |
+
+#### 一级菜单项
+
+| 字段 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `menuItemTextColor` | `string` | `#ffffff` | 默认文字颜色 |
+| `menuItemBackgroundColor` | `string` | `#3d527c` | 默认背景色 |
+| `menuItemBorderColor` | `string` | `transparent` | 默认边框颜色 |
+| `menuItemHoverTextColor` | `string` | `#ffffff` | 悬停文字颜色 |
+| `menuItemHoverBackgroundColor` | `string` | `#465d89` | 悬停背景色 |
+| `menuItemHoverBorderColor` | `string` | `rgb(255 255 255 / 12%)` | 悬停边框颜色 |
+| `menuItemActiveTextColor` | `string` | `#ffffff` | 激活文字颜色 |
+| `menuItemActiveBackgroundColor` | `string` | `#315c96` | 激活背景色 |
+| `menuItemActiveBorderColor` | `string` | `#4c78b1` | 激活边框颜色 |
+| `menuItemDisabledTextColor` | `string` | `rgb(255 255 255 / 45%)` | 禁用文字颜色 |
+| `menuItemDisabledBackgroundColor` | `string` | `rgb(255 255 255 / 8%)` | 禁用背景色 |
+| `menuItemDisabledBorderColor` | `string` | `transparent` | 禁用边框颜色 |
+| `menuItemFocusOutlineColor` | `string` | `#8db7f0` | 键盘聚焦轮廓颜色 |
+| `menuItemFontSize` | `string \| number` | `20px` | 字体大小 |
+| `menuItemFontWeight` | `string \| number` | `700` | 字重 |
+| `menuItemIconSize` | `string \| number` | `26px` | 图标大小 |
+| `menuItemGap` | `string \| number` | `10px` | 图标与文字间距 |
+| `menuItemHorizontalPadding` | `string \| number` | `24px` | 水平内边距 |
+| `menuItemVerticalSpace` | `string \| number` | `32px` | 菜单项相对容器高度预留的垂直空间 |
+| `menuItemBorderRadius` | `string \| number` | `14px` | 圆角 |
+| `menuItemShadow` | `string` | `0 1px 1px rgb(15 31 58 / 18%)` | 默认阴影 |
+| `menuItemActiveShadow` | `string` | `inset 0 1px 0 rgb(255 255 255 / 6%), 0 1px 2px rgb(13 29 55 / 22%)` | 激活阴影 |
+
+#### 二级面板容器
+
+| 字段 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `panelBackgroundColor` | `string` | `#2f436b` | 面板背景色 |
+| `panelTextColor` | `string` | `#ffffff` | 面板基础文字颜色 |
+| `panelBorderColor` | `string` | `#415a86` | 面板边框颜色 |
+| `panelTopBorderColor` | `string` | `rgb(255 255 255 / 8%)` | 面板顶部边框颜色 |
+| `panelShadow` | `string` | `0 18px 40px rgb(15 31 58 / 28%)` | 面板阴影 |
+| `panelPadding` | `string \| number` | `24px` | 面板内容内边距 |
+| `panelGap` | `string \| number` | `24px` | 分组列之间的间距 |
+
+#### 二级分组标题
+
+| 字段 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `panelGroupTitleColor` | `string` | `#b7c4da` | 分组标题颜色 |
+| `panelGroupTitleFontSize` | `string \| number` | `13px` | 分组标题字体大小 |
+| `panelGroupTitleFontWeight` | `string \| number` | `600` | 分组标题字重 |
+| `panelGroupTitleMarginBottom` | `string \| number` | `10px` | 分组标题下外边距 |
+| `panelGroupTitleHorizontalPadding` | `string \| number` | `12px` | 分组标题水平内边距 |
+
+#### 二级菜单项
+
+| 字段 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `panelItemTextColor` | `string` | `#ffffff` | 默认文字颜色 |
+| `panelItemBackgroundColor` | `string` | `#3d527c` | 默认背景色 |
+| `panelItemBorderColor` | `string` | `transparent` | 默认边框颜色 |
+| `panelItemHoverTextColor` | `string` | `#ffffff` | 悬停文字颜色 |
+| `panelItemHoverBackgroundColor` | `string` | `#465d89` | 悬停背景色 |
+| `panelItemHoverBorderColor` | `string` | `rgb(255 255 255 / 12%)` | 悬停边框颜色 |
+| `panelItemActiveTextColor` | `string` | `#ffffff` | 激活文字颜色 |
+| `panelItemActiveBackgroundColor` | `string` | `#315c96` | 激活背景色 |
+| `panelItemActiveBorderColor` | `string` | `#4c78b1` | 激活边框颜色 |
+| `panelItemDisabledTextColor` | `string` | `rgb(255 255 255 / 42%)` | 禁用文字颜色 |
+| `panelItemDisabledBackgroundColor` | `string` | `rgb(255 255 255 / 6%)` | 禁用背景色 |
+| `panelItemDisabledBorderColor` | `string` | `transparent` | 禁用边框颜色 |
+| `panelItemFocusOutlineColor` | `string` | `#8db7f0` | 键盘聚焦轮廓颜色 |
+| `panelItemBorderRadius` | `string \| number` | `10px` | 菜单项圆角 |
+| `panelItemMinHeight` | `string \| number` | `64px` | 菜单项最小高度 |
+| `panelItemPadding` | `string \| number` | `12px` | 菜单项内边距 |
+| `panelItemGap` | `string \| number` | `12px` | 图标与内容间距 |
+| `panelItemListGap` | `string \| number` | `8px` | 同一分组内菜单项间距 |
+| `panelItemLabelFontSize` | `string \| number` | `14px` | 标签字体大小 |
+| `panelItemLabelFontWeight` | `string \| number` | `700` | 标签字重 |
+| `panelItemDescriptionColor` | `string` | `#b7c4da` | 描述文字颜色 |
+| `panelItemDescriptionFontSize` | `string \| number` | `12px` | 描述字体大小 |
+| `panelItemDescriptionLineHeight` | `string \| number` | `18px` | 描述行高 |
+| `panelItemIconColor` | `string` | `#ffffff` | 图标颜色 |
+| `panelItemIconSize` | `string \| number` | `20px` | 图标大小 |
+| `panelItemIconBoxSize` | `string \| number` | `38px` | 图标容器宽高 |
+| `panelItemIconBackgroundColor` | `string` | `rgb(255 255 255 / 8%)` | 图标容器背景色 |
+| `panelItemIconBorderRadius` | `string \| number` | `8px` | 图标容器圆角 |
+
+#### 空状态
+
+| 字段 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `panelEmptyTextColor` | `string` | `#b7c4da` | 空状态文字颜色 |
+| `panelEmptyPadding` | `string \| number` | `48px 24px` | 空状态内边距 |
+
+### 破坏性迁移
+
+旧版共享字段已移除，不再提供兼容回退。升级后需要明确选择一级菜单或二级面板对应字段：
+
+```ts
+// 旧版：一级菜单与二级菜单项共用样式
+const oldTheme = {
+  backgroundColor: '#2f436b',
+  textColor: '#ffffff',
+  itemBackgroundColor: '#3d527c',
+  itemActiveBackgroundColor: '#315c96',
+}
+
+// 新版：两个区域可以完全独立
+const theme = {
+  menuBackgroundColor: '#2f436b',
+  menuItemTextColor: '#ffffff',
+  menuItemBackgroundColor: '#3d527c',
+  menuItemActiveBackgroundColor: '#315c96',
+  panelBackgroundColor: '#f4f7fb',
+  panelItemTextColor: '#253858',
+  panelItemBackgroundColor: '#ffffff',
+  panelItemActiveBackgroundColor: '#dceaff',
+}
+```
+
+二级面板通过 Teleport 渲染到 `body`，组件会把当前实例解析后的完整主题变量同时绑定到导航根节点和弹出面板，因此不需要在全局样式中重复声明变量，多个 `GaMegaMenu` 实例也可以使用不同主题。
+
 ## GaAsideMenu
 
 `GaAsideMenu` 由 Element Plus 的 `ElAside`、`ElScrollbar` 与 `ElMenu` 组合而成。菜单固定为纵向模式，默认插槽可以直接放置原生 `ElSubMenu`、`ElMenuItem` 与 `ElMenuItemGroup`，因此 Element Plus 菜单的插槽、图标和路由能力都可以继续使用。`theme` 可统一配置侧栏、菜单项及折叠弹出层的主题颜色。
