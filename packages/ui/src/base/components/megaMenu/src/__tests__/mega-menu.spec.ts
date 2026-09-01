@@ -321,8 +321,8 @@ describe('GaMegaMenu', () => {
         minColumnWidth: 360,
         maxColumnWidth: 390,
         theme: {
-          backgroundColor: '#10233f',
-          mutedTextColor: '#a7b8d2',
+          menuBackgroundColor: '#10233f',
+          panelBackgroundColor: '#182d4d',
         },
       },
     })
@@ -332,8 +332,8 @@ describe('GaMegaMenu', () => {
       .get('.ga-mega-menu__panel')
       .attributes('style')
 
-    expect(panelStyle).toContain('--ga-mega-menu-bg-color: #10233f')
-    expect(panelStyle).toContain('--ga-mega-menu-panel-bg-color: #10233f')
+    expect(panelStyle).toContain('--ga-mega-menu-menu-bg-color: #10233f')
+    expect(panelStyle).toContain('--ga-mega-menu-panel-bg-color: #182d4d')
     expect(panelStyle).toContain(
       '--ga-mega-menu-min-column-width: 360px',
     )
@@ -476,22 +476,122 @@ describe('GaMegaMenu', () => {
     const wrapper = await mountMegaMenu({
       props: {
         theme: {
-          backgroundColor: '#14213d',
-          itemActiveBackgroundColor: '#2563eb',
-          itemBorderRadius: 12,
-          iconSize: '24px',
-          menuFontSize: 18,
+          menuBackgroundColor: '#14213d',
+          menuItemActiveBackgroundColor: '#2563eb',
+          menuItemBorderRadius: 12,
+          menuItemIconSize: '24px',
+          menuItemFontSize: 18,
         },
       },
     })
     if (!wrapper) return
 
     const style = wrapper.get('.ga-mega-menu').attributes('style')
-    expect(style).toContain('--ga-mega-menu-bg-color: #14213d')
-    expect(style).toContain('--ga-mega-menu-item-active-bg-color: #2563eb')
-    expect(style).toContain('--ga-mega-menu-item-radius: 12px')
-    expect(style).toContain('--ga-mega-menu-icon-size: 24px')
-    expect(style).toContain('--ga-mega-menu-font-size: 18px')
+    expect(style).toContain('--ga-mega-menu-menu-bg-color: #14213d')
+    expect(style).toContain(
+      '--ga-mega-menu-menu-item-active-bg-color: #2563eb',
+    )
+    expect(style).toContain('--ga-mega-menu-menu-item-radius: 12px')
+    expect(style).toContain('--ga-mega-menu-menu-item-icon-size: 24px')
+    expect(style).toContain('--ga-mega-menu-menu-item-font-size: 18px')
+  })
+
+  it('maps independent menu and panel theme values to region variables', async () => {
+    const wrapper = await mountMegaMenu({
+      props: {
+        openKey: 'system',
+        theme: {
+          menuBackgroundColor: '#10233f',
+          menuItemBackgroundColor: '#18385f',
+          menuItemHoverBackgroundColor: '#24517f',
+          menuItemActiveBackgroundColor: '#2563eb',
+          menuItemDisabledBackgroundColor: '#24364f',
+          menuItemFocusOutlineColor: '#93c5fd',
+          menuItemFontSize: 18,
+          menuItemFontWeight: 600,
+          menuItemIconSize: '1.5rem',
+          panelBackgroundColor: '#f8fafc',
+          panelGroupTitleColor: '#475569',
+          panelItemTextColor: '#1e293b',
+          panelItemBackgroundColor: '#ffffff',
+          panelItemHoverBackgroundColor: '#eff6ff',
+          panelItemActiveBackgroundColor: '#dbeafe',
+          panelItemDisabledBackgroundColor: '#f1f5f9',
+          panelItemFocusOutlineColor: '#2563eb',
+          panelItemLabelFontSize: 15,
+          panelItemDescriptionColor: '#64748b',
+          panelItemIconBackgroundColor: '#e2e8f0',
+          panelEmptyTextColor: '#64748b',
+        },
+      },
+    })
+    if (!wrapper) return
+
+    const rootStyle = wrapper.get('.ga-mega-menu').attributes('style')
+    const panelStyle = wrapper.get('.ga-mega-menu__panel').attributes('style')
+
+    expect(rootStyle).toContain('--ga-mega-menu-menu-bg-color: #10233f')
+    expect(rootStyle).toContain(
+      '--ga-mega-menu-menu-item-bg-color: #18385f',
+    )
+    expect(rootStyle).toContain(
+      '--ga-mega-menu-menu-item-font-size: 18px',
+    )
+    expect(rootStyle).toContain(
+      '--ga-mega-menu-menu-item-font-weight: 600',
+    )
+    expect(rootStyle).toContain(
+      '--ga-mega-menu-menu-item-icon-size: 1.5rem',
+    )
+    expect(panelStyle).toContain('--ga-mega-menu-panel-bg-color: #f8fafc')
+    expect(panelStyle).toContain(
+      '--ga-mega-menu-panel-item-text-color: #1e293b',
+    )
+    expect(panelStyle).toContain(
+      '--ga-mega-menu-panel-item-bg-color: #ffffff',
+    )
+    expect(panelStyle).toContain(
+      '--ga-mega-menu-panel-item-label-font-size: 15px',
+    )
+    expect(panelStyle).toContain(
+      '--ga-mega-menu-panel-item-description-color: #64748b',
+    )
+  })
+
+  it('keeps panel defaults when only menu values are overridden', async () => {
+    const wrapper = await mountMegaMenu({
+      props: {
+        theme: {
+          menuBackgroundColor: '#111827',
+          menuItemBackgroundColor: '#1f2937',
+        },
+      },
+    })
+    if (!wrapper) return
+
+    const style = wrapper.get('.ga-mega-menu').attributes('style')
+    expect(style).toContain('--ga-mega-menu-menu-bg-color: #111827')
+    expect(style).toContain('--ga-mega-menu-menu-item-bg-color: #1f2937')
+    expect(style).toContain('--ga-mega-menu-panel-bg-color: #2f436b')
+    expect(style).toContain('--ga-mega-menu-panel-item-bg-color: #3d527c')
+  })
+
+  it('keeps menu defaults when only panel values are overridden', async () => {
+    const wrapper = await mountMegaMenu({
+      props: {
+        theme: {
+          panelBackgroundColor: '#ffffff',
+          panelItemBackgroundColor: '#f8fafc',
+        },
+      },
+    })
+    if (!wrapper) return
+
+    const style = wrapper.get('.ga-mega-menu').attributes('style')
+    expect(style).toContain('--ga-mega-menu-menu-bg-color: #2f436b')
+    expect(style).toContain('--ga-mega-menu-menu-item-bg-color: #3d527c')
+    expect(style).toContain('--ga-mega-menu-panel-bg-color: #ffffff')
+    expect(style).toContain('--ga-mega-menu-panel-item-bg-color: #f8fafc')
   })
 
   it('uses the complete default theme when theme is not provided', async () => {
@@ -502,61 +602,27 @@ describe('GaMegaMenu', () => {
     })
 
     const style = wrapper?.get('.ga-mega-menu').attributes('style') ?? ''
-    expect(style).toContain('--ga-mega-menu-bg-color: #2f436b')
-    expect(style).toContain('--ga-mega-menu-text-color: #ffffff')
-    expect(style).toContain('--ga-mega-menu-font-size: 20px')
+    expect(style).toContain('--ga-mega-menu-menu-bg-color: #2f436b')
+    expect(style).toContain('--ga-mega-menu-menu-item-text-color: #ffffff')
+    expect(style).toContain('--ga-mega-menu-menu-item-font-size: 20px')
+    expect(style).toContain('--ga-mega-menu-panel-item-bg-color: #3d527c')
   })
 
   it('keeps default values when a partial theme is provided', async () => {
     const wrapper = await mountMegaMenu({
       props: {
         theme: {
-          menuFontSize: '1.125rem',
+          menuItemFontSize: '1.125rem',
         },
       },
     })
     if (!wrapper) return
 
     const style = wrapper.get('.ga-mega-menu').attributes('style')
-    expect(style).toContain('--ga-mega-menu-bg-color: #2f436b')
-    expect(style).toContain('--ga-mega-menu-font-size: 1.125rem')
-  })
-
-  it('inherits dependent panel colors from partial semantic theme values', async () => {
-    const wrapper = await mountMegaMenu({
-      props: {
-        theme: {
-          backgroundColor: '#10233f',
-          mutedTextColor: '#a7b8d2',
-        },
-      },
-    })
-    if (!wrapper) return
-
-    const style = wrapper.get('.ga-mega-menu').attributes('style')
-    expect(style).toContain('--ga-mega-menu-panel-bg-color: #10233f')
-    expect(style).toContain('--ga-mega-menu-group-title-color: #a7b8d2')
-    expect(style).toContain('--ga-mega-menu-description-color: #a7b8d2')
-  })
-
-  it('uses specific panel color overrides instead of semantic fallbacks', async () => {
-    const wrapper = await mountMegaMenu({
-      props: {
-        theme: {
-          backgroundColor: '#10233f',
-          mutedTextColor: '#a7b8d2',
-          panelBackgroundColor: '#182d4d',
-          groupTitleColor: '#d7e1ef',
-          descriptionColor: '#c5d1e3',
-        },
-      },
-    })
-    if (!wrapper) return
-
-    const style = wrapper.get('.ga-mega-menu').attributes('style')
-    expect(style).toContain('--ga-mega-menu-panel-bg-color: #182d4d')
-    expect(style).toContain('--ga-mega-menu-group-title-color: #d7e1ef')
-    expect(style).toContain('--ga-mega-menu-description-color: #c5d1e3')
+    expect(style).toContain('--ga-mega-menu-menu-bg-color: #2f436b')
+    expect(style).toContain(
+      '--ga-mega-menu-menu-item-font-size: 1.125rem',
+    )
   })
 
   it('allows menu and panel item content to be customized with slots', async () => {

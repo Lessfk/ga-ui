@@ -205,27 +205,73 @@ let closeTimer: ReturnType<typeof setTimeout> | undefined
 let resizeObserver: ResizeObserver | undefined
 
 const defaultTheme: Required<GaMegaMenuTheme> = {
-  backgroundColor: '#2f436b',
-  textColor: '#ffffff',
-  mutedTextColor: '#b7c4da',
-  itemBackgroundColor: '#3d527c',
-  itemHoverTextColor: '#ffffff',
-  itemHoverBackgroundColor: '#465d89',
-  itemActiveTextColor: '#ffffff',
-  itemActiveBackgroundColor: '#315c96',
-  itemActiveBorderColor: '#4c78b1',
+  menuBackgroundColor: '#2f436b',
+  menuGap: 8,
+  menuItemTextColor: '#ffffff',
+  menuItemBackgroundColor: '#3d527c',
+  menuItemBorderColor: 'transparent',
+  menuItemHoverTextColor: '#ffffff',
+  menuItemHoverBackgroundColor: '#465d89',
+  menuItemHoverBorderColor: 'rgb(255 255 255 / 12%)',
+  menuItemActiveTextColor: '#ffffff',
+  menuItemActiveBackgroundColor: '#315c96',
+  menuItemActiveBorderColor: '#4c78b1',
+  menuItemDisabledTextColor: 'rgb(255 255 255 / 45%)',
+  menuItemDisabledBackgroundColor: 'rgb(255 255 255 / 8%)',
+  menuItemDisabledBorderColor: 'transparent',
+  menuItemFocusOutlineColor: '#8db7f0',
+  menuItemFontSize: 20,
+  menuItemFontWeight: 700,
+  menuItemIconSize: 26,
+  menuItemGap: 10,
+  menuItemHorizontalPadding: 24,
+  menuItemVerticalSpace: 32,
+  menuItemBorderRadius: 14,
+  menuItemShadow: '0 1px 1px rgb(15 31 58 / 18%)',
+  menuItemActiveShadow:
+    'inset 0 1px 0 rgb(255 255 255 / 6%), 0 1px 2px rgb(13 29 55 / 22%)',
   panelBackgroundColor: '#2f436b',
+  panelTextColor: '#ffffff',
   panelBorderColor: '#415a86',
+  panelTopBorderColor: 'rgb(255 255 255 / 8%)',
   panelShadow: '0 18px 40px rgb(15 31 58 / 28%)',
-  groupTitleColor: '#b7c4da',
-  descriptionColor: '#b7c4da',
-  itemBorderRadius: 14,
+  panelPadding: 24,
+  panelGap: 24,
+  panelGroupTitleColor: '#b7c4da',
+  panelGroupTitleFontSize: 13,
+  panelGroupTitleFontWeight: 600,
+  panelGroupTitleMarginBottom: 10,
+  panelGroupTitleHorizontalPadding: 12,
+  panelItemTextColor: '#ffffff',
+  panelItemBackgroundColor: '#3d527c',
+  panelItemBorderColor: 'transparent',
+  panelItemHoverTextColor: '#ffffff',
+  panelItemHoverBackgroundColor: '#465d89',
+  panelItemHoverBorderColor: 'rgb(255 255 255 / 12%)',
+  panelItemActiveTextColor: '#ffffff',
+  panelItemActiveBackgroundColor: '#315c96',
+  panelItemActiveBorderColor: '#4c78b1',
+  panelItemDisabledTextColor: 'rgb(255 255 255 / 42%)',
+  panelItemDisabledBackgroundColor: 'rgb(255 255 255 / 6%)',
+  panelItemDisabledBorderColor: 'transparent',
+  panelItemFocusOutlineColor: '#8db7f0',
   panelItemBorderRadius: 10,
-  itemGap: 8,
-  itemHorizontalPadding: 24,
-  itemVerticalSpace: 32,
-  iconSize: 26,
-  menuFontSize: 20,
+  panelItemMinHeight: 64,
+  panelItemPadding: 12,
+  panelItemGap: 12,
+  panelItemListGap: 8,
+  panelItemLabelFontSize: 14,
+  panelItemLabelFontWeight: 700,
+  panelItemDescriptionColor: '#b7c4da',
+  panelItemDescriptionFontSize: 12,
+  panelItemDescriptionLineHeight: 18,
+  panelItemIconColor: '#ffffff',
+  panelItemIconSize: 20,
+  panelItemIconBoxSize: 38,
+  panelItemIconBackgroundColor: 'rgb(255 255 255 / 8%)',
+  panelItemIconBorderRadius: 8,
+  panelEmptyTextColor: '#b7c4da',
+  panelEmptyPadding: '48px 24px',
 }
 
 const currentActiveKey = computed(() =>
@@ -260,23 +306,10 @@ const activeMenuKey = computed(() => {
   )?.key
 })
 
-const currentTheme = computed<Required<GaMegaMenuTheme>>(() => {
-  const backgroundColor =
-    props.theme.backgroundColor ?? defaultTheme.backgroundColor
-  const mutedTextColor =
-    props.theme.mutedTextColor ?? defaultTheme.mutedTextColor
-
-  return {
-    ...defaultTheme,
-    ...props.theme,
-    backgroundColor,
-    mutedTextColor,
-    panelBackgroundColor:
-      props.theme.panelBackgroundColor ?? backgroundColor,
-    groupTitleColor: props.theme.groupTitleColor ?? mutedTextColor,
-    descriptionColor: props.theme.descriptionColor ?? mutedTextColor,
-  }
-})
+const currentTheme = computed<Required<GaMegaMenuTheme>>(() => ({
+  ...defaultTheme,
+  ...props.theme,
+}))
 
 const themeStyle = computed<CSSProperties>(() =>
   createThemeStyle(currentTheme.value),
@@ -374,33 +407,125 @@ function isControlled(name: 'activeKey' | 'openKey') {
 
 function createThemeStyle(theme: GaMegaMenuTheme): CSSProperties {
   return {
-    '--ga-mega-menu-bg-color': theme.backgroundColor,
-    '--ga-mega-menu-text-color': theme.textColor,
-    '--ga-mega-menu-muted-text-color': theme.mutedTextColor,
-    '--ga-mega-menu-item-bg-color': theme.itemBackgroundColor,
-    '--ga-mega-menu-item-hover-text-color': theme.itemHoverTextColor,
-    '--ga-mega-menu-item-hover-bg-color': theme.itemHoverBackgroundColor,
-    '--ga-mega-menu-item-active-text-color': theme.itemActiveTextColor,
-    '--ga-mega-menu-item-active-bg-color': theme.itemActiveBackgroundColor,
-    '--ga-mega-menu-item-active-border-color': theme.itemActiveBorderColor,
+    '--ga-mega-menu-menu-bg-color': theme.menuBackgroundColor,
+    '--ga-mega-menu-menu-gap': optionalSize(theme.menuGap),
+    '--ga-mega-menu-menu-item-text-color': theme.menuItemTextColor,
+    '--ga-mega-menu-menu-item-bg-color': theme.menuItemBackgroundColor,
+    '--ga-mega-menu-menu-item-border-color': theme.menuItemBorderColor,
+    '--ga-mega-menu-menu-item-hover-text-color': theme.menuItemHoverTextColor,
+    '--ga-mega-menu-menu-item-hover-bg-color':
+      theme.menuItemHoverBackgroundColor,
+    '--ga-mega-menu-menu-item-hover-border-color':
+      theme.menuItemHoverBorderColor,
+    '--ga-mega-menu-menu-item-active-text-color':
+      theme.menuItemActiveTextColor,
+    '--ga-mega-menu-menu-item-active-bg-color':
+      theme.menuItemActiveBackgroundColor,
+    '--ga-mega-menu-menu-item-active-border-color':
+      theme.menuItemActiveBorderColor,
+    '--ga-mega-menu-menu-item-disabled-text-color':
+      theme.menuItemDisabledTextColor,
+    '--ga-mega-menu-menu-item-disabled-bg-color':
+      theme.menuItemDisabledBackgroundColor,
+    '--ga-mega-menu-menu-item-disabled-border-color':
+      theme.menuItemDisabledBorderColor,
+    '--ga-mega-menu-menu-item-focus-outline-color':
+      theme.menuItemFocusOutlineColor,
+    '--ga-mega-menu-menu-item-font-size': optionalSize(theme.menuItemFontSize),
+    '--ga-mega-menu-menu-item-font-weight': theme.menuItemFontWeight,
+    '--ga-mega-menu-menu-item-icon-size': optionalSize(theme.menuItemIconSize),
+    '--ga-mega-menu-menu-item-gap': optionalSize(theme.menuItemGap),
+    '--ga-mega-menu-menu-item-horizontal-padding': optionalSize(
+      theme.menuItemHorizontalPadding,
+    ),
+    '--ga-mega-menu-menu-item-vertical-space': optionalSize(
+      theme.menuItemVerticalSpace,
+    ),
+    '--ga-mega-menu-menu-item-radius': optionalSize(
+      theme.menuItemBorderRadius,
+    ),
+    '--ga-mega-menu-menu-item-shadow': theme.menuItemShadow,
+    '--ga-mega-menu-menu-item-active-shadow': theme.menuItemActiveShadow,
     '--ga-mega-menu-panel-bg-color': theme.panelBackgroundColor,
+    '--ga-mega-menu-panel-text-color': theme.panelTextColor,
     '--ga-mega-menu-panel-border-color': theme.panelBorderColor,
+    '--ga-mega-menu-panel-top-border-color': theme.panelTopBorderColor,
     '--ga-mega-menu-panel-shadow': theme.panelShadow,
-    '--ga-mega-menu-group-title-color': theme.groupTitleColor,
-    '--ga-mega-menu-description-color': theme.descriptionColor,
-    '--ga-mega-menu-item-radius': optionalSize(theme.itemBorderRadius),
+    '--ga-mega-menu-panel-padding': optionalSize(theme.panelPadding),
+    '--ga-mega-menu-panel-gap': optionalSize(theme.panelGap),
+    '--ga-mega-menu-panel-group-title-color': theme.panelGroupTitleColor,
+    '--ga-mega-menu-panel-group-title-font-size': optionalSize(
+      theme.panelGroupTitleFontSize,
+    ),
+    '--ga-mega-menu-panel-group-title-font-weight':
+      theme.panelGroupTitleFontWeight,
+    '--ga-mega-menu-panel-group-title-margin-bottom': optionalSize(
+      theme.panelGroupTitleMarginBottom,
+    ),
+    '--ga-mega-menu-panel-group-title-horizontal-padding': optionalSize(
+      theme.panelGroupTitleHorizontalPadding,
+    ),
+    '--ga-mega-menu-panel-item-text-color': theme.panelItemTextColor,
+    '--ga-mega-menu-panel-item-bg-color': theme.panelItemBackgroundColor,
+    '--ga-mega-menu-panel-item-border-color': theme.panelItemBorderColor,
+    '--ga-mega-menu-panel-item-hover-text-color':
+      theme.panelItemHoverTextColor,
+    '--ga-mega-menu-panel-item-hover-bg-color':
+      theme.panelItemHoverBackgroundColor,
+    '--ga-mega-menu-panel-item-hover-border-color':
+      theme.panelItemHoverBorderColor,
+    '--ga-mega-menu-panel-item-active-text-color':
+      theme.panelItemActiveTextColor,
+    '--ga-mega-menu-panel-item-active-bg-color':
+      theme.panelItemActiveBackgroundColor,
+    '--ga-mega-menu-panel-item-active-border-color':
+      theme.panelItemActiveBorderColor,
+    '--ga-mega-menu-panel-item-disabled-text-color':
+      theme.panelItemDisabledTextColor,
+    '--ga-mega-menu-panel-item-disabled-bg-color':
+      theme.panelItemDisabledBackgroundColor,
+    '--ga-mega-menu-panel-item-disabled-border-color':
+      theme.panelItemDisabledBorderColor,
+    '--ga-mega-menu-panel-item-focus-outline-color':
+      theme.panelItemFocusOutlineColor,
     '--ga-mega-menu-panel-item-radius': optionalSize(
       theme.panelItemBorderRadius,
     ),
-    '--ga-mega-menu-item-gap': optionalSize(theme.itemGap),
-    '--ga-mega-menu-item-padding': optionalSize(
-      theme.itemHorizontalPadding,
+    '--ga-mega-menu-panel-item-min-height': optionalSize(
+      theme.panelItemMinHeight,
     ),
-    '--ga-mega-menu-item-vertical-space': optionalSize(
-      theme.itemVerticalSpace,
+    '--ga-mega-menu-panel-item-padding': optionalSize(theme.panelItemPadding),
+    '--ga-mega-menu-panel-item-gap': optionalSize(theme.panelItemGap),
+    '--ga-mega-menu-panel-item-list-gap': optionalSize(theme.panelItemListGap),
+    '--ga-mega-menu-panel-item-label-font-size': optionalSize(
+      theme.panelItemLabelFontSize,
     ),
-    '--ga-mega-menu-icon-size': optionalSize(theme.iconSize),
-    '--ga-mega-menu-font-size': optionalSize(theme.menuFontSize),
+    '--ga-mega-menu-panel-item-label-font-weight':
+      theme.panelItemLabelFontWeight,
+    '--ga-mega-menu-panel-item-description-color':
+      theme.panelItemDescriptionColor,
+    '--ga-mega-menu-panel-item-description-font-size': optionalSize(
+      theme.panelItemDescriptionFontSize,
+    ),
+    '--ga-mega-menu-panel-item-description-line-height': optionalSize(
+      theme.panelItemDescriptionLineHeight,
+    ),
+    '--ga-mega-menu-panel-item-icon-color': theme.panelItemIconColor,
+    '--ga-mega-menu-panel-item-icon-size': optionalSize(
+      theme.panelItemIconSize,
+    ),
+    '--ga-mega-menu-panel-item-icon-box-size': optionalSize(
+      theme.panelItemIconBoxSize,
+    ),
+    '--ga-mega-menu-panel-item-icon-bg-color':
+      theme.panelItemIconBackgroundColor,
+    '--ga-mega-menu-panel-item-icon-radius': optionalSize(
+      theme.panelItemIconBorderRadius,
+    ),
+    '--ga-mega-menu-panel-empty-text-color': theme.panelEmptyTextColor,
+    '--ga-mega-menu-panel-empty-padding': optionalSize(
+      theme.panelEmptyPadding,
+    ),
   }
 }
 

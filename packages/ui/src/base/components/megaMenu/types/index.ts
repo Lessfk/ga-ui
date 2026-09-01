@@ -33,27 +33,72 @@ export interface GaMegaMenuNavItem {
 }
 
 export interface GaMegaMenuTheme {
-  backgroundColor?: string
-  textColor?: string
-  mutedTextColor?: string
-  itemBackgroundColor?: string
-  itemHoverTextColor?: string
-  itemHoverBackgroundColor?: string
-  itemActiveTextColor?: string
-  itemActiveBackgroundColor?: string
-  itemActiveBorderColor?: string
+  menuBackgroundColor?: string
+  menuGap?: string | number
+  menuItemTextColor?: string
+  menuItemBackgroundColor?: string
+  menuItemBorderColor?: string
+  menuItemHoverTextColor?: string
+  menuItemHoverBackgroundColor?: string
+  menuItemHoverBorderColor?: string
+  menuItemActiveTextColor?: string
+  menuItemActiveBackgroundColor?: string
+  menuItemActiveBorderColor?: string
+  menuItemDisabledTextColor?: string
+  menuItemDisabledBackgroundColor?: string
+  menuItemDisabledBorderColor?: string
+  menuItemFocusOutlineColor?: string
+  menuItemFontSize?: string | number
+  menuItemFontWeight?: string | number
+  menuItemIconSize?: string | number
+  menuItemGap?: string | number
+  menuItemHorizontalPadding?: string | number
+  menuItemVerticalSpace?: string | number
+  menuItemBorderRadius?: string | number
+  menuItemShadow?: string
+  menuItemActiveShadow?: string
   panelBackgroundColor?: string
+  panelTextColor?: string
   panelBorderColor?: string
+  panelTopBorderColor?: string
   panelShadow?: string
-  groupTitleColor?: string
-  descriptionColor?: string
-  itemBorderRadius?: string | number
+  panelPadding?: string | number
+  panelGap?: string | number
+  panelGroupTitleColor?: string
+  panelGroupTitleFontSize?: string | number
+  panelGroupTitleFontWeight?: string | number
+  panelGroupTitleMarginBottom?: string | number
+  panelGroupTitleHorizontalPadding?: string | number
+  panelItemTextColor?: string
+  panelItemBackgroundColor?: string
+  panelItemBorderColor?: string
+  panelItemHoverTextColor?: string
+  panelItemHoverBackgroundColor?: string
+  panelItemHoverBorderColor?: string
+  panelItemActiveTextColor?: string
+  panelItemActiveBackgroundColor?: string
+  panelItemActiveBorderColor?: string
+  panelItemDisabledTextColor?: string
+  panelItemDisabledBackgroundColor?: string
+  panelItemDisabledBorderColor?: string
+  panelItemFocusOutlineColor?: string
   panelItemBorderRadius?: string | number
-  itemGap?: string | number
-  itemHorizontalPadding?: string | number
-  itemVerticalSpace?: string | number
-  iconSize?: string | number
-  menuFontSize?: string | number
+  panelItemMinHeight?: string | number
+  panelItemPadding?: string | number
+  panelItemGap?: string | number
+  panelItemListGap?: string | number
+  panelItemLabelFontSize?: string | number
+  panelItemLabelFontWeight?: string | number
+  panelItemDescriptionColor?: string
+  panelItemDescriptionFontSize?: string | number
+  panelItemDescriptionLineHeight?: string | number
+  panelItemIconColor?: string
+  panelItemIconSize?: string | number
+  panelItemIconBoxSize?: string | number
+  panelItemIconBackgroundColor?: string
+  panelItemIconBorderRadius?: string | number
+  panelEmptyTextColor?: string
+  panelEmptyPadding?: string | number
 }
 
 export interface GaMegaMenuProps {
