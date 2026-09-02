@@ -32,7 +32,57 @@ pnpm add ga-ui-plus vue element-plus
 
 ## 引入样式
 
-Element Plus 与 ga-ui-plus 的样式都需要由消费项目加载。通常在应用入口中导入一次：
+### 按需引入
+
+使用 `unplugin-vue-components` 时，可以通过 `GaUiResolver` 自动引入组件和样式：
+
+```ts
+import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite'
+import Components from 'unplugin-vue-components/vite'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import { GaUiResolver } from 'ga-ui-plus/resolver'
+
+export default defineConfig({
+  plugins: [
+    vue(),
+    Components({
+      resolvers: [
+        ElementPlusResolver(),
+        GaUiResolver(),
+      ],
+    }),
+  ],
+})
+```
+
+`ElementPlusResolver` 处理业务模板中直接使用的 `ElXxx` 组件，`GaUiResolver` 处理 `GaXxx` 组件，并补齐这些组件内部使用的 Element Plus 样式。默认同时启用 `ga-ui-plus/style.css` 和 Element Plus 按需样式。
+
+### 全量 Element Plus 样式
+
+业务项目已经全量引入 Element Plus 样式时，应关闭 Resolver 的 Element Plus 样式补齐：
+
+```ts
+import 'element-plus/dist/index.css'
+
+Components({
+  resolvers: [
+    ElementPlusResolver({ importStyle: false }),
+    GaUiResolver({ elementPlusStyle: false }),
+  ],
+})
+```
+
+`importStyle` 控制 `ga-ui-plus/style.css`，`elementPlusStyle` 控制 GA 组件内部依赖的 Element Plus 样式，两者默认都是 `true`：
+
+```ts
+GaUiResolver({
+  importStyle: true,
+  elementPlusStyle: true,
+})
+```
+
+手动通过 JavaScript 导入 `GaDialog`、`GaTable` 等组件不会触发 `unplugin-vue-components` Resolver。这种用法仍需在应用入口显式引入样式：
 
 ```ts
 import 'element-plus/dist/index.css'
@@ -48,6 +98,7 @@ import 'ga-ui-plus/style.css'
 | `ga-ui-plus/base` | `GaDialog`、`GaTable`、`GaPagination` | 对应的对话框、表格、列、实例与分页类型 |
 | `ga-ui-plus/business` | `GaTablePagination`、`GaSearchBar`、`GaAsideMenu` | 对应的表格分页、搜索栏与侧边栏菜单类型 |
 | `ga-ui-plus` | 上述全部组件 | 上述全部公开类型；这是聚合入口 |
+| `ga-ui-plus/resolver` | `GaUiResolver` | Resolver 配置、解析结果与组件 Resolver 类型 |
 | `ga-ui-plus/style.css` | 样式文件 | 不适用 |
 
 按职责导入：
