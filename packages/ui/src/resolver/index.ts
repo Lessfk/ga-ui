@@ -71,9 +71,11 @@ export function GaUiResolver(
   return {
     type: 'component',
     resolve(name) {
-      const component = components[name]
+      if (!Object.prototype.hasOwnProperty.call(components, name)) {
+        return undefined
+      }
 
-      if (!component) return undefined
+      const component = components[name]
 
       const sideEffects = [
         ...(importStyle ? ['ga-ui-plus/style.css'] : []),

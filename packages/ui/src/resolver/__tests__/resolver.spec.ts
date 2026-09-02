@@ -87,4 +87,11 @@ describe('GaUiResolver', () => {
   it('does not resolve unknown components', () => {
     expect(GaUiResolver().resolve('GaUnknown')).toBeUndefined()
   })
+
+  it.each(['toString', 'constructor', '__proto__'])(
+    'does not resolve inherited object property %s',
+    (name) => {
+      expect(GaUiResolver().resolve(name)).toBeUndefined()
+    },
+  )
 })

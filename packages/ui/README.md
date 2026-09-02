@@ -95,7 +95,7 @@ import 'ga-ui-plus/style.css'
 
 | 导出路径 | 运行时导出 | 类型导出 |
 | --- | --- | --- |
-| `ga-ui-plus/base` | `GaDialog`、`GaTable`、`GaPagination` | 对应的对话框、表格、列、实例与分页类型 |
+| `ga-ui-plus/base` | `GaDialog`、`GaMegaMenu`、`GaTable`、`GaPagination` | 对应的对话框、大型菜单、表格、列、实例与分页类型 |
 | `ga-ui-plus/business` | `GaTablePagination`、`GaSearchBar`、`GaAsideMenu` | 对应的表格分页、搜索栏与侧边栏菜单类型 |
 | `ga-ui-plus` | 上述全部组件 | 上述全部公开类型；这是聚合入口 |
 | `ga-ui-plus/resolver` | `GaUiResolver` | Resolver 配置、解析结果与组件 Resolver 类型 |
