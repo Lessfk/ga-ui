@@ -12,6 +12,8 @@ const requiredFiles = [
   'base/index.d.ts',
   'business/index.js',
   'business/index.d.ts',
+  'resolver/index.js',
+  'resolver/index.d.ts',
   'style.css',
 ]
 
@@ -134,9 +136,10 @@ assert.ok(
   'dist declarations must contain relative declaration specifiers to verify',
 )
 
-const [base, business, root] = await Promise.all([
+const [base, business, resolver, root] = await Promise.all([
   import(new URL('base/index.js', distUrl)),
   import(new URL('business/index.js', distUrl)),
+  import(new URL('resolver/index.js', distUrl)),
   import(new URL('index.js', distUrl)),
 ])
 
@@ -151,6 +154,8 @@ assert.deepEqual(Object.keys(business).sort(), [
   'GaSearchBar',
   'GaTablePagination',
 ])
+assert.deepEqual(Object.keys(resolver).sort(), ['GaUiResolver'])
+assert.equal(typeof resolver.GaUiResolver, 'function')
 assert.deepEqual(Object.keys(root).sort(), [
   'GaAsideMenu',
   'GaDialog',

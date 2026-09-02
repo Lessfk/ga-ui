@@ -39,6 +39,7 @@ export default defineConfig({
                 index: resolveFile('./src/index.ts'),
                 'base/index': resolveFile('./src/base/index.ts'),
                 'business/index': resolveFile('./src/business/index.ts'),
+                'resolver/index': resolveFile('./src/resolver/index.ts'),
             },
             formats: ['es'],
             fileName: (_format, entryName) => `${entryName}.js`,

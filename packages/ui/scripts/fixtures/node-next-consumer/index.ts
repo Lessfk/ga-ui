@@ -65,8 +65,19 @@ import {
   type GaSearchSelectField as BusinessSearchSelectField,
   type GaTablePaginationProps as BusinessTablePaginationProps,
 } from 'ga-ui-plus/business'
+import {
+  GaUiResolver,
+  type GaUiResolverOptions,
+} from 'ga-ui-plus/resolver'
 
 type Row = { id: number }
+
+const resolverOptions: GaUiResolverOptions = {
+  importStyle: true,
+  elementPlusStyle: true,
+}
+const resolver = GaUiResolver(resolverOptions)
+const resolvedMegaMenu = resolver.resolve('GaMegaMenu')
 
 const rootColumn: GaTableColumn<Row> = { prop: 'id' }
 const baseColumn: BaseTableColumn<Row> = { prop: 'id' }
@@ -249,6 +260,8 @@ void [
   BusinessTablePagination,
   BusinessAsideMenu,
   BusinessSearchBar,
+  resolver,
+  resolvedMegaMenu,
   rootColumn,
   baseColumn,
   rootTablePaginationProps,

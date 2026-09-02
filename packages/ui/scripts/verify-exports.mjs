@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict'
 
-const [root, base, business] = await Promise.all([
+const [root, base, business, resolver] = await Promise.all([
   import('ga-ui-plus'),
   import('ga-ui-plus/base'),
   import('ga-ui-plus/business'),
+  import('ga-ui-plus/resolver'),
 ])
 
 assert.ok('GaTable' in base)
@@ -28,5 +29,7 @@ assert.ok('GaMegaMenu' in root)
 assert.ok('GaTablePagination' in root)
 assert.ok('GaAsideMenu' in root)
 assert.ok('GaSearchBar' in root)
+
+assert.equal(typeof resolver.GaUiResolver, 'function')
 
 console.log('Verified ga-ui-plus package exports')
