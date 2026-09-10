@@ -144,10 +144,8 @@ import {
   TrendCharts,
   User,
 } from '@element-plus/icons-vue'
-import { ElIcon, ElMenuItem, ElSubMenu, ElTag } from 'element-plus'
+// import { ElIcon, ElMenuItem, ElSubMenu, ElTag } from 'element-plus'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-
-import { GaAsideMenu } from 'ga-ui-plus/business'
 
 const compactLayout = window.matchMedia('(max-width: 720px)')
 const collapsed = ref(compactLayout.matches)

@@ -2,6 +2,11 @@ import fs from 'node:fs'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
+import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+
+import { GaUiResolver } from '../packages/ui/src/resolver/index'
 
 const resolveWorkspaceFile = (path: string) =>
   fileURLToPath(new URL(path, import.meta.url))
@@ -16,6 +21,12 @@ export default defineConfig({
           readFile: (file) => fs.readFileSync(file, 'utf8'),
         },
       },
+    }),
+    AutoImport({
+      resolvers: [ElementPlusResolver()],
+    }),
+    Components({
+      resolvers: [ElementPlusResolver(), GaUiResolver()],
     }),
   ],
   resolve: {

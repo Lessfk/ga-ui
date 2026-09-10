@@ -1,6 +1,7 @@
 <template>
   <div class="myMegaMenu">
-    <GaMegaMenu  :menus="menus" trigger="hover" :theme="themes"></GaMegaMenu>
+    <GaMegaMenu v-model:active-key="activeKey" v-model:open-key="openKey" :menus="menus" trigger="hover" :theme="themes"
+      @select="handleSelect"></GaMegaMenu>
 
   </div>
 
@@ -36,7 +37,8 @@ import type {
   GaMegaMenuTrigger,
 } from 'ga-ui-plus/base'
 
-
+const activeKey = ref<GaMegaMenuKey>('overview')
+const openKey = ref<GaMegaMenuKey | undefined>()
 
 const menus: GaMegaMenuNavItem[] = [
   {
@@ -67,7 +69,7 @@ const menus: GaMegaMenuNavItem[] = [
           },
         ],
       },
-            {
+      {
         key: 'organization',
         title: '组织与权限',
         items: [
@@ -85,7 +87,7 @@ const menus: GaMegaMenuNavItem[] = [
           },
         ],
       },
-            {
+      {
         key: 'organization',
         title: '组织与权限',
         items: [
@@ -103,7 +105,7 @@ const menus: GaMegaMenuNavItem[] = [
           },
         ],
       },
-            {
+      {
         key: 'organization',
         title: '组织与权限',
         items: [
@@ -185,35 +187,47 @@ const menus: GaMegaMenuNavItem[] = [
 
 
 const themes: GaMegaMenuTheme = {
-  menuBackgroundColor: 'transparent',
-  menuItemTextColor: '#ffffff',
-  menuItemBackgroundColor: '#3d527c',
-  menuItemHoverBackgroundColor: '#465d89',
-  menuItemActiveBackgroundColor: '#315c96',
-  menuItemActiveBorderColor: '#4c78b1',
-  menuItemBorderRadius: 12,
-  menuItemHorizontalPadding: 20,
-  menuItemVerticalSpace: 25,
-  menuItemIconSize: 20,
-  menuItemFontSize: 16,
-  panelBackgroundColor: '#2f436b',
-  panelTextColor: '#ffffff',
-  panelBorderColor: 'transparent',
-  panelGroupTitleColor: '#b7c4da',
-  panelItemTextColor: '#ffffff',
-  panelItemBackgroundColor: '#3d527c',
-  panelItemHoverBackgroundColor: '#465d89',
-  panelItemActiveBackgroundColor: '#315c96',
-  panelItemActiveBorderColor: '#4c78b1',
-  panelItemDescriptionColor: '#b7c4da',
-  panelItemBorderRadius: 12,
+  menuBackgroundColor: '#2f436b', //整体背景颜色
+  menuGap: 8, //菜单项之间的间距
+  menuItemTextColor: '#ffffff', // 菜单项文字颜色
+  menuItemBackgroundColor: '#3d527c', // 菜单项背景颜色
+  menuItemHoverBackgroundColor: '#465d89', // 菜单项悬停背景颜色
+  menuItemActiveBackgroundColor: '#315c96', // 菜单项激活背景颜色
+  menuItemActiveBorderColor: '#4c78b1', // 菜单项激活边框颜色
+  menuItemBorderRadius: 8, // 菜单项边框半径
+  menuItemHorizontalPadding: 20, // 菜单项水平内边距
+  menuItemVerticalSpace: 20, // 菜单项垂直间距
+  menuItemIconSize: 20, // 菜单项图标大小
+  menuItemFontSize: 16, // 菜单项文字大小
+  panelBackgroundColor: '#f4f7fb', // 面板背景颜色
+  panelBorderColor: '#d8e1ed', // 面板边框颜色
+  panelTopBorderColor: '#d8e1ed', // 面板顶部边框颜色
+  panelGroupTitleColor: '#52657d', // 面板组标题颜色
+  panelItemTextColor: '#253858', // 面板项文字颜色
+  panelItemBackgroundColor: '#ffffff', // 面板项背景颜色
+  panelItemBorderColor: '#d8e1ed', // 面板项边框颜色
+  panelItemHoverTextColor: '#1d4f91', // 面板项悬停文字颜色
+  panelItemHoverBackgroundColor: '#eaf2ff', // 面板项悬停背景颜色
+  panelItemHoverBorderColor: '#b8d0ee', // 面板项悬停边框颜色
+  panelItemActiveTextColor: '#173f73', // 面板项激活文字颜色
+  panelItemActiveBackgroundColor: '#dceaff', // 面板项激活背景颜色
+  panelItemActiveBorderColor: '#8eb3df', // 面板项激活边框颜色
+  panelItemDescriptionColor: '#66788e', // 面板项描述文字颜色
+  panelItemIconColor: '#315c96',  // 面板项图标颜色
+  panelItemIconBackgroundColor: '#e6eef8', // 面板项图标背景颜色
+  panelItemBorderRadius: 6, // 面板项边框半径
+}
+
+const handleSelect = (payload: GaMegaMenuSelectPayload) => {
+  console.log('Selected menu item:', payload)
+  // activeKey.value = payload.key
 }
 </script>
 
 <style lang="scss" scoped>
-.myMegaMenu {  
+.myMegaMenu {
   height: 70px;
   overflow: auto;
   background-color: #1f2d4c;
-} 
+}
 </style>
