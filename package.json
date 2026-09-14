@@ -6,7 +6,11 @@
   "private": true,
   "packageManager": "pnpm@10.34.5",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docs:dev": "pnpm --filter ga-ui-docs dev",
+    "docs:build": "pnpm --filter ga-ui-docs build",
+    "docs:preview": "pnpm --filter ga-ui-docs preview",
+    "docs:test": "pnpm --filter ga-ui-docs test"
   },
   "author": "",
   "license": "ISC",

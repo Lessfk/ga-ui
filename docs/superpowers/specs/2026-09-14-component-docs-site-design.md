@@ -25,7 +25,7 @@
 
 ## 技术方案
 
-在现有 `docs` 目录中增加 VitePress 工作区包。`docs/superpowers` 保持原样，站点内容由 VitePress 的 `srcDir` 指向 `docs/site`，避免设计文档和站点页面互相干扰。
+在现有 `docs` 目录中增加 VitePress 工作区包。VitePress 配置位于 `docs/.vitepress`，站点内容由 `srcDir: './site'` 指向 `docs/site`；`docs/superpowers` 保持原样，避免设计文档和站点页面互相干扰。
 
 文档站依赖：
 

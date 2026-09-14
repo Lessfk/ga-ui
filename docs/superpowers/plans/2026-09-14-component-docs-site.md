@@ -14,10 +14,10 @@
 
 - Create `docs/package.json`: documentation workspace scripts and dependencies.
 - Create `docs/tests/docs-content.spec.mjs`: structural contract for required pages, API sections, and demo source links.
-- Create `docs/site/.vitepress/config.mts`: site navigation, sidebar, local search, Vite plugins, and markdown settings.
-- Create `docs/site/.vitepress/theme/index.ts`: theme registration, Element Plus/GA styles, and global components.
-- Create `docs/site/.vitepress/theme/styles.css`: restrained technical-documentation visual system.
-- Create `docs/site/.vitepress/theme/components/DemoPreview.vue`: consistent live-demo frame.
+- Create `docs/.vitepress/config.mts`: site navigation, sidebar, local search, Vite plugins, and markdown settings.
+- Create `docs/.vitepress/theme/index.ts`: theme registration, Element Plus/GA styles, and global components.
+- Create `docs/.vitepress/theme/styles.css`: restrained technical-documentation visual system.
+- Create `docs/.vitepress/theme/components/DemoPreview.vue`: consistent live-demo frame.
 - Create `docs/site/index.md`: working component index and quick start.
 - Create `docs/site/guide/*.md`: introduction, local setup, quick start, and Resolver usage.
 - Create `docs/site/components/*.md`: seven public component reference pages.
@@ -30,7 +30,7 @@
 **Files:**
 - Create: `docs/tests/docs-content.spec.mjs`
 
-- [ ] **Step 1: Write the failing structural test**
+- [x] **Step 1: Write the failing structural test**
 
 Use the Node.js test runner to assert that all seven component pages exist, contain `## API`, identify Props/Events/Slots/Expose sections, render `DemoPreview`, and include at least one demo source file through `<<<`.
 
@@ -66,7 +66,7 @@ for (const page of pages) {
 }
 ```
 
-- [ ] **Step 2: Run the test and verify RED**
+- [x] **Step 2: Run the test and verify RED**
 
 Run: `node --test docs/tests/docs-content.spec.mjs`
 
@@ -76,26 +76,26 @@ Expected: FAIL with `ENOENT` because component documentation pages do not exist.
 
 **Files:**
 - Create: `docs/package.json`
-- Create: `docs/site/.vitepress/config.mts`
-- Create: `docs/site/.vitepress/theme/index.ts`
-- Create: `docs/site/.vitepress/theme/styles.css`
-- Create: `docs/site/.vitepress/theme/components/DemoPreview.vue`
+- Create: `docs/.vitepress/config.mts`
+- Create: `docs/.vitepress/theme/index.ts`
+- Create: `docs/.vitepress/theme/styles.css`
+- Create: `docs/.vitepress/theme/components/DemoPreview.vue`
 - Modify: `package.json`
 - Modify: `pnpm-lock.yaml`
 
-- [ ] **Step 1: Add workspace scripts and dependencies**
+- [x] **Step 1: Add workspace scripts and dependencies**
 
 Configure `docs/package.json` with `dev`, `build`, `preview`, and `test` scripts. Add VitePress, Vue, Element Plus, icons, `ga-ui-plus: workspace:*`, `unplugin-auto-import`, and `unplugin-vue-components`.
 
-- [ ] **Step 2: Configure VitePress**
+- [x] **Step 2: Configure VitePress**
 
 Set `srcDir: './site'`, local search, heading anchors, clean URLs, guide/component navigation, and grouped base/business sidebars. Register `AutoImport` with `ElementPlusResolver` and `Components` with both `ElementPlusResolver` and `GaUiResolver`.
 
-- [ ] **Step 3: Register the custom theme**
+- [x] **Step 3: Register the custom theme**
 
 Extend `vitepress/theme`, import Element Plus and GA styles needed by directly imported demos, register `DemoPreview`, and add semantic CSS variables for light/dark modes.
 
-- [ ] **Step 4: Add root commands**
+- [x] **Step 4: Add root commands**
 
 Add:
 
@@ -106,7 +106,7 @@ Add:
 "docs:test": "pnpm --filter ga-ui-docs test"
 ```
 
-- [ ] **Step 5: Install dependencies**
+- [x] **Step 5: Install dependencies**
 
 Run: `pnpm install`
 
@@ -121,11 +121,11 @@ Expected: lockfile updates and the `ga-ui-docs` workspace resolves successfully.
 - Create: `docs/site/guide/quick-start.md`
 - Create: `docs/site/guide/resolver.md`
 
-- [ ] **Step 1: Build the working index**
+- [x] **Step 1: Build the working index**
 
 Include the package purpose, `pnpm docs:dev`, install/import snippets, base/business component lists, and links to all component pages. Keep the page operational and compact instead of using a marketing hero.
 
-- [ ] **Step 2: Write local development and consumer guides**
+- [x] **Step 2: Write local development and consumer guides**
 
 Document workspace startup, full import, manual on-demand import, `GaUiResolver`, Element Plus full-style compatibility, and the difference between stable docs demos and temporary playground experiments.
 
@@ -145,11 +145,11 @@ Document workspace startup, full import, manual on-demand import, `GaUiResolver`
 - Create: `docs/site/demos/table/BasicDemo.vue`
 - Create: `docs/site/demos/table/SelectionDemo.vue`
 
-- [ ] **Step 1: Implement live base-component demos**
+- [x] **Step 1: Implement live base-component demos**
 
 Use public imports from `ga-ui-plus`, visible local state, and compact datasets. Cover dialog model/fullscreen/footer, mega-menu trigger/theme/select, pagination models/disabled/theme, and table columns/slots/selection/theme.
 
-- [ ] **Step 2: Write base-component API pages**
+- [x] **Step 2: Write base-component API pages**
 
 For each page include purpose, examples, `## API`, Props, Events, Slots, Expose, public types/theme fields, and wrapper-specific Element Plus passthrough notes. Include each demo source with VitePress `<<<` syntax.
 
@@ -166,11 +166,11 @@ For each page include purpose, examples, `## API`, Props, Events, Slots, Expose,
 - Create: `docs/site/demos/table-pagination/BasicDemo.vue`
 - Create: `docs/site/demos/table-pagination/LoadingDemo.vue`
 
-- [ ] **Step 1: Implement live business-component demos**
+- [x] **Step 1: Implement live business-component demos**
 
 Cover aside slots/collapse/theme/events, search fields/layout/validation/actions/custom slots, and table-pagination models/loading/disabled/table and pagination themes.
 
-- [ ] **Step 2: Write business-component API pages**
+- [x] **Step 2: Write business-component API pages**
 
 Document component-owned Props, Events, Slots, Expose methods, public types, and passthrough limitations. Keep `GaTablePagination` column details focused on the wrapper rather than duplicating the full `GaTableColumn` reference.
 
@@ -179,31 +179,31 @@ Document component-owned Props, Events, Slots, Expose methods, public types, and
 **Files:**
 - Modify only files found incorrect by verification.
 
-- [ ] **Step 1: Run the documentation contract and verify GREEN**
+- [x] **Step 1: Run the documentation contract and verify GREEN**
 
 Run: `pnpm docs:test`
 
 Expected: seven tests pass.
 
-- [ ] **Step 2: Build the documentation site**
+- [x] **Step 2: Build the documentation site**
 
 Run: `pnpm docs:build`
 
 Expected: VitePress client and server bundles complete with no dead links or Vue compilation errors.
 
-- [ ] **Step 3: Run component-library regression tests**
+- [x] **Step 3: Run component-library regression tests**
 
 Run: `pnpm --filter ga-ui-plus test`
 
 Expected: 15 files and 184 tests pass.
 
-- [ ] **Step 4: Inspect the site in a browser**
+- [x] **Step 4: Inspect the site in a browser**
 
 Run: `pnpm docs:dev --host 127.0.0.1`
 
 Verify the homepage, navigation, one base component, one business component, source expansion, copy control, local search, and dark mode at desktop and narrow widths.
 
-- [ ] **Step 5: Check repository hygiene**
+- [x] **Step 5: Check repository hygiene**
 
 Run: `git diff --check`
 
