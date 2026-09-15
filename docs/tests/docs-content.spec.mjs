@@ -2,75 +2,34 @@ import assert from 'node:assert/strict'
 import { access, readFile } from 'node:fs/promises'
 import test from 'node:test'
 
-const pages = [
-  'dialog',
-  'mega-menu',
-  'pagination',
-  'table',
-  'aside-menu',
-  'search-bar',
-  'table-pagination',
-]
+const docsFile = (path) => new URL(`../${path}`, import.meta.url)
 
-for (const page of pages) {
-  test(`${page} exposes demos and API reference`, async () => {
-    const content = await readFile(
-      new URL(`../site/components/${page}.md`, import.meta.url),
-      'utf8',
-    )
-
-    const previews = [...content.matchAll(/<DemoPreview/g)]
-    const sourceIncludes = [...content.matchAll(/<<<\s+([^\s]+\.vue)/g)]
-
-    assert.ok(previews.length > 0)
-    assert.equal(sourceIncludes.length, previews.length)
-
-    for (const [, sourcePath] of sourceIncludes) {
-      await access(
-        new URL(`../site/components/${sourcePath}`, import.meta.url),
-      )
-    }
-
-    assert.match(content, /## API/)
-    assert.match(content, /### Props/)
-    assert.match(content, /### Events/)
-    assert.match(content, /### Slots/)
-    assert.match(content, /### Expose/)
-  })
-}
-
-test('site config enables navigation, local search, dark mode, and resolvers', async () => {
-  const config = await readFile(
-    new URL('../.vitepress/config.mts', import.meta.url),
-    'utf8',
+test('docs is a standalone Vue and Vite application', async () => {
+  const packageJson = JSON.parse(
+    await readFile(docsFile('package.json'), 'utf8'),
   )
+  const viteConfig = await readFile(docsFile('vite.config.ts'), 'utf8')
 
-  assert.match(config, /provider:\s*'local'/)
-  assert.match(config, /darkModeSwitchLabel/)
-  assert.match(config, /ElementPlusResolver/)
-  assert.match(config, /GaUiResolver/)
+  assert.equal(packageJson.scripts.dev.includes('vite'), true)
+  assert.equal(packageJson.scripts.build.includes('vite build'), true)
+  assert.equal(packageJson.dependencies['vue-router'].startsWith('^4.'), true)
+  assert.equal('vitepress' in packageJson.devDependencies, false)
 
-  for (const page of pages) {
-    assert.match(config, new RegExp(`/components/${page}`))
-  }
+  await access(docsFile('index.html'))
+  await access(docsFile('vite.config.ts'))
+  await access(docsFile('src/main.ts'))
+  await access(docsFile('src/App.vue'))
+
+  assert.match(viteConfig, /include: \['src\/\*\*\/\*\.spec\.ts'\]/)
+  assert.match(viteConfig, /passWithNoTests: true/)
 })
 
-test('dialog demo uses editable form models', async () => {
-  const content = await readFile(
-    new URL('../site/demos/dialog/BasicDemo.vue', import.meta.url),
-    'utf8',
+test('root scripts continue to expose the docs project', async () => {
+  const packageJson = JSON.parse(
+    await readFile(new URL('../../package.json', import.meta.url), 'utf8'),
   )
 
-  assert.match(content, /v-model="form\.name"/)
-  assert.match(content, /v-model="form\.enabled"/)
-})
-
-test('search bar docs describe Enter submission accurately', async () => {
-  const content = await readFile(
-    new URL('../site/components/search-bar.md', import.meta.url),
-    'utf8',
-  )
-
-  assert.match(content, /按 Enter.*触发查询/)
-  assert.doesNotMatch(content, /按 Enter 不会/)
+  assert.equal(packageJson.scripts['docs:dev'], 'pnpm --filter ga-ui-docs dev')
+  assert.equal(packageJson.scripts['docs:test'], 'pnpm --filter ga-ui-docs test')
+  assert.equal(packageJson.scripts['docs:build'], 'pnpm --filter ga-ui-docs build')
 })

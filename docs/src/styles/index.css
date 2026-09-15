@@ -1,0 +1,31 @@
+:root {
+  color-scheme: light;
+  --ga-docs-bg: #f5f7fa;
+  --ga-docs-surface: #ffffff;
+  --ga-docs-text: #20242c;
+  --ga-docs-muted: #687386;
+  --ga-docs-border: #dfe4eb;
+  --ga-docs-accent: #1769e0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-width: 960px;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  color: var(--ga-docs-text);
+  background: var(--ga-docs-bg);
+}
+
+.ga-docs-app {
+  min-height: 100vh;
+  font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+}

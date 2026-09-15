@@ -4,23 +4,30 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vitepress dev . --host 0.0.0.0 --port 5557",
-    "build": "vitepress build . && pnpm run typecheck",
-    "preview": "vitepress preview . --host 0.0.0.0 --port 5557",
-    "test": "node --test tests/*.spec.mjs",
-    "typecheck": "vue-tsc --noEmit -p tsconfig.json"
+    "dev": "pnpm run generate:api && vite --host 0.0.0.0 --port 5557",
+    "build": "pnpm run generate:api && pnpm run typecheck && vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 5557",
+    "test": "vitest run && node --test tests/*.spec.mjs scripts/*.spec.mjs",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "generate:api": "node scripts/generate-api.mjs"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
     "element-plus": "^2.14.3",
     "ga-ui-plus": "workspace:*",
-    "vue": "^3.5.40"
+    "shiki": "^3.13.0",
+    "vue": "^3.5.40",
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.4",
+    "@vue/test-utils": "^2.4.6",
+    "happy-dom": "^18.0.1",
+    "typescript": "5.8.3",
     "unplugin-auto-import": "^21.0.0",
     "unplugin-vue-components": "^32.1.0",
-    "vitepress": "^1.6.4",
-    "typescript": "5.8.3",
+    "vite": "^6.4.3",
+    "vitest": "^3.2.7",
     "vue-tsc": "^3.3.9"
   }
 }

@@ -21,10 +21,11 @@
     "types": ["vite/client"]
   },
   "include": [
-    ".vitepress/theme/**/*.ts",
-    ".vitepress/theme/**/*.vue",
-    "site/**/*.vue",
-    "components.d.ts"
+    "src/**/*.ts",
+    "src/**/*.vue",
+    "scripts/**/*.mjs",
+    "components.d.ts",
+    "vite.config.ts"
   ],
   "exclude": [".vitepress/cache", ".vitepress/dist", ".vitepress/.temp"]
 }
