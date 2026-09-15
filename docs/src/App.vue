@@ -1,5 +1,5 @@
 <template>
-  <main class="ga-docs-app">
-    <h1>GA UI Plus</h1>
-  </main>
+  <div class="ga-docs-app">
+    <RouterView />
+  </div>
 </template>

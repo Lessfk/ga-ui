@@ -11,25 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    ElAlert: typeof import('element-plus/es')['ElAlert']
-    ElButton: typeof import('element-plus/es')['ElButton']
-    ElForm: typeof import('element-plus/es')['ElForm']
-    ElFormItem: typeof import('element-plus/es')['ElFormItem']
-    ElIcon: typeof import('element-plus/es')['ElIcon']
-    ElInput: typeof import('element-plus/es')['ElInput']
-    ElMenuItem: typeof import('element-plus/es')['ElMenuItem']
-    ElProgress: typeof import('element-plus/es')['ElProgress']
-    ElRadioButton: typeof import('element-plus/es')['ElRadioButton']
-    ElRadioGroup: typeof import('element-plus/es')['ElRadioGroup']
-    ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
-    ElSwitch: typeof import('element-plus/es')['ElSwitch']
-    ElTag: typeof import('element-plus/es')['ElTag']
-    GaAsideMenu: typeof import('ga-ui-plus/business')['GaAsideMenu']
-    GaDialog: typeof import('ga-ui-plus/base')['GaDialog']
-    GaMegaMenu: typeof import('ga-ui-plus/base')['GaMegaMenu']
-    GaPagination: typeof import('ga-ui-plus/base')['GaPagination']
-    GaSearchBar: typeof import('ga-ui-plus/business')['GaSearchBar']
-    GaTable: typeof import('ga-ui-plus/base')['GaTable']
-    GaTablePagination: typeof import('ga-ui-plus/business')['GaTablePagination']
+    RouterLink: typeof import('vue-router')['RouterLink']
+    RouterView: typeof import('vue-router')['RouterView']
   }
 }
