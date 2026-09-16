@@ -11,11 +11,14 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    ApiTable: typeof import('./src/components/ApiTable.vue')['default']
     CopyButton: typeof import('./src/components/CopyButton.vue')['default']
     DemoBlock: typeof import('./src/components/DemoBlock.vue')['default']
     ElAutocomplete: typeof import('element-plus/es')['ElAutocomplete']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElIcon: typeof import('element-plus/es')['ElIcon']
+    ElResult: typeof import('element-plus/es')['ElResult']
+    ElSkeleton: typeof import('element-plus/es')['ElSkeleton']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
