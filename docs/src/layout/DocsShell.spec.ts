@@ -50,6 +50,9 @@ describe('DocsShell', () => {
     expect(wrapper.text()).toContain('GA UI Plus')
     expect(wrapper.text()).toContain('基础组件')
     expect(wrapper.text()).toContain('业务组件')
+    expect(
+      wrapper.get('input[placeholder="搜索组件或 API"]').attributes('aria-label'),
+    ).toBe('搜索组件或 API')
     expect(wrapper.get('[aria-current="page"]').attributes('href')).toBe(
       '/components/search-bar',
     )
@@ -91,5 +94,11 @@ describe('DocsShell', () => {
     expect(breakpoint).toContain('.ga-docs-outline')
     expect(breakpoint).not.toContain('.ga-docs-header')
     expect(breakpoint).not.toContain('.ga-docs-shell__content')
+  })
+
+  it('keeps guide and home code blocks horizontally scrollable', () => {
+    expect(docsStyles).not.toMatch(
+      /\.ga-docs-(?:home|guide)__section\s*>\s*\.ga-docs-source-code\s*{[^}]*overflow:\s*hidden/s,
+    )
   })
 })

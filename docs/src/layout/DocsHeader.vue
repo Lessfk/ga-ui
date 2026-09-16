@@ -4,14 +4,13 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { useDocsTheme } from '../composables/useDocsTheme'
-import { componentCatalog } from '../content/catalog'
-import { buildSearchEntries } from '../content/navigation'
+import { createSearchEntries, searchDocs } from '../content/search'
 import type { SearchEntry } from '../content/types'
 
 const router = useRouter()
 const docsTheme = useDocsTheme()
 const searchValue = ref('')
-const searchEntries = buildSearchEntries(componentCatalog)
+const searchEntries = createSearchEntries()
 const toggleLabel = computed(() =>
   docsTheme.theme.value === 'light' ? '切换深色模式' : '切换浅色模式',
 )
@@ -20,25 +19,24 @@ function search(
   query: string,
   callback: (results: SearchEntry[]) => void,
 ) {
-  const normalized = query.trim().toLocaleLowerCase('zh-CN')
-  if (!normalized) {
-    callback([])
-    return
-  }
-
-  callback(
-    searchEntries.filter((entry) =>
-      [entry.label, entry.description, ...entry.keywords].some((value) =>
-        value.toLocaleLowerCase('zh-CN').includes(normalized),
-      ),
-    ),
-  )
+  callback(searchDocs(query, searchEntries))
 }
 
 function selectEntry(entry: Record<string, unknown>) {
   if (typeof entry.path !== 'string') return
   searchValue.value = ''
   void router.push(entry.path)
+}
+
+function resultPrimary(entry: SearchEntry) {
+  if (!entry.meta || entry.meta === '组件') return entry.label
+  return entry.meta.split(' · ')[0] ?? entry.label
+}
+
+function resultSecondary(entry: SearchEntry) {
+  if (!entry.meta || entry.meta === '组件') return entry.description
+  const section = entry.meta.split(' · ')[1]
+  return section ? `${section} · ${entry.label}` : entry.description
 }
 </script>
 
@@ -60,6 +58,7 @@ function selectEntry(entry: Record<string, unknown>) {
         v-model="searchValue"
         class="ga-docs-header__search"
         placeholder="搜索组件或 API"
+        aria-label="搜索组件或 API"
         value-key="label"
         :fetch-suggestions="search"
         :debounce="0"
@@ -69,8 +68,8 @@ function selectEntry(entry: Record<string, unknown>) {
       >
         <template #default="{ item }">
           <div class="ga-docs-search-result">
-            <strong>{{ item.label }}</strong>
-            <span>{{ item.description }}</span>
+            <strong>{{ resultPrimary(item) }}</strong>
+            <span>{{ resultSecondary(item) }}</span>
           </div>
         </template>
       </ElAutocomplete>
