@@ -6,7 +6,10 @@ export type ComponentDocModules = Record<
   () => Promise<ComponentDocModule>
 >
 
-const defaultModules = import.meta.glob<ComponentDocModule>('./components/*.ts')
+const defaultModules = import.meta.glob<ComponentDocModule>([
+  './components/*.ts',
+  '!./components/*.spec.ts',
+])
 
 export function createComponentDocLoader(
   modules: ComponentDocModules = defaultModules,
