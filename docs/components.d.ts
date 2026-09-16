@@ -13,6 +13,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     CopyButton: typeof import('./src/components/CopyButton.vue')['default']
     DemoBlock: typeof import('./src/components/DemoBlock.vue')['default']
+    ElAutocomplete: typeof import('element-plus/es')['ElAutocomplete']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
