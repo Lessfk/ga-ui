@@ -1,3 +1,3 @@
-.vitepress/cache/
-.vitepress/dist/
-.vitepress/.temp/
+dist
+.vite
+tests/test-results
