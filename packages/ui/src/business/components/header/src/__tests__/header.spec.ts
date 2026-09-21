@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 import type { PropType } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -248,6 +248,41 @@ describe('GaHeader', () => {
     expect(
       root.element.style.getPropertyValue('--ga-header-background'),
     ).toBe('#2f436b')
+  })
+
+  it('reacts to dynamic attrs and consumer styles', async () => {
+    const context = ref('initial')
+    const className = ref('initial-header')
+    const color = ref('rgb(255, 0, 0)')
+    const Host = defineComponent({
+      setup() {
+        return () =>
+          h(GaHeader, {
+            'data-context': context.value,
+            class: className.value,
+            style: { color: color.value },
+            menus,
+          })
+      },
+    })
+    const wrapper = mount(Host, {
+      global: {
+        stubs: {
+          ElHeader: ElHeaderStub,
+          GaMegaMenu: GaMegaMenuStub,
+        },
+      },
+    })
+    context.value = 'updated'
+    className.value = 'updated-header'
+    color.value = 'rgb(0, 0, 255)'
+    await nextTick()
+    const root = wrapper.get('header')
+
+    expect(root.attributes('data-context')).toBe('updated')
+    expect(root.classes()).toContain('updated-header')
+    expect(root.classes()).not.toContain('initial-header')
+    expect(root.element.style.color).toBe('rgb(0, 0, 255)')
   })
 
   it('forwards the complete MegaMenu configuration contract', () => {

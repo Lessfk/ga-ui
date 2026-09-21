@@ -1,9 +1,9 @@
 <template>
   <ElHeader
-    v-bind="headerAttrs"
+    v-bind="getHeaderAttrs()"
     class="ga-header"
     :height="formattedHeight"
-    :style="headerStyle"
+    :style="[internalHeaderStyle, attrs.style]"
   >
     <div class="ga-header__left">
       <slot name="left" />
@@ -89,22 +89,12 @@ const internalOpenKey = ref<GaMegaMenuKey | undefined>(props.openKey)
 
 const formattedHeight = computed(() => formatSize(props.height))
 
-const headerAttrs = computed(() => {
-  const { style: _style, ...rest } = attrs
-  return rest
-})
-
-const headerStyle = computed(() => [
-  {
-    '--ga-header-gap': formatSize(props.gap),
-    '--ga-header-padding': props.padding,
-    '--ga-header-background':
-      props.backgroundColor ??
-      props.theme?.menuBackgroundColor ??
-      '#2f436b',
-  } as CSSProperties,
-  attrs.style,
-])
+const internalHeaderStyle = computed<CSSProperties>(() => ({
+  '--ga-header-gap': formatSize(props.gap),
+  '--ga-header-padding': props.padding,
+  '--ga-header-background':
+    props.backgroundColor ?? props.theme?.menuBackgroundColor ?? '#2f436b',
+}))
 
 const megaMenuProps = computed(() => {
   const {
@@ -144,6 +134,11 @@ watch(
 
 function formatSize(value: string | number) {
   return typeof value === 'number' ? `${value}px` : value
+}
+
+function getHeaderAttrs() {
+  const { style: _style, ...rest } = attrs
+  return rest
 }
 
 function hasVNodeProp(name: string) {
