@@ -1,0 +1,31 @@
+.el-header.ga-header {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  align-items: stretch;
+  gap: var(--ga-header-gap, 16px);
+  width: 100%;
+  min-width: 0;
+  padding: var(--ga-header-padding, 0 20px);
+  box-sizing: border-box;
+  background: var(--ga-header-background, #2f436b);
+}
+
+.ga-header__left,
+.ga-header__right {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.ga-header__right {
+  justify-content: flex-end;
+}
+
+.ga-header__center {
+  min-width: 0;
+  height: 100%;
+}
+
+.ga-header__center > .ga-mega-menu {
+  height: 100%;
+}
