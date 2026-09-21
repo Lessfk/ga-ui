@@ -1,0 +1,22 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+    /* 文档站直接消费组件库源码，保证类型与 src 实时一致 */
+    "paths": {
+      "ga-ui-plus": ["../packages/ui/src/index.ts"],
+      "ga-ui-plus/base": ["../packages/ui/src/base/index.ts"],
+      "ga-ui-plus/business": ["../packages/ui/src/business/index.ts"]
+    },
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
+}
