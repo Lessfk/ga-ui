@@ -72,7 +72,7 @@
       </template>
     </GaHeader>
 
-    <main class="header-demo__content" aria-live="polite">
+    <main class="header-demo__content">
       <h1>头部导航状态</h1>
       <dl class="header-demo__status">
         <div>
@@ -81,7 +81,7 @@
         </div>
         <div>
           <dt>最近选择</dt>
-          <dd>{{ latestSelection }}</dd>
+          <dd aria-live="polite">{{ latestSelection }}</dd>
         </div>
       </dl>
     </main>
@@ -255,7 +255,6 @@ function handleSelect(payload: GaMegaMenuSelectPayload) {
 
 <style scoped lang="scss">
 .header-demo {
-  min-width: 1080px;
   min-height: 100%;
   color: #172033;
   background: #f3f6f9;
