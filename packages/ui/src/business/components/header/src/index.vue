@@ -2,6 +2,7 @@
   <ElHeader
     v-bind="getHeaderAttrs()"
     class="ga-header"
+    :aria-label="props.ariaLabel"
     :height="formattedHeight"
     :style="[internalHeaderStyle, attrs.style]"
   >
@@ -13,8 +14,8 @@
       <GaMegaMenu
         ref="megaMenuRef"
         v-bind="megaMenuProps"
-        :active-key="currentActiveKey"
-        :open-key="currentOpenKey"
+        :active-key="resolveActiveKey()"
+        :open-key="resolveOpenKey()"
         @update:active-key="handleActiveKeyUpdate"
         @update:open-key="handleOpenKeyUpdate"
         @select="handleSelect"
@@ -104,19 +105,20 @@ const megaMenuProps = computed(() => {
     padding: _padding,
     gap: _gap,
     backgroundColor: _backgroundColor,
+    theme,
     ...menuProps
   } = props
 
-  return menuProps
+  return {
+    ...menuProps,
+    theme: props.backgroundColor
+      ? {
+          ...(theme ?? {}),
+          menuBackgroundColor: props.backgroundColor,
+        }
+      : theme,
+  }
 })
-
-const currentActiveKey = computed(() =>
-  isControlled('activeKey') ? props.activeKey : internalActiveKey.value,
-)
-
-const currentOpenKey = computed(() =>
-  isControlled('openKey') ? props.openKey : internalOpenKey.value,
-)
 
 watch(
   () => props.activeKey,
@@ -156,6 +158,14 @@ function hasVNodeProp(name: string) {
 
 function isControlled(name: 'activeKey' | 'openKey') {
   return hasVNodeProp(name)
+}
+
+function resolveActiveKey() {
+  return isControlled('activeKey') ? props.activeKey : internalActiveKey.value
+}
+
+function resolveOpenKey() {
+  return isControlled('openKey') ? props.openKey : internalOpenKey.value
 }
 
 function handleActiveKeyUpdate(key: GaMegaMenuKey) {

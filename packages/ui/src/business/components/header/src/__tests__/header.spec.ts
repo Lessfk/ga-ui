@@ -178,6 +178,7 @@ describe('GaHeader', () => {
   it('renders the Element Plus header, layout slots, menus, attrs, and CSS variables', () => {
     const wrapper = mountHeader({
       attrs: {
+        'aria-label': '应用头部',
         'data-tracking': 'business-header',
         title: 'Business navigation',
         style: { color: 'rgb(255, 255, 255)' },
@@ -202,11 +203,15 @@ describe('GaHeader', () => {
     expect(wrapper.classes()).toContain('ga-header')
     expect(wrapper.findComponent(ElHeaderStub).props('height')).toBe('72px')
     expect(root.attributes('data-tracking')).toBe('business-header')
+    expect(root.attributes('aria-label')).toBe('应用头部')
     expect(root.attributes('title')).toBe('Business navigation')
     expect(root.element.style.color).toBe('rgb(255, 255, 255)')
     expect(wrapper.get('.brand').text()).toBe('GA Admin')
     expect(wrapper.get('.account').text()).toBe('Account')
     expect(wrapper.findComponent(GaMegaMenuStub).props('menus')).toEqual(menus)
+    expect(wrapper.findComponent(GaMegaMenuStub).props('ariaLabel')).toBe(
+      '应用头部',
+    )
     expect(root.element.style.getPropertyValue('--ga-header-gap')).toBe('24px')
     expect(root.element.style.getPropertyValue('--ga-header-padding')).toBe(
       '0 32px',
@@ -226,15 +231,22 @@ describe('GaHeader', () => {
       },
     })
     const root = wrapper.get('header')
+    const megaMenu = wrapper.findComponent(GaMegaMenuStub)
 
     expect(
       root.element.style.getPropertyValue('--ga-header-background'),
     ).toBe('#334155')
+    expect(megaMenu.props('theme')).toMatchObject({
+      menuBackgroundColor: '#334155',
+    })
 
     await wrapper.setProps({ backgroundColor: '#0f172a' })
     expect(
       root.element.style.getPropertyValue('--ga-header-background'),
     ).toBe('#0f172a')
+    expect(megaMenu.props('theme')).toMatchObject({
+      menuBackgroundColor: '#0f172a',
+    })
 
     await wrapper.setProps({
       backgroundColor: undefined,
@@ -243,6 +255,9 @@ describe('GaHeader', () => {
     expect(
       root.element.style.getPropertyValue('--ga-header-background'),
     ).toBe('#475569')
+    expect(megaMenu.props('theme')).toMatchObject({
+      menuBackgroundColor: '#475569',
+    })
 
     await wrapper.setProps({ theme: {} })
     expect(
@@ -387,6 +402,40 @@ describe('GaHeader', () => {
 
     expect(megaMenu.props('activeKey')).toBe('analytics')
     expect(megaMenu.props('openKey')).toBeUndefined()
+  })
+
+  it('reacts when controlled state is added with an explicit undefined value', async () => {
+    const controlled = ref(false)
+    const Host = defineComponent({
+      setup() {
+        return () =>
+          h(GaHeader, {
+            menus,
+            ...(controlled.value ? { openKey: undefined } : {}),
+          })
+      },
+    })
+    const wrapper = mount(Host, {
+      global: {
+        stubs: {
+          ElHeader: ElHeaderStub,
+          GaMegaMenu: GaMegaMenuStub,
+        },
+      },
+    })
+    const megaMenu = wrapper.findComponent(GaMegaMenuStub)
+
+    megaMenu.vm.$emit('update:openKey', 'products')
+    await nextTick()
+    expect(megaMenu.props('openKey')).toBe('products')
+
+    controlled.value = true
+    await nextTick()
+    expect(megaMenu.props('openKey')).toBeUndefined()
+
+    controlled.value = false
+    await nextTick()
+    expect(megaMenu.props('openKey')).toBe('products')
   })
 
   it('forwards all MegaMenu slot scopes unchanged', () => {
