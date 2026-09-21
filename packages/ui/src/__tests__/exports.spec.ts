@@ -30,6 +30,8 @@ import type {
 import type { GaDialogProps as BusinessGaDialogProps } from '../business'
 // @ts-expect-error GaSearchBar public types are not exported from the base entry
 import type { GaSearchBarProps as BaseSearchBarProps } from '../base'
+// @ts-expect-error GaHeader public types are not exported from the base entry
+import type { GaHeaderProps as BaseHeaderProps } from '../base'
 import type {
   GaAsideMenuEmits,
   GaAsideMenuExpose,
@@ -181,6 +183,7 @@ type BusinessSearchTypeContract = [
 
 type BusinessDialogTypeContract = BusinessGaDialogProps
 type BaseSearchBarTypeContract = BaseSearchBarProps
+type BaseHeaderTypeContract = BaseHeaderProps
 
 const baseTypeContract: BaseTypeContract | undefined = undefined
 const rootTypeContract: RootTypeContract | undefined = undefined
@@ -192,6 +195,7 @@ const businessSearchTypeContract: BusinessSearchTypeContract | undefined =
   undefined
 const baseSearchBarTypeContract: BaseSearchBarTypeContract | undefined =
   undefined
+const baseHeaderTypeContract: BaseHeaderTypeContract | undefined = undefined
 
 const tablePaginationProps: GaTablePaginationProps<{ id: number }> = {
   data: [{ id: 1 }],
@@ -400,6 +404,7 @@ void businessHeaderTypeContract
 void businessDialogTypeContract
 void businessSearchTypeContract
 void baseSearchBarTypeContract
+void baseHeaderTypeContract
 void tablePaginationProps
 void legacyTablePaginationProps
 void paginationTheme
