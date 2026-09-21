@@ -5,6 +5,7 @@ import { GaMegaMenu as MegaMenuBarrel } from '../base/components/megaMenu'
 import { GaPagination as PaginationBarrel } from '../base/components/pagination'
 import { GaTable as TableBarrel } from '../base/components/table'
 import { GaAsideMenu as AsideMenuBarrel } from '../business/components/asideMenu'
+import { GaHeader as HeaderBarrel } from '../business/components/header'
 import { GaSearchBar as SearchBarBarrel } from '../business/components/searchBar'
 import { GaTablePagination as TablePaginationBarrel } from '../business/components/tablePagination'
 import type {
@@ -36,6 +37,10 @@ import type {
   GaAsideMenuSlotProps,
   GaAsideMenuTheme,
   GaAsideMenuToggleSlotProps,
+  GaHeaderEmits,
+  GaHeaderExpose,
+  GaHeaderProps,
+  GaHeaderSlots,
   GaSearchBarEmits,
   GaSearchBarExpose,
   GaSearchBarProps,
@@ -62,6 +67,10 @@ import type {
   GaDialogExpose as RootGaDialogExpose,
   GaDialogHeaderSlotProps as RootGaDialogHeaderSlotProps,
   GaDialogProps as RootGaDialogProps,
+  GaHeaderEmits as RootGaHeaderEmits,
+  GaHeaderExpose as RootGaHeaderExpose,
+  GaHeaderProps as RootGaHeaderProps,
+  GaHeaderSlots as RootGaHeaderSlots,
   GaMegaMenuEmits as RootGaMegaMenuEmits,
   GaMegaMenuExpose as RootGaMegaMenuExpose,
   GaMegaMenuMenuItemSlotProps as RootGaMegaMenuMenuItemSlotProps,
@@ -114,6 +123,10 @@ type RootTypeContract = [
   RootGaDialogEmits,
   RootGaDialogExpose,
   RootGaDialogHeaderSlotProps,
+  RootGaHeaderProps,
+  RootGaHeaderEmits,
+  RootGaHeaderExpose,
+  RootGaHeaderSlots,
   RootGaMegaMenuProps,
   RootGaMegaMenuTheme,
   RootGaMegaMenuTrigger,
@@ -148,6 +161,13 @@ type RootTypeContract = [
   RootGaSearchSelectField,
 ]
 
+type BusinessHeaderTypeContract = [
+  GaHeaderProps,
+  GaHeaderEmits,
+  GaHeaderExpose,
+  GaHeaderSlots,
+]
+
 type BusinessSearchTypeContract = [
   GaSearchBaseField,
   GaSearchChangePayload,
@@ -164,6 +184,8 @@ type BaseSearchBarTypeContract = BaseSearchBarProps
 
 const baseTypeContract: BaseTypeContract | undefined = undefined
 const rootTypeContract: RootTypeContract | undefined = undefined
+const businessHeaderTypeContract: BusinessHeaderTypeContract | undefined =
+  undefined
 const businessDialogTypeContract: BusinessDialogTypeContract | undefined =
   undefined
 const businessSearchTypeContract: BusinessSearchTypeContract | undefined =
@@ -264,6 +286,22 @@ function checkMegaMenuExpose(expose: GaMegaMenuExpose) {
   expose.toggle('system')
 }
 
+const headerProps: GaHeaderProps = {
+  height: 64,
+  padding: '0 24px',
+  gap: 16,
+  menus: megaMenuProps.menus,
+  trigger: 'hover',
+  theme: megaMenuTheme,
+}
+
+function checkHeaderExpose(expose: GaHeaderExpose) {
+  expose.open('system')
+  expose.close()
+  expose.toggle('system')
+  void expose.megaMenuRef
+}
+
 const asideMenuProps: GaAsideMenuProps = {
   collapse: false,
   width: '260px',
@@ -358,6 +396,7 @@ function checkAsideMenuExpose(expose: GaAsideMenuExpose) {
 
 void baseTypeContract
 void rootTypeContract
+void businessHeaderTypeContract
 void businessDialogTypeContract
 void businessSearchTypeContract
 void baseSearchBarTypeContract
@@ -372,6 +411,8 @@ void megaMenuTrigger
 void megaMenuProps
 void checkMegaMenuEmits
 void checkMegaMenuExpose
+void headerProps
+void checkHeaderExpose
 void asideMenuProps
 void asideMenuTheme
 void asideMenuSlot
@@ -407,6 +448,7 @@ describe('library exports', () => {
     expect(base).not.toHaveProperty('GaTablePagination')
     expect(base).not.toHaveProperty('GaAsideMenu')
     expect(base).not.toHaveProperty('GaSearchBar')
+    expect(base).not.toHaveProperty('GaHeader')
   })
 
   it('exports only business components from the business entry', async () => {
@@ -415,6 +457,7 @@ describe('library exports', () => {
     expect(business.GaTablePagination).toBe(TablePaginationBarrel)
     expect(business.GaAsideMenu).toBe(AsideMenuBarrel)
     expect(business.GaSearchBar).toBe(SearchBarBarrel)
+    expect(business.GaHeader).toBe(HeaderBarrel)
     expect(business).not.toHaveProperty('GaDialog')
     expect(business).not.toHaveProperty('GaTable')
     expect(business).not.toHaveProperty('GaPagination')
@@ -430,5 +473,6 @@ describe('library exports', () => {
     expect(library.GaTablePagination).toBe(TablePaginationBarrel)
     expect(library.GaAsideMenu).toBe(AsideMenuBarrel)
     expect(library.GaSearchBar).toBe(SearchBarBarrel)
+    expect(library.GaHeader).toBe(HeaderBarrel)
   })
 })

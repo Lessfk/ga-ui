@@ -43,6 +43,10 @@ const components: Record<string, ComponentDefinition> = {
     from: 'ga-ui-plus/business',
     styles: ['aside', 'menu', 'scrollbar'],
   },
+  GaHeader: {
+    from: 'ga-ui-plus/business',
+    styles: ['container', 'scrollbar'],
+  },
   GaSearchBar: {
     from: 'ga-ui-plus/business',
     styles: [
