@@ -80,12 +80,12 @@
 
       <template #right>
         <div class="header-demo__user-area">
-          <ElTooltip content="进入全屏" placement="bottom">
+          <ElTooltip :content="isFullscreen ? '退出全屏' : '进入全屏'" placement="bottom">
             <ElButton
               :icon="FullScreen"
               circle
               text
-              aria-label="进入全屏"
+              :aria-label="isFullscreen ? '退出全屏' : '进入全屏'"
               class="header-demo__header-action"
               @click="toggleFullscreen"
             />
@@ -126,46 +126,74 @@
           </div>
         </div>
         <div class="header-demo__control-grid">
-          <label class="header-demo__control">
-            <span>触发方式</span>
-            <ElRadioGroup v-model="trigger" size="small">
+          <fieldset class="header-demo__control">
+            <legend id="header-trigger-label">触发方式</legend>
+            <ElRadioGroup v-model="trigger" size="small" aria-labelledby="header-trigger-label">
               <ElRadioButton value="click">点击</ElRadioButton>
               <ElRadioButton value="hover">悬停</ElRadioButton>
             </ElRadioGroup>
-          </label>
-          <label class="header-demo__control">
-            <span>选择后关闭</span>
-            <ElSwitch v-model="closeOnSelect" />
-          </label>
-          <label class="header-demo__control">
-            <span>头部高度</span>
-            <ElInputNumber v-model="headerHeight" :min="56" :max="96" :step="2" />
-          </label>
-          <label class="header-demo__control">
-            <span>区域间距</span>
-            <ElInputNumber v-model="headerGap" :min="0" :max="48" :step="2" />
-          </label>
-          <label class="header-demo__control header-demo__control--wide">
-            <span>内边距</span>
-            <ElInput v-model="headerPadding" placeholder="例如：0 24px" />
-          </label>
-          <label class="header-demo__control">
-            <span>最小列宽</span>
-            <ElInputNumber v-model="minColumnWidth" :min="180" :max="420" :step="10" />
-          </label>
-          <label class="header-demo__control">
-            <span>最大列宽</span>
-            <ElInputNumber v-model="maxColumnWidth" :min="180" :max="520" :step="10" />
-          </label>
-          <label class="header-demo__control">
-            <span>面板最大高度</span>
-            <ElSelect v-model="panelMaxHeight">
+          </fieldset>
+          <div class="header-demo__control">
+            <span id="header-close-on-select-label">选择后关闭</span>
+            <ElSwitch v-model="closeOnSelect" aria-labelledby="header-close-on-select-label" />
+          </div>
+          <div class="header-demo__control">
+            <span id="header-height-label">头部高度</span>
+            <ElInputNumber
+              v-model="headerHeight"
+              :min="56"
+              :max="96"
+              :step="2"
+              aria-labelledby="header-height-label"
+            />
+          </div>
+          <div class="header-demo__control">
+            <span id="header-gap-label">区域间距</span>
+            <ElInputNumber
+              v-model="headerGap"
+              :min="0"
+              :max="48"
+              :step="2"
+              aria-labelledby="header-gap-label"
+            />
+          </div>
+          <div class="header-demo__control header-demo__control--wide">
+            <span id="header-padding-label">内边距</span>
+            <ElInput
+              v-model="headerPadding"
+              placeholder="例如：0 24px"
+              aria-labelledby="header-padding-label"
+            />
+          </div>
+          <div class="header-demo__control">
+            <span id="header-min-column-width-label">最小列宽</span>
+            <ElInputNumber
+              v-model="minColumnWidth"
+              :min="180"
+              :max="420"
+              :step="10"
+              aria-labelledby="header-min-column-width-label"
+            />
+          </div>
+          <div class="header-demo__control">
+            <span id="header-max-column-width-label">最大列宽</span>
+            <ElInputNumber
+              v-model="maxColumnWidth"
+              :min="180"
+              :max="520"
+              :step="10"
+              aria-labelledby="header-max-column-width-label"
+            />
+          </div>
+          <div class="header-demo__control">
+            <span id="header-panel-max-height-label">面板最大高度</span>
+            <ElSelect v-model="panelMaxHeight" aria-labelledby="header-panel-max-height-label">
               <ElOption label="自动" value="auto" />
               <ElOption label="420px" :value="420" />
               <ElOption label="520px" :value="520" />
               <ElOption label="640px" :value="640" />
             </ElSelect>
-          </label>
+          </div>
         </div>
       </section>
 
@@ -183,6 +211,7 @@
             type="button"
             class="header-demo__theme-option"
             :class="{ 'is-active': selectedTheme === key }"
+            :aria-pressed="selectedTheme === key"
             @click="selectTheme(key)"
           >
             <span
@@ -273,6 +302,7 @@ import {
   ElIcon,
   ElInput,
   ElInputNumber,
+  ElMessage,
   ElRadioButton,
   ElRadioGroup,
   ElSelect,
@@ -281,7 +311,7 @@ import {
   ElTag,
   ElTooltip,
 } from 'element-plus'
-import { computed, markRaw, ref, toRaw, watch } from 'vue'
+import { computed, markRaw, onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue'
 import type { Component } from 'vue'
 
 import type {
@@ -306,6 +336,7 @@ interface EventLogItem {
 }
 
 const headerRef = ref<GaHeaderExpose>()
+const isFullscreen = ref(false)
 const activeKey = ref<GaMegaMenuKey>('overview')
 const openKey = ref<GaMegaMenuKey | undefined>()
 const trigger = ref<GaMegaMenuTrigger>('click')
@@ -638,6 +669,15 @@ watch(maxColumnWidth, (value) => {
   if (value < minColumnWidth.value) minColumnWidth.value = value
 })
 
+onMounted(() => {
+  syncFullscreenState()
+  document.addEventListener('fullscreenchange', syncFullscreenState)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('fullscreenchange', syncFullscreenState)
+})
+
 function appendLog(event: EventLogItem['event'], detail: string) {
   eventLogs.value.unshift({
     id: ++eventLogId,
@@ -685,11 +725,30 @@ function toggleAnalyticsPanel() {
 }
 
 async function toggleFullscreen() {
-  if (!document.fullscreenElement) {
-    await document.documentElement.requestFullscreen?.()
-    return
+  const enteringFullscreen = !document.fullscreenElement
+
+  try {
+    if (enteringFullscreen) {
+      if (!document.documentElement.requestFullscreen) {
+        ElMessage.warning('当前浏览器不支持全屏模式')
+        return
+      }
+      await document.documentElement.requestFullscreen()
+      return
+    }
+
+    if (!document.exitFullscreen) {
+      ElMessage.warning('当前浏览器无法退出全屏模式')
+      return
+    }
+    await document.exitFullscreen()
+  } catch {
+    ElMessage.warning(enteringFullscreen ? '进入全屏失败，请重试' : '退出全屏失败，请重试')
   }
-  await document.exitFullscreen?.()
+}
+
+function syncFullscreenState() {
+  isFullscreen.value = Boolean(document.fullscreenElement)
 }
 
 function clearLogs() {
@@ -785,12 +844,12 @@ function resolveIconProps(icon: GaMegaMenuIcon) {
   white-space: nowrap;
 }
 
-.header-demo__notification {
+.header-demo__header-action {
   color: #ffffff;
 }
 
-.header-demo__notification:hover,
-.header-demo__notification:focus-visible {
+.header-demo__header-action:hover,
+.header-demo__header-action:focus-visible {
   color: #ffffff;
   background: rgb(255 255 255 / 12%);
 }
@@ -815,6 +874,33 @@ function resolveIconProps(icon: GaMegaMenuIcon) {
 
 .header-demo__user-button:focus-visible {
   box-shadow: 0 0 0 2px #8db7f0;
+}
+
+.header-demo__header--light {
+  .header-demo__brand,
+  .header-demo__user-area,
+  .header-demo__header-action,
+  .header-demo__user-button {
+    color: #253858;
+  }
+
+  .header-demo__logo {
+    color: #173f73;
+    background: #e8eff8;
+    border-color: #c5d8ee;
+  }
+
+  .header-demo__header-action:hover,
+  .header-demo__header-action:focus-visible,
+  .header-demo__user-button:hover,
+  .header-demo__user-button:focus-visible {
+    color: #173f73;
+    background: #edf4fc;
+  }
+
+  .header-demo__user-button:focus-visible {
+    box-shadow: 0 0 0 2px #6f9bd1;
+  }
 }
 
 .header-demo__content {
