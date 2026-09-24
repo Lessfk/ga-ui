@@ -35,7 +35,11 @@
 
       <template #menu-item="{ menu, active, open }">
         <span class="header-demo__menu-content">
-          <span v-if="menu.icon" class="header-demo__menu-icon" aria-hidden="true">
+          <span
+            v-if="menu.icon"
+            class="header-demo__menu-icon ga-mega-menu__icon"
+            aria-hidden="true"
+          >
             <component
               :is="resolveIconComponent(menu.icon)"
               v-bind="resolveIconProps(menu.icon)"
@@ -403,7 +407,7 @@ const menus: GaMegaMenuNavItem[] = [
             key: 'menu-config',
             label: '菜单配置',
             description: '维护业务导航和菜单展示顺序',
-            icon: { component: markRaw(Menu), props: { color: '#315c96' } },
+            icon: { component: markRaw(Menu), props: { color: 'currentColor' } },
           },
           {
             key: 'tenant-config',
@@ -843,7 +847,7 @@ function resolveIconProps(icon: GaMegaMenuIcon) {
 
 .header-demo__menu-content {
   min-width: 0;
-  gap: 8px;
+  gap: var(--ga-mega-menu-menu-item-gap, 8px);
 }
 
 .header-demo__menu-icon,
@@ -853,8 +857,8 @@ function resolveIconProps(icon: GaMegaMenuIcon) {
 }
 
 .header-demo__menu-icon {
-  width: 18px;
-  height: 18px;
+  width: 1em;
+  height: 1em;
 }
 
 .header-demo__menu-icon :deep(svg) {
@@ -1080,15 +1084,18 @@ fieldset.header-demo__control {
 }
 
 .header-demo__theme-option:hover,
-.header-demo__theme-option:focus-visible,
 .header-demo__theme-option.is-active {
   border-color: #668dbd;
-  outline: none;
 }
 
-.header-demo__theme-option:focus-visible,
 .header-demo__theme-option.is-active {
   box-shadow: 0 0 0 2px rgb(102 141 189 / 16%);
+}
+
+.header-demo__theme-option:focus-visible {
+  border-color: #315c96;
+  outline: 2px solid #315c96;
+  outline-offset: 2px;
 }
 
 .header-demo__theme-swatch {
