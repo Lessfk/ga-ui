@@ -1,69 +1,114 @@
 <template>
   <section class="header-demo">
+    <div class="header-demo__preview-label">实时预览</div>
+
     <GaHeader
-      v-model:active-key="activeKey"
-      v-model:open-key="openKey"
+      ref="headerRef"
+      :class="{ 'header-demo__header--light': selectedTheme === 'light' }"
+      :active-key="activeKey"
+      :open-key="openKey"
       :menus="menus"
-      :theme="theme"
-      :min-column-width="260"
-      :max-column-width="360"
-      trigger="click"
+      :theme="currentTheme"
+      :background-color="currentHeaderBackground"
+      :height="headerHeight"
+      :padding="headerPadding"
+      :gap="headerGap"
+      :trigger="trigger"
+      :close-on-select="closeOnSelect"
+      :min-column-width="minColumnWidth"
+      :max-column-width="maxColumnWidth"
+      :max-height="panelMaxHeight"
+      aria-label="运营管理平台主导航"
+      @update:active-key="handleActiveKeyUpdate"
+      @update:open-key="handleOpenKeyUpdate"
       @select="handleSelect"
+      @open="handleOpen"
+      @close="handleClose"
     >
       <template #left>
         <div class="header-demo__brand">
           <span class="header-demo__logo" aria-hidden="true">GA</span>
-          <strong>运营管理平台</strong>
+          <span class="header-demo__brand-name">运营管理平台</span>
+          <ElTag size="small" effect="dark" type="success">正式环境</ElTag>
         </div>
       </template>
 
-      <template #menu-item="{ menu, active }">
+      <template #menu-item="{ menu, active, open }">
         <span class="header-demo__menu-content">
-          <span
-            v-if="menu.icon"
-            class="header-demo__menu-icon"
-            aria-hidden="true"
-          >
+          <span v-if="menu.icon" class="header-demo__menu-icon" aria-hidden="true">
             <component
               :is="resolveIconComponent(menu.icon)"
               v-bind="resolveIconProps(menu.icon)"
             />
           </span>
           <span class="header-demo__menu-label">{{ menu.label }}</span>
-          <span
-            v-if="active"
-            class="header-demo__active-dot"
-            aria-hidden="true"
-          />
+          <span v-if="open" class="header-demo__open-mark">展开</span>
+          <span v-if="active" class="header-demo__active-dot" aria-hidden="true" />
         </span>
+      </template>
+
+      <template #group-title="{ group }">
+        <span class="header-demo__group-title">
+          <span class="header-demo__group-line" />
+          {{ group.title || '未命名分组' }}
+        </span>
+      </template>
+
+      <template #panel-item="{ item, active }">
+        <span class="header-demo__panel-item" :class="{ 'is-active': active }">
+          <span v-if="item.icon" class="header-demo__panel-icon" aria-hidden="true">
+            <component
+              :is="resolveIconComponent(item.icon)"
+              v-bind="resolveIconProps(item.icon)"
+            />
+          </span>
+          <span class="header-demo__panel-copy">
+            <span class="header-demo__panel-label">
+              {{ item.label }}
+              <ElTag v-if="item.disabled" size="small" type="info">不可用</ElTag>
+            </span>
+            <span v-if="item.description" class="header-demo__panel-description">
+              {{ item.description }}
+            </span>
+          </span>
+        </span>
+      </template>
+
+      <template #empty="{ menu }">
+        <ElEmpty :image-size="56" :description="`${menu.label}暂未配置功能`" />
       </template>
 
       <template #right>
         <div class="header-demo__user-area">
+          <ElTooltip content="进入全屏" placement="bottom">
+            <ElButton
+              :icon="FullScreen"
+              circle
+              text
+              aria-label="进入全屏"
+              class="header-demo__header-action"
+              @click="toggleFullscreen"
+            />
+          </ElTooltip>
           <ElBadge is-dot>
             <ElButton
               :icon="Bell"
               circle
               text
               aria-label="通知"
-              class="header-demo__notification"
+              class="header-demo__header-action"
             />
           </ElBadge>
-
           <ElDropdown trigger="click">
-            <button
-              type="button"
-              class="header-demo__user-button"
-              aria-label="打开用户菜单"
-            >
-              <ElAvatar :size="34">GA</ElAvatar>
+            <button type="button" class="header-demo__user-button" aria-label="打开用户菜单">
+              <ElAvatar :size="34" :icon="UserFilled" />
               <span>管理员</span>
               <ElIcon><ArrowDown /></ElIcon>
             </button>
-
             <template #dropdown>
               <ElDropdownMenu>
                 <ElDropdownItem>个人中心</ElDropdownItem>
+                <ElDropdownItem>系统设置</ElDropdownItem>
                 <ElDropdownItem divided>退出登录</ElDropdownItem>
               </ElDropdownMenu>
             </template>
@@ -72,18 +117,129 @@
       </template>
     </GaHeader>
 
-    <main class="header-demo__content">
-      <h1>头部导航状态</h1>
-      <dl class="header-demo__status">
-        <div>
-          <dt>当前菜单</dt>
-          <dd>{{ activeKey }}</dd>
+    <main class="header-demo__workspace">
+      <section class="header-demo__section" aria-labelledby="header-config-title">
+        <div class="header-demo__section-heading">
+          <div>
+            <p class="header-demo__eyebrow">Props</p>
+            <h2 id="header-config-title">布局与菜单配置</h2>
+          </div>
         </div>
-        <div>
-          <dt>最近选择</dt>
-          <dd aria-live="polite">{{ latestSelection }}</dd>
+        <div class="header-demo__control-grid">
+          <label class="header-demo__control">
+            <span>触发方式</span>
+            <ElRadioGroup v-model="trigger" size="small">
+              <ElRadioButton value="click">点击</ElRadioButton>
+              <ElRadioButton value="hover">悬停</ElRadioButton>
+            </ElRadioGroup>
+          </label>
+          <label class="header-demo__control">
+            <span>选择后关闭</span>
+            <ElSwitch v-model="closeOnSelect" />
+          </label>
+          <label class="header-demo__control">
+            <span>头部高度</span>
+            <ElInputNumber v-model="headerHeight" :min="56" :max="96" :step="2" />
+          </label>
+          <label class="header-demo__control">
+            <span>区域间距</span>
+            <ElInputNumber v-model="headerGap" :min="0" :max="48" :step="2" />
+          </label>
+          <label class="header-demo__control header-demo__control--wide">
+            <span>内边距</span>
+            <ElInput v-model="headerPadding" placeholder="例如：0 24px" />
+          </label>
+          <label class="header-demo__control">
+            <span>最小列宽</span>
+            <ElInputNumber v-model="minColumnWidth" :min="180" :max="420" :step="10" />
+          </label>
+          <label class="header-demo__control">
+            <span>最大列宽</span>
+            <ElInputNumber v-model="maxColumnWidth" :min="180" :max="520" :step="10" />
+          </label>
+          <label class="header-demo__control">
+            <span>面板最大高度</span>
+            <ElSelect v-model="panelMaxHeight">
+              <ElOption label="自动" value="auto" />
+              <ElOption label="420px" :value="420" />
+              <ElOption label="520px" :value="520" />
+              <ElOption label="640px" :value="640" />
+            </ElSelect>
+          </label>
         </div>
-      </dl>
+      </section>
+
+      <section class="header-demo__section" aria-labelledby="header-theme-title">
+        <div class="header-demo__section-heading">
+          <div>
+            <p class="header-demo__eyebrow">Theme</p>
+            <h2 id="header-theme-title">主题预设</h2>
+          </div>
+        </div>
+        <div class="header-demo__theme-list">
+          <button
+            v-for="(preset, key) in themePresets"
+            :key="key"
+            type="button"
+            class="header-demo__theme-option"
+            :class="{ 'is-active': selectedTheme === key }"
+            @click="selectTheme(key)"
+          >
+            <span
+              class="header-demo__theme-swatch"
+              :style="{ background: preset.theme.menuBackgroundColor }"
+            />
+            <span>{{ preset.label }}</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="header-demo__section" aria-labelledby="header-method-title">
+        <div class="header-demo__section-heading">
+          <div>
+            <p class="header-demo__eyebrow">Expose</p>
+            <h2 id="header-method-title">实例方法</h2>
+          </div>
+        </div>
+        <ElButtonGroup>
+          <ElButton type="primary" @click="openSystemPanel">open('system')</ElButton>
+          <ElButton @click="toggleAnalyticsPanel">toggle('analytics')</ElButton>
+          <ElButton @click="closePanel">close()</ElButton>
+        </ElButtonGroup>
+      </section>
+
+      <section class="header-demo__section" aria-labelledby="header-state-title">
+        <div class="header-demo__section-heading">
+          <div>
+            <p class="header-demo__eyebrow">State</p>
+            <h2 id="header-state-title">实时状态</h2>
+          </div>
+        </div>
+        <dl class="header-demo__status-grid">
+          <div><dt>activeKey</dt><dd>{{ activeKey }}</dd></div>
+          <div><dt>openKey</dt><dd>{{ openKey ?? 'undefined' }}</dd></div>
+          <div><dt>trigger</dt><dd>{{ trigger }}</dd></div>
+          <div><dt>最近选择</dt><dd>{{ latestSelection }}</dd></div>
+        </dl>
+      </section>
+
+      <section class="header-demo__section" aria-labelledby="header-events-title">
+        <div class="header-demo__section-heading">
+          <div>
+            <p class="header-demo__eyebrow">Events</p>
+            <h2 id="header-events-title">事件日志</h2>
+          </div>
+          <ElButton text :disabled="eventLogs.length === 0" @click="clearLogs">清空</ElButton>
+        </div>
+        <div v-if="eventLogs.length" class="header-demo__event-list" aria-live="polite">
+          <div v-for="log in eventLogs" :key="log.id" class="header-demo__event-row">
+            <code>{{ log.event }}</code>
+            <span>{{ log.detail }}</span>
+            <time>{{ log.time }}</time>
+          </div>
+        </div>
+        <div v-else class="header-demo__event-empty">操作顶部菜单后，这里会显示事件。</div>
+      </section>
     </main>
   </section>
 </template>
