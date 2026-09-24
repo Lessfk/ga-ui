@@ -48,7 +48,7 @@
       </template>
 
       <template #group-title="{ group }">
-        <span class="header-demo__group-title">
+        <span class="header-demo__group-title ga-mega-menu__group-title">
           <span class="header-demo__group-line" />
           {{ group.title || '未命名分组' }}
         </span>
@@ -56,18 +56,25 @@
 
       <template #panel-item="{ item, active }">
         <span class="header-demo__panel-item" :class="{ 'is-active': active }">
-          <span v-if="item.icon" class="header-demo__panel-icon" aria-hidden="true">
+          <span
+            v-if="item.icon"
+            class="header-demo__panel-icon ga-mega-menu__item-icon"
+            aria-hidden="true"
+          >
             <component
               :is="resolveIconComponent(item.icon)"
               v-bind="resolveIconProps(item.icon)"
             />
           </span>
-          <span class="header-demo__panel-copy">
-            <span class="header-demo__panel-label">
+          <span class="header-demo__panel-copy ga-mega-menu__item-content">
+            <span class="header-demo__panel-label ga-mega-menu__item-label">
               {{ item.label }}
               <ElTag v-if="item.disabled" size="small" type="info">不可用</ElTag>
             </span>
-            <span v-if="item.description" class="header-demo__panel-description">
+            <span
+              v-if="item.description"
+              class="header-demo__panel-description ga-mega-menu__item-description"
+            >
               {{ item.description }}
             </span>
           </span>
@@ -75,7 +82,11 @@
       </template>
 
       <template #empty="{ menu }">
-        <ElEmpty :image-size="56" :description="`${menu.label}暂未配置功能`" />
+        <ElEmpty
+          class="header-demo__empty"
+          :image-size="56"
+          :description="`${menu.label}暂未配置功能`"
+        />
       </template>
 
       <template #right>
@@ -134,60 +145,60 @@
             </ElRadioGroup>
           </fieldset>
           <div class="header-demo__control">
-            <span id="header-close-on-select-label">选择后关闭</span>
-            <ElSwitch v-model="closeOnSelect" aria-labelledby="header-close-on-select-label" />
+            <label for="header-close-on-select">选择后关闭</label>
+            <ElSwitch id="header-close-on-select" v-model="closeOnSelect" />
           </div>
           <div class="header-demo__control">
-            <span id="header-height-label">头部高度</span>
+            <label for="header-height">头部高度</label>
             <ElInputNumber
+              id="header-height"
               v-model="headerHeight"
               :min="56"
               :max="96"
               :step="2"
-              aria-labelledby="header-height-label"
             />
           </div>
           <div class="header-demo__control">
-            <span id="header-gap-label">区域间距</span>
+            <label for="header-gap">区域间距</label>
             <ElInputNumber
+              id="header-gap"
               v-model="headerGap"
               :min="0"
               :max="48"
               :step="2"
-              aria-labelledby="header-gap-label"
             />
           </div>
           <div class="header-demo__control header-demo__control--wide">
-            <span id="header-padding-label">内边距</span>
+            <label for="header-padding">内边距</label>
             <ElInput
+              id="header-padding"
               v-model="headerPadding"
               placeholder="例如：0 24px"
-              aria-labelledby="header-padding-label"
             />
           </div>
           <div class="header-demo__control">
-            <span id="header-min-column-width-label">最小列宽</span>
+            <label for="header-min-column-width">最小列宽</label>
             <ElInputNumber
+              id="header-min-column-width"
               v-model="minColumnWidth"
               :min="180"
               :max="420"
               :step="10"
-              aria-labelledby="header-min-column-width-label"
             />
           </div>
           <div class="header-demo__control">
-            <span id="header-max-column-width-label">最大列宽</span>
+            <label for="header-max-column-width">最大列宽</label>
             <ElInputNumber
+              id="header-max-column-width"
               v-model="maxColumnWidth"
               :min="180"
               :max="520"
               :step="10"
-              aria-labelledby="header-max-column-width-label"
             />
           </div>
           <div class="header-demo__control">
-            <span id="header-panel-max-height-label">面板最大高度</span>
-            <ElSelect v-model="panelMaxHeight" aria-labelledby="header-panel-max-height-label">
+            <label for="header-panel-max-height">面板最大高度</label>
+            <ElSelect id="header-panel-max-height" v-model="panelMaxHeight">
               <ElOption label="自动" value="auto" />
               <ElOption label="420px" :value="420" />
               <ElOption label="520px" :value="520" />
@@ -838,6 +849,10 @@ function resolveIconProps(icon: GaMegaMenuIcon) {
   border-radius: 50%;
 }
 
+.header-demo__empty {
+  --el-text-color-secondary: var(--ga-mega-menu-panel-empty-text-color);
+}
+
 .header-demo__user-area {
   gap: 14px;
   color: #ffffff;
@@ -901,6 +916,23 @@ function resolveIconProps(icon: GaMegaMenuIcon) {
   .header-demo__user-button:focus-visible {
     box-shadow: 0 0 0 2px #6f9bd1;
   }
+}
+
+fieldset.header-demo__control {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.header-demo__control > label,
+.header-demo__control > legend {
+  display: block;
+  margin-bottom: 8px;
+  padding: 0;
+  color: #68788d;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .header-demo__content {
