@@ -17,6 +17,7 @@ describe('GaUiResolver', () => {
       'ga-ui-plus/business',
       ['aside', 'menu', 'scrollbar'],
     ],
+    ['GaHeader', 'ga-ui-plus/business', ['container', 'scrollbar']],
     [
       'GaSearchBar',
       'ga-ui-plus/business',

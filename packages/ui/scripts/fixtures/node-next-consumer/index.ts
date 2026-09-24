@@ -1,6 +1,7 @@
 import {
   GaAsideMenu,
   GaDialog,
+  GaHeader,
   GaPagination,
   GaSearchBar,
   GaTable,
@@ -12,6 +13,10 @@ import {
   type GaAsideMenuTheme,
   type GaAsideMenuToggleSlotProps,
   type GaDialogProps,
+  type GaHeaderEmits,
+  type GaHeaderExpose,
+  type GaHeaderProps,
+  type GaHeaderSlots,
   type GaSearchBarEmits,
   type GaSearchBarExpose,
   type GaSearchBarProps,
@@ -39,10 +44,13 @@ import {
 import type { GaAsideMenuProps as BaseAsideMenuProps } from 'ga-ui-plus/base'
 // @ts-expect-error SearchBar types are not exported from the base entry
 import type { GaSearchBarProps as BaseSearchBarProps } from 'ga-ui-plus/base'
+// @ts-expect-error Header types are not exported from the base entry
+import type { GaHeaderProps as BaseHeaderProps } from 'ga-ui-plus/base'
 // @ts-expect-error Dialog types are not exported from the business entry
 import type { GaDialogProps as BusinessDialogProps } from 'ga-ui-plus/business'
 import {
   GaAsideMenu as BusinessAsideMenu,
+  GaHeader as BusinessHeader,
   GaSearchBar as BusinessSearchBar,
   GaTablePagination as BusinessTablePagination,
   type GaAsideMenuEmits as BusinessAsideMenuEmits,
@@ -50,6 +58,10 @@ import {
   type GaAsideMenuSlotProps as BusinessAsideMenuSlotProps,
   type GaAsideMenuTheme as BusinessAsideMenuTheme,
   type GaAsideMenuToggleSlotProps as BusinessAsideMenuToggleSlotProps,
+  type GaHeaderEmits as BusinessHeaderEmits,
+  type GaHeaderExpose as BusinessHeaderExpose,
+  type GaHeaderProps as BusinessHeaderProps,
+  type GaHeaderSlots as BusinessHeaderSlots,
   type GaSearchBarEmits as BusinessSearchBarEmits,
   type GaSearchBarExpose as BusinessSearchBarExpose,
   type GaSearchBarProps as BusinessSearchBarProps,
@@ -87,6 +99,44 @@ const businessTablePaginationProps: BusinessTablePaginationProps<Row> = {
 }
 const rootDialogProps: GaDialogProps = { modelValue: false }
 const baseDialogProps: BaseDialogProps = { showFullscreen: false }
+
+const rootHeaderProps: GaHeaderProps = {
+  height: 64,
+  padding: '0 24px',
+  gap: 16,
+  menus: [{ key: 'home', label: 'Home' }],
+  closeOnSelect: true,
+}
+const businessHeaderProps: BusinessHeaderProps = rootHeaderProps
+const rootHeaderSlots: GaHeaderSlots = {
+  left: () => undefined,
+  right: () => undefined,
+}
+const businessHeaderSlots: BusinessHeaderSlots = rootHeaderSlots
+
+function checkRootHeaderEmits(emit: GaHeaderEmits) {
+  emit('update:activeKey', 'home')
+  emit('update:openKey', undefined)
+}
+
+function checkBusinessHeaderEmits(emit: BusinessHeaderEmits) {
+  emit('update:activeKey', 'home')
+  emit('update:openKey', undefined)
+}
+
+function checkRootHeaderExpose(expose: GaHeaderExpose) {
+  expose.open('home')
+  expose.close()
+  expose.toggle('home')
+  void expose.megaMenuRef
+}
+
+function checkBusinessHeaderExpose(expose: BusinessHeaderExpose) {
+  expose.open('home')
+  expose.close()
+  expose.toggle('home')
+  void expose.megaMenuRef
+}
 
 const rootSearchOption: GaSearchOption = { label: '启用', value: 1 }
 const rootSearchInputField: GaSearchInputField = {
@@ -239,6 +289,7 @@ function checkRootAsideMenuExpose(expose: GaAsideMenuExpose) {
 type BusinessDialogTypeContract = BusinessDialogProps
 type BaseAsideMenuTypeContract = BaseAsideMenuProps
 type BaseSearchBarTypeContract = BaseSearchBarProps
+type BaseHeaderTypeContract = BaseHeaderProps
 
 const businessDialogTypeContract: BusinessDialogTypeContract | undefined =
   undefined
@@ -246,9 +297,11 @@ const baseAsideMenuTypeContract: BaseAsideMenuTypeContract | undefined =
   undefined
 const baseSearchBarTypeContract: BaseSearchBarTypeContract | undefined =
   undefined
+const baseHeaderTypeContract: BaseHeaderTypeContract | undefined = undefined
 
 void [
   GaDialog,
+  GaHeader,
   GaPagination,
   GaSearchBar,
   GaTable,
@@ -259,6 +312,7 @@ void [
   BaseTable,
   BusinessTablePagination,
   BusinessAsideMenu,
+  BusinessHeader,
   BusinessSearchBar,
   resolver,
   resolvedMegaMenu,
@@ -268,6 +322,14 @@ void [
   businessTablePaginationProps,
   rootDialogProps,
   baseDialogProps,
+  rootHeaderProps,
+  businessHeaderProps,
+  rootHeaderSlots,
+  businessHeaderSlots,
+  checkRootHeaderEmits,
+  checkBusinessHeaderEmits,
+  checkRootHeaderExpose,
+  checkBusinessHeaderExpose,
   rootSearchFields,
   rootSearchBaseField,
   rootSearchOption,
@@ -308,4 +370,5 @@ void [
   businessDialogTypeContract,
   baseAsideMenuTypeContract,
   baseSearchBarTypeContract,
+  baseHeaderTypeContract,
 ]

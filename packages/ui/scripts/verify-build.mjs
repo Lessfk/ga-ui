@@ -39,6 +39,7 @@ for (const selector of [
   /\.ga-table-pagination/,
   /\.el-aside\.ga-aside-menu/,
   /\.ga-search-bar(?:\s*,|\s*\{)/,
+  /\.el-header\.ga-header/,
 ]) {
   assert.match(css, selector)
 }
@@ -151,6 +152,7 @@ assert.deepEqual(Object.keys(base).sort(), [
 ])
 assert.deepEqual(Object.keys(business).sort(), [
   'GaAsideMenu',
+  'GaHeader',
   'GaSearchBar',
   'GaTablePagination',
 ])
@@ -159,6 +161,7 @@ assert.equal(typeof resolver.GaUiResolver, 'function')
 assert.deepEqual(Object.keys(root).sort(), [
   'GaAsideMenu',
   'GaDialog',
+  'GaHeader',
   'GaMegaMenu',
   'GaPagination',
   'GaSearchBar',
