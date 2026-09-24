@@ -95,6 +95,7 @@ import { ElAside, ElMenu, ElScrollbar } from 'element-plus'
 import type { MenuInstance, MenuItemClicked } from 'element-plus'
 import type { CSSProperties } from 'vue'
 import { computed, getCurrentInstance, ref, watch } from 'vue'
+import type { NavigationFailure } from 'vue-router'
 
 import type {
   GaAsideMenuEmits,
@@ -228,7 +229,7 @@ function handleSelect(
   index: string,
   indexPath: string[],
   item: MenuItemClicked,
-  routerResult?: Promise<unknown>,
+  routerResult?: Promise<void | NavigationFailure>,
 ) {
   emit('select', index, indexPath, item, routerResult)
 }
