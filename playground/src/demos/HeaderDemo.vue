@@ -93,23 +93,39 @@ import {
   ArrowDown,
   Bell,
   DataAnalysis,
+  Document,
+  FullScreen,
+  Grid,
   House,
   Lock,
   Menu,
+  Monitor,
   Setting,
   TrendCharts,
   User,
+  UserFilled,
 } from '@element-plus/icons-vue'
 import {
   ElAvatar,
   ElBadge,
   ElButton,
+  ElButtonGroup,
   ElDropdown,
   ElDropdownItem,
   ElDropdownMenu,
+  ElEmpty,
   ElIcon,
+  ElInput,
+  ElInputNumber,
+  ElRadioButton,
+  ElRadioGroup,
+  ElSelect,
+  ElOption,
+  ElSwitch,
+  ElTag,
+  ElTooltip,
 } from 'element-plus'
-import { markRaw, ref, toRaw } from 'vue'
+import { computed, markRaw, ref, toRaw, watch } from 'vue'
 import type { Component } from 'vue'
 
 import type {
@@ -119,19 +135,38 @@ import type {
   GaMegaMenuNavItem,
   GaMegaMenuSelectPayload,
   GaMegaMenuTheme,
+  GaMegaMenuTrigger,
 } from 'ga-ui-plus/base'
 import { GaHeader } from 'ga-ui-plus/business'
+import type { GaHeaderExpose } from 'ga-ui-plus/business'
 
+type ThemeName = 'blue' | 'graphite' | 'light'
+
+interface EventLogItem {
+  id: number
+  event: 'select' | 'open' | 'close' | 'update:activeKey' | 'update:openKey'
+  detail: string
+  time: string
+}
+
+const headerRef = ref<GaHeaderExpose>()
 const activeKey = ref<GaMegaMenuKey>('overview')
 const openKey = ref<GaMegaMenuKey | undefined>()
+const trigger = ref<GaMegaMenuTrigger>('click')
+const headerHeight = ref(68)
+const headerGap = ref(18)
+const headerPadding = ref('0 24px')
+const closeOnSelect = ref(true)
+const minColumnWidth = ref(240)
+const maxColumnWidth = ref(340)
+const panelMaxHeight = ref<string | number>(520)
+const selectedTheme = ref<ThemeName>('blue')
 const latestSelection = ref('等待菜单操作')
+const eventLogs = ref<EventLogItem[]>([])
+let eventLogId = 0
 
 const menus: GaMegaMenuNavItem[] = [
-  {
-    key: 'home',
-    label: '工作台',
-    icon: markRaw(House),
-  },
+  { key: 'home', label: '工作台', icon: markRaw(House) },
   {
     key: 'system',
     label: '系统管理',
@@ -153,6 +188,13 @@ const menus: GaMegaMenuNavItem[] = [
             description: '配置角色能力和数据访问范围',
             icon: markRaw(Lock),
           },
+          {
+            key: 'audit',
+            label: '审计日志',
+            description: '该功能尚未开放',
+            icon: markRaw(Document),
+            disabled: true,
+          },
         ],
       },
       {
@@ -163,7 +205,13 @@ const menus: GaMegaMenuNavItem[] = [
             key: 'menu-config',
             label: '菜单配置',
             description: '维护业务导航和菜单展示顺序',
-            icon: markRaw(Menu),
+            icon: { component: markRaw(Menu), props: { color: '#315c96' } },
+          },
+          {
+            key: 'tenant-config',
+            label: '租户配置',
+            description: '设置租户级功能和基础参数',
+            icon: markRaw(Grid),
           },
         ],
       },
@@ -194,46 +242,306 @@ const menus: GaMegaMenuNavItem[] = [
       },
     ],
   },
+  {
+    key: 'empty',
+    label: '待配置',
+    icon: markRaw(Monitor),
+    groups: [],
+  },
+  {
+    key: 'disabled',
+    label: '停用模块',
+    icon: markRaw(Lock),
+    disabled: true,
+  },
 ]
 
-const theme: GaMegaMenuTheme = {
-  menuBackgroundColor: '#263d64',
-  menuGap: 6,
-  menuItemTextColor: '#dbe7f7',
-  menuItemBackgroundColor: 'transparent',
-  menuItemHoverTextColor: '#ffffff',
-  menuItemHoverBackgroundColor: '#35547f',
-  menuItemActiveTextColor: '#ffffff',
-  menuItemActiveBackgroundColor: '#3b66a0',
-  menuItemActiveBorderColor: '#6f9bd1',
-  menuItemBorderRadius: 6,
-  menuItemFontSize: 15,
-  menuItemHorizontalPadding: 18,
-  menuItemVerticalSpace: 20,
-  menuItemIconSize: 18,
-  menuItemGap: 8,
-  menuItemShadow: 'none',
-  menuItemActiveShadow: 'none',
-  panelBackgroundColor: '#f8fafc',
-  panelBorderColor: '#d8e1ed',
-  panelTopBorderColor: '#d8e1ed',
-  panelShadow: '0 16px 36px rgb(31 50 78 / 18%)',
-  panelPadding: 24,
-  panelGap: 20,
-  panelGroupTitleColor: '#66758b',
-  panelItemTextColor: '#253858',
-  panelItemBackgroundColor: '#ffffff',
-  panelItemBorderColor: '#dce4ee',
-  panelItemHoverTextColor: '#244f86',
-  panelItemHoverBackgroundColor: '#edf4fc',
-  panelItemHoverBorderColor: '#b9cde5',
-  panelItemActiveTextColor: '#173f73',
-  panelItemActiveBackgroundColor: '#dceaff',
-  panelItemActiveBorderColor: '#8eb3df',
-  panelItemDescriptionColor: '#68788d',
-  panelItemIconColor: '#315c96',
-  panelItemIconBackgroundColor: '#e8eff8',
-  panelItemBorderRadius: 6,
+const themePresets: Record<ThemeName, { label: string; theme: GaMegaMenuTheme }> = {
+  blue: {
+    label: '深蓝商务',
+    theme: {
+      menuBackgroundColor: '#263d64',
+      menuGap: 6,
+      menuItemTextColor: '#dbe7f7',
+      menuItemBackgroundColor: 'transparent',
+      menuItemBorderColor: 'transparent',
+      menuItemHoverTextColor: '#ffffff',
+      menuItemHoverBackgroundColor: '#35547f',
+      menuItemHoverBorderColor: '#5479a8',
+      menuItemActiveTextColor: '#ffffff',
+      menuItemActiveBackgroundColor: '#3b66a0',
+      menuItemActiveBorderColor: '#84aee0',
+      menuItemDisabledTextColor: '#8293ad',
+      menuItemDisabledBackgroundColor: 'transparent',
+      menuItemDisabledBorderColor: 'transparent',
+      menuItemFocusOutlineColor: '#9ec5f3',
+      menuItemFontSize: 15,
+      menuItemFontWeight: 500,
+      menuItemIconSize: 18,
+      menuItemGap: 8,
+      menuItemHorizontalPadding: 18,
+      menuItemVerticalSpace: 20,
+      menuItemBorderRadius: 6,
+      menuItemShadow: 'none',
+      menuItemActiveShadow: 'none',
+      panelBackgroundColor: '#f8fafc',
+      panelBorderColor: '#d8e1ed',
+      panelTopBorderColor: '#d8e1ed',
+      panelShadow: '0 16px 36px rgb(31 50 78 / 18%)',
+      panelPadding: 24,
+      panelGap: 20,
+      panelGroupTitleColor: '#66758b',
+      panelGroupTitleFontSize: 13,
+      panelGroupTitleFontWeight: 650,
+      panelGroupTitleMarginBottom: 10,
+      panelGroupTitleHorizontalPadding: 4,
+      panelItemTextColor: '#253858',
+      panelItemBackgroundColor: '#ffffff',
+      panelItemBorderColor: '#dce4ee',
+      panelItemHoverTextColor: '#244f86',
+      panelItemHoverBackgroundColor: '#edf4fc',
+      panelItemHoverBorderColor: '#b9cde5',
+      panelItemActiveTextColor: '#173f73',
+      panelItemActiveBackgroundColor: '#dceaff',
+      panelItemActiveBorderColor: '#8eb3df',
+      panelItemDisabledTextColor: '#9aa6b7',
+      panelItemDisabledBackgroundColor: '#f3f5f7',
+      panelItemDisabledBorderColor: '#e3e7ec',
+      panelItemFocusOutlineColor: '#6f9bd1',
+      panelItemBorderRadius: 6,
+      panelItemMinHeight: 76,
+      panelItemPadding: 14,
+      panelItemGap: 12,
+      panelItemListGap: 10,
+      panelItemLabelFontSize: 14,
+      panelItemLabelFontWeight: 650,
+      panelItemDescriptionColor: '#68788d',
+      panelItemDescriptionFontSize: 12,
+      panelItemDescriptionLineHeight: 1.55,
+      panelItemIconColor: '#315c96',
+      panelItemIconSize: 18,
+      panelItemIconBoxSize: 38,
+      panelItemIconBackgroundColor: '#e8eff8',
+      panelItemIconBorderRadius: 6,
+      panelEmptyTextColor: '#7b8798',
+      panelEmptyPadding: 40,
+    },
+  },
+  graphite: {
+    label: '石墨深色',
+    theme: {
+      menuBackgroundColor: '#20252d',
+      menuGap: 6,
+      menuItemTextColor: '#d9dee7',
+      menuItemBackgroundColor: 'transparent',
+      menuItemBorderColor: 'transparent',
+      menuItemHoverTextColor: '#ffffff',
+      menuItemHoverBackgroundColor: '#343b46',
+      menuItemHoverBorderColor: '#586270',
+      menuItemActiveTextColor: '#ffffff',
+      menuItemActiveBackgroundColor: '#3c4654',
+      menuItemActiveBorderColor: '#8ca0b8',
+      menuItemDisabledTextColor: '#707985',
+      menuItemDisabledBackgroundColor: 'transparent',
+      menuItemDisabledBorderColor: 'transparent',
+      menuItemFocusOutlineColor: '#a9b9cc',
+      menuItemFontSize: 15,
+      menuItemFontWeight: 500,
+      menuItemIconSize: 18,
+      menuItemGap: 8,
+      menuItemHorizontalPadding: 18,
+      menuItemVerticalSpace: 20,
+      menuItemBorderRadius: 6,
+      menuItemShadow: 'none',
+      menuItemActiveShadow: 'none',
+      panelBackgroundColor: '#282e37',
+      panelBorderColor: '#414a57',
+      panelTopBorderColor: '#4d5765',
+      panelShadow: '0 18px 42px rgb(10 13 18 / 32%)',
+      panelPadding: 24,
+      panelGap: 20,
+      panelGroupTitleColor: '#aeb8c6',
+      panelGroupTitleFontSize: 13,
+      panelGroupTitleFontWeight: 650,
+      panelGroupTitleMarginBottom: 10,
+      panelGroupTitleHorizontalPadding: 4,
+      panelItemTextColor: '#eef2f7',
+      panelItemBackgroundColor: '#303741',
+      panelItemBorderColor: '#46505d',
+      panelItemHoverTextColor: '#ffffff',
+      panelItemHoverBackgroundColor: '#3a4552',
+      panelItemHoverBorderColor: '#69788a',
+      panelItemActiveTextColor: '#ffffff',
+      panelItemActiveBackgroundColor: '#435266',
+      panelItemActiveBorderColor: '#8299b5',
+      panelItemDisabledTextColor: '#7e8895',
+      panelItemDisabledBackgroundColor: '#2a3038',
+      panelItemDisabledBorderColor: '#39414b',
+      panelItemFocusOutlineColor: '#9fb2c9',
+      panelItemBorderRadius: 6,
+      panelItemMinHeight: 76,
+      panelItemPadding: 14,
+      panelItemGap: 12,
+      panelItemListGap: 10,
+      panelItemLabelFontSize: 14,
+      panelItemLabelFontWeight: 650,
+      panelItemDescriptionColor: '#a9b3c0',
+      panelItemDescriptionFontSize: 12,
+      panelItemDescriptionLineHeight: 1.55,
+      panelItemIconColor: '#d8e4f2',
+      panelItemIconSize: 18,
+      panelItemIconBoxSize: 38,
+      panelItemIconBackgroundColor: '#414c5b',
+      panelItemIconBorderRadius: 6,
+      panelEmptyTextColor: '#9ba6b4',
+      panelEmptyPadding: 40,
+    },
+  },
+  light: {
+    label: '浅色商务',
+    theme: {
+      menuBackgroundColor: '#ffffff',
+      menuGap: 6,
+      menuItemTextColor: '#40526a',
+      menuItemBackgroundColor: 'transparent',
+      menuItemBorderColor: 'transparent',
+      menuItemHoverTextColor: '#234f84',
+      menuItemHoverBackgroundColor: '#edf4fc',
+      menuItemHoverBorderColor: '#c5d8ee',
+      menuItemActiveTextColor: '#173f73',
+      menuItemActiveBackgroundColor: '#dceaff',
+      menuItemActiveBorderColor: '#8eb3df',
+      menuItemDisabledTextColor: '#a5afbc',
+      menuItemDisabledBackgroundColor: 'transparent',
+      menuItemDisabledBorderColor: 'transparent',
+      menuItemFocusOutlineColor: '#5f8fc6',
+      menuItemFontSize: 15,
+      menuItemFontWeight: 500,
+      menuItemIconSize: 18,
+      menuItemGap: 8,
+      menuItemHorizontalPadding: 18,
+      menuItemVerticalSpace: 20,
+      menuItemBorderRadius: 6,
+      menuItemShadow: 'none',
+      menuItemActiveShadow: 'none',
+      panelBackgroundColor: '#ffffff',
+      panelBorderColor: '#d8e1ed',
+      panelTopBorderColor: '#d8e1ed',
+      panelShadow: '0 16px 36px rgb(31 50 78 / 14%)',
+      panelPadding: 24,
+      panelGap: 20,
+      panelGroupTitleColor: '#66758b',
+      panelGroupTitleFontSize: 13,
+      panelGroupTitleFontWeight: 650,
+      panelGroupTitleMarginBottom: 10,
+      panelGroupTitleHorizontalPadding: 4,
+      panelItemTextColor: '#253858',
+      panelItemBackgroundColor: '#f8fafc',
+      panelItemBorderColor: '#dce4ee',
+      panelItemHoverTextColor: '#244f86',
+      panelItemHoverBackgroundColor: '#edf4fc',
+      panelItemHoverBorderColor: '#b9cde5',
+      panelItemActiveTextColor: '#173f73',
+      panelItemActiveBackgroundColor: '#dceaff',
+      panelItemActiveBorderColor: '#8eb3df',
+      panelItemDisabledTextColor: '#a1aab7',
+      panelItemDisabledBackgroundColor: '#f1f3f6',
+      panelItemDisabledBorderColor: '#e1e5ea',
+      panelItemFocusOutlineColor: '#6f9bd1',
+      panelItemBorderRadius: 6,
+      panelItemMinHeight: 76,
+      panelItemPadding: 14,
+      panelItemGap: 12,
+      panelItemListGap: 10,
+      panelItemLabelFontSize: 14,
+      panelItemLabelFontWeight: 650,
+      panelItemDescriptionColor: '#68788d',
+      panelItemDescriptionFontSize: 12,
+      panelItemDescriptionLineHeight: 1.55,
+      panelItemIconColor: '#315c96',
+      panelItemIconSize: 18,
+      panelItemIconBoxSize: 38,
+      panelItemIconBackgroundColor: '#e8eff8',
+      panelItemIconBorderRadius: 6,
+      panelEmptyTextColor: '#7b8798',
+      panelEmptyPadding: 40,
+    },
+  },
+}
+
+const currentTheme = computed(() => themePresets[selectedTheme.value].theme)
+const currentHeaderBackground = computed(
+  () => currentTheme.value.menuBackgroundColor ?? '#263d64',
+)
+
+watch(minColumnWidth, (value) => {
+  if (value > maxColumnWidth.value) maxColumnWidth.value = value
+})
+
+watch(maxColumnWidth, (value) => {
+  if (value < minColumnWidth.value) minColumnWidth.value = value
+})
+
+function appendLog(event: EventLogItem['event'], detail: string) {
+  eventLogs.value.unshift({
+    id: ++eventLogId,
+    event,
+    detail,
+    time: new Date().toLocaleTimeString('zh-CN', { hour12: false }),
+  })
+  eventLogs.value = eventLogs.value.slice(0, 12)
+}
+
+function handleActiveKeyUpdate(key: GaMegaMenuKey) {
+  activeKey.value = key
+  appendLog('update:activeKey', `activeKey = ${String(key)}`)
+}
+
+function handleOpenKeyUpdate(key: GaMegaMenuKey | undefined) {
+  openKey.value = key
+  appendLog('update:openKey', `openKey = ${key === undefined ? 'undefined' : String(key)}`)
+}
+
+function handleSelect(payload: GaMegaMenuSelectPayload) {
+  const selectedLabel = payload.item?.label ?? payload.menu.label
+  latestSelection.value = `${selectedLabel}（${payload.source}）`
+  appendLog('select', `${selectedLabel} / key: ${String(payload.key)} / source: ${payload.source}`)
+}
+
+function handleOpen(key: GaMegaMenuKey, menu: GaMegaMenuNavItem) {
+  appendLog('open', `${menu.label} / key: ${String(key)}`)
+}
+
+function handleClose(key: GaMegaMenuKey, menu: GaMegaMenuNavItem) {
+  appendLog('close', `${menu.label} / key: ${String(key)}`)
+}
+
+function openSystemPanel() {
+  headerRef.value?.open('system')
+}
+
+function closePanel() {
+  headerRef.value?.close()
+}
+
+function toggleAnalyticsPanel() {
+  headerRef.value?.toggle('analytics')
+}
+
+async function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    await document.documentElement.requestFullscreen?.()
+    return
+  }
+  await document.exitFullscreen?.()
+}
+
+function clearLogs() {
+  eventLogs.value = []
+}
+
+function selectTheme(name: string) {
+  if (name in themePresets) selectedTheme.value = name as ThemeName
 }
 
 function isIconConfig(icon: GaMegaMenuIcon): icon is GaMegaMenuIconConfig {
@@ -246,10 +554,6 @@ function resolveIconComponent(icon: GaMegaMenuIcon): Component {
 
 function resolveIconProps(icon: GaMegaMenuIcon) {
   return isIconConfig(icon) ? icon.props : undefined
-}
-
-function handleSelect(payload: GaMegaMenuSelectPayload) {
-  latestSelection.value = payload.item?.label ?? payload.menu.label
 }
 </script>
 
