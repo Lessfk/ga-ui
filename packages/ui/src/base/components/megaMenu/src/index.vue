@@ -186,6 +186,7 @@ const props = withDefaults(defineProps<GaMegaMenuProps>(), {
   minColumnWidth: 240,
   maxColumnWidth: 420,
   maxHeight: 'auto',
+  panelWidth: 'menu',
   closeOnSelect: true,
   theme: () => ({}),
   ariaLabel: '大型菜单导航',
@@ -198,6 +199,8 @@ const panelRef = ref<HTMLElement>()
 const internalActiveKey = ref<GaMegaMenuKey | undefined>(props.activeKey)
 const internalOpenKey = ref<GaMegaMenuKey | undefined>(props.openKey)
 const panelTop = ref(0)
+const panelLeft = ref(0)
+const menuWidth = ref(0)
 const componentId = `ga-mega-menu-${instance?.uid ?? 0}`
 
 let openTimer: ReturnType<typeof setTimeout> | undefined
@@ -332,10 +335,16 @@ const rootStyle = computed<CSSProperties>(() => ({
   ...columnStyle.value,
 }))
 
+const resolvedPanelWidth = computed(() =>
+  props.panelWidth === 'menu' ? `${menuWidth.value}px` : formatSize(props.panelWidth),
+)
+
 const panelStyle = computed<CSSProperties>(() => ({
   ...themeStyle.value,
   ...columnStyle.value,
   '--ga-mega-menu-panel-top': `${panelTop.value}px`,
+  '--ga-mega-menu-panel-left': `${panelLeft.value}px`,
+  '--ga-mega-menu-panel-width': resolvedPanelWidth.value,
 }))
 
 watch(
@@ -365,6 +374,12 @@ watch(currentOpenKey, (value, previousValue) => {
 })
 
 watch(() => props.trigger, clearTimers)
+watch(() => props.panelWidth, () => void nextTick(updatePanelPosition))
+watch(panelRef, (panel, previousPanel) => {
+  if (previousPanel) resizeObserver?.unobserve(previousPanel)
+  if (panel) resizeObserver?.observe(panel)
+  void nextTick(updatePanelPosition)
+})
 
 function hasPanel(menu: GaMegaMenuNavItem) {
   return menu.groups !== undefined
@@ -682,8 +697,23 @@ function toggle(key: GaMegaMenuKey) {
 }
 
 function updatePanelPosition() {
-  const bottom = rootRef.value?.getBoundingClientRect().bottom ?? 0
-  panelTop.value = Number.isFinite(bottom) ? Math.max(bottom, 0) : 0
+  const rootBounds = rootRef.value?.getBoundingClientRect()
+  if (!rootBounds) return
+
+  panelTop.value = Number.isFinite(rootBounds.bottom)
+    ? Math.max(rootBounds.bottom, 0)
+    : 0
+  menuWidth.value = Math.max(rootBounds.width, 0)
+
+  const viewportWidth = window.innerWidth
+  const renderedWidth = props.panelWidth === 'menu'
+    ? menuWidth.value
+    : panelRef.value?.getBoundingClientRect().width ?? 0
+  const visibleWidth = Math.min(Math.max(renderedWidth, 0), viewportWidth)
+  panelLeft.value = Math.max(
+    0,
+    Math.min(rootBounds.left, viewportWidth - visibleWidth),
+  )
 }
 
 function handleDocumentPointerDown(event: PointerEvent) {
@@ -710,6 +740,7 @@ onMounted(() => {
     if (rootRef.value?.parentElement) {
       resizeObserver.observe(rootRef.value.parentElement)
     }
+    if (panelRef.value) resizeObserver.observe(panelRef.value)
   }
 })
 

@@ -23,10 +23,13 @@ export default defineConfig({
       },
     }),
     AutoImport({
-      resolvers: [ElementPlusResolver()],
+      resolvers: [ElementPlusResolver({ importStyle: false })],
     }),
     Components({
-      resolvers: [ElementPlusResolver(), GaUiResolver()],
+      resolvers: [
+        ElementPlusResolver({ importStyle: false }),
+        GaUiResolver({ importStyle: false, elementPlusStyle: false }),
+      ],
     }),
   ],
   resolve: {

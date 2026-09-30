@@ -1,153 +1,270 @@
 <template>
-  <div class="doc-page">
-    <h1>SearchBar 搜索栏</h1>
-    <p class="doc-lead">
-      <code>GaSearchBar</code> 是一个数据驱动的搜索栏组件。通过 <code>fields</code> 描述字段类型、标签和布局，
-      通过 <code>v-model</code> 管理搜索模型；组件负责表单展示、折叠和校验流程，查询数据、异步选项、
-      远程搜索与分页状态由消费方维护。从 <code>ga-ui-plus/business</code> 导入。
-    </p>
+  <div class="doc-page search-bar-page">
+    <header class="doc-intro">
+      <p class="doc-eyebrow">业务组件 / SearchBar 搜索栏</p>
+      <h1>SearchBar 搜索栏</h1>
+      <p class="doc-lead">
+        <code>GaSearchBar</code> 通过字段配置生成搜索表单，支持输入、选择、日期、
+        自定义字段、折叠和校验。查询条件由业务页面维护，组件负责交互与事件。
+      </p>
+    </header>
 
-    <h2>基础用法</h2>
-    <p>
-      内置字段类型共 8 种：<code>input</code>、<code>textarea</code>、<code>select</code>、<code>date</code>、
-      <code>datetime</code>、<code>daterange</code>、<code>datetimerange</code> 和 <code>custom</code>。
-      日期字段的 <code>format</code> 用于显示，<code>valueFormat</code> 用于模型值。
-    </p>
-    <DemoBlock :source="basicSource">
-      <BasicDemo />
-    </DemoBlock>
+    <div class="search-bar-layout">
+      <article class="search-bar-content">
+        <section id="search-bar-usage" class="doc-section">
+          <h2>如何使用</h2>
+          <p>
+            安装并配置样式后，从 <code>ga-ui-plus/business</code> 导入组件及字段类型。
+            使用 <code>GaUiResolver</code> 自动解析模板组件时可直接写
+            <code>&lt;GaSearchBar /&gt;</code>；手动导入请参阅
+            <RouterLink to="/guide/usage">接入指南</RouterLink>。
+          </p>
+          <DocsCodeBlock language="Vue" :code="importCode" />
+          <p>
+            用 <code>v-model</code> 绑定查询模型、<code>fields</code> 定义字段；在
+            <code>search</code> 事件中使用返回的模型发请求或筛选数据。组件不会自动查询、
+            管理异步选项或重置业务分页。
+          </p>
+        </section>
 
-    <h2>自定义操作区</h2>
-    <p>
-      操作区提供 <code>actions</code>、<code>actions-prepend</code>、<code>action-search</code>、
-      <code>action-reset</code>、<code>action-collapse</code>、<code>actions-append</code> 插槽。
-      <code>actions</code> 插槽优先级最高，存在时会替换整个操作区域；单按钮插槽仍受对应显示属性控制。
-    </p>
-    <DemoBlock :source="slotsSource">
-      <SlotsDemo />
-    </DemoBlock>
+        <section id="search-bar-basic" class="doc-section">
+          <h2>基础查询</h2>
+          <p>
+            内置 <code>input</code>、<code>textarea</code>、<code>select</code>、
+            <code>date</code>、<code>datetime</code>、<code>daterange</code> 和
+            <code>datetimerange</code> 字段。默认折叠显示前三个非隐藏字段；示例改为先显示两个，
+            点击“展开”查看日期与负责人。
+          </p>
+          <div class="search-bar-preview">
+            <span class="search-bar-preview__label">预览</span>
+            <SearchBarBasicDemo />
+          </div>
+          <DocsCodeBlock language="SearchBarBasicDemo.vue" :code="basicSource" />
+        </section>
 
-    <h2>标签与布局</h2>
-    <ul>
-      <li><code>labelMode</code> 只支持 <code>label</code> 和 <code>none</code>；字段可通过自身的 <code>labelMode</code> 覆盖搜索栏默认值。</li>
-      <li><code>labelPosition</code> 支持 <code>left</code>、<code>right</code>、<code>top</code>，默认 <code>right</code>；<code>labelWidth</code> 可在搜索栏统一配置，字段值优先于全局值。</li>
-      <li>每个字段可使用 <code>span</code>、<code>xs</code>、<code>sm</code>、<code>md</code>、<code>lg</code>、<code>xl</code> 设置栅格占比，<code>span</code> 默认值为 <code>6</code>；响应式断点仅在明确配置时生效。</li>
-      <li>表单字段和操作区状态相互独立：<code>disabled</code> 只禁用搜索字段，<code>actionsDisabled</code> 只禁用操作按钮，<code>actionsLoading</code> 只控制查询加载状态。</li>
-      <li>单行输入框按回车不会触发查询；查询只会由查询按钮、显式表单提交、自定义操作区或实例方法 <code>search()</code> 触发。</li>
-    </ul>
+        <section id="search-bar-validation" class="doc-section">
+          <h2>校验与重置</h2>
+          <p>
+            传入 Element Plus <code>rules</code> 并启用 <code>validateOnSearch</code> 后，
+            校验通过才触发 <code>search</code>；失败时触发 <code>invalid</code>。
+            重置优先使用字段的 <code>defaultValue</code>，否则恢复组件首次捕获的初始值。
+            日期字段的 <code>format</code> 控制显示，<code>valueFormat</code> 控制模型值。
+          </p>
+          <div class="search-bar-preview">
+            <span class="search-bar-preview__label">预览</span>
+            <SearchBarValidationDemo />
+          </div>
+          <DocsCodeBlock language="SearchBarValidationDemo.vue" :code="validationSource" />
+        </section>
 
-    <h3>重置规则</h3>
-    <p>
-      执行重置时，字段存在 <code>defaultValue</code> 则优先使用该值，否则使用组件首次捕获的初始值；
-      <code>fields</code> 中未声明的模型键会保留。分页不属于组件模型，页码由消费方自行维护。
-    </p>
+        <section id="search-bar-slots" class="doc-section">
+          <h2>自定义字段与操作</h2>
+          <p>
+            <code>type: 'custom'</code> 的字段通过 <code>field-{key}</code> 插槽渲染，
+            调用插槽的 <code>update(value)</code> 更新模型。操作区可按按钮覆盖，也可用
+            <code>actions</code> 插槽替换整个区域；示例替换查询按钮并追加“保存条件”。
+          </p>
+          <div class="search-bar-preview">
+            <span class="search-bar-preview__label">预览</span>
+            <SearchBarSlotsDemo />
+          </div>
+          <DocsCodeBlock language="SearchBarSlotsDemo.vue" :code="slotsSource" />
+        </section>
 
-    <h2>API</h2>
+        <section id="search-bar-style" class="doc-section">
+          <h2>样式风格</h2>
+          <p>
+            组件没有独立的 <code>theme</code> 属性。可通过 <code>labelMode</code>、
+            <code>labelPosition</code>、<code>labelWidth</code>、<code>size</code> 和
+            <code>gutter</code> 调整表单密度；字段的 <code>span</code> 与响应式断点配置控制宽度。
+            需要品牌色时，可为组件加 class 并覆盖 Element Plus 的 CSS 变量。
+          </p>
+          <div class="search-bar-preview">
+            <span class="search-bar-preview__label">预览</span>
+            <SearchBarStyleDemo />
+          </div>
+          <DocsCodeBlock language="SearchBarStyleDemo.vue" :code="styleSource" />
+        </section>
 
-    <h3>Props</h3>
-    <ApiTable :headers="['属性名', '说明', '类型', '默认值']" :rows="propsRows" />
+        <section id="search-bar-behavior" class="doc-section">
+          <h2>交互与状态</h2>
+          <p>
+            字段编辑会触发 <code>update:modelValue</code>；内置控件触发自身的
+            <code>change</code> 时再发出字段 <code>change</code> 事件。重置只处理
+            <code>fields</code> 中声明的键，模型中其他键会保留。单行输入框按回车不会自动查询；
+            可点击查询按钮或调用实例的 <code>search()</code>。
+          </p>
+          <p>
+            <code>disabled</code> 只禁用字段，<code>actionsDisabled</code> 只禁用操作按钮，
+            <code>actionsLoading</code> 显示查询加载状态并阻止重复提交。
+            <code>hidden</code> 字段不显示，也不计入折叠数量。
+          </p>
+        </section>
 
-    <h3>GaSearchField 公共属性</h3>
-    <ApiTable :headers="['字段', '说明', '类型']" :rows="fieldRows" />
+        <section id="search-bar-api" class="doc-section">
+          <h2>API</h2>
 
-    <h3>字段类型专属属性</h3>
-    <ApiTable :headers="['字段类型', '专属属性', '说明']" :rows="fieldTypeRows" />
+          <h3 id="search-bar-props">Props</h3>
+          <DocsApiTable :headers="['属性', '类型', '默认值', '说明']" :rows="propsRows" />
 
-    <h3>Events</h3>
-    <ApiTable :headers="['事件名', '说明', '回调参数']" :rows="eventsRows" />
+          <h3 id="search-bar-fields">GaSearchField</h3>
+          <p>字段 <code>key</code> 在同一个搜索栏内应唯一；未配置断点时沿用 <code>span</code>。</p>
+          <DocsApiTable :headers="['字段', '类型', '说明']" :rows="fieldRows" />
 
-    <h3>Slots</h3>
-    <p>
-      操作作用域包含
-      <code>{ search, reset, validate, clearValidate, collapsed, toggle, actionsLoading, actionsDisabled }</code>。
-    </p>
-    <ApiTable :headers="['插槽名', '说明', '作用域']" :rows="slotsRows" />
+          <h4>字段类型</h4>
+          <DocsApiTable :headers="['类型', '专属配置', '说明']" :rows="fieldTypeRows" />
 
-    <h3>Exposes</h3>
-    <p>内部表单使用组件维护的 draft 值；调用暴露方法时应在组件挂载后执行。</p>
-    <ApiTable :headers="['名称', '说明', '类型']" :rows="exposesRows" />
+          <h4>GaSearchOption</h4>
+          <DocsApiTable :headers="['字段', '类型', '说明']" :rows="optionRows" />
+
+          <h3 id="search-bar-events">Events</h3>
+          <DocsApiTable :headers="['事件', '参数', '说明']" :rows="eventsRows" />
+
+          <h3 id="search-bar-slots-api">Slots</h3>
+          <p>
+            “操作作用域”包含 <code>search</code>、<code>reset</code>、<code>validate</code>、
+            <code>clearValidate</code>、<code>collapsed</code>、<code>toggle</code>、
+            <code>actionsLoading</code> 和 <code>actionsDisabled</code>。
+          </p>
+          <DocsApiTable :headers="['插槽', '作用域', '说明']" :rows="slotsRows" />
+
+          <h3 id="search-bar-expose">Expose</h3>
+          <DocsApiTable :headers="['属性 / 方法', '类型', '说明']" :rows="exposeRows" />
+        </section>
+      </article>
+
+      <aside class="search-bar-toc" aria-label="本页目录">
+        <span>本页目录</span>
+        <RouterLink
+          v-for="item in tocItems"
+          :key="item.id"
+          :to="{ path: route.path, hash: `#${item.id}` }"
+          :class="{ 'is-active': route.hash === `#${item.id}` }"
+        >
+          {{ item.title }}
+        </RouterLink>
+      </aside>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import ApiTable from '../../components/ApiTable.vue'
-import DemoBlock from '../../components/DemoBlock.vue'
-import BasicDemo from '../../demos/search-bar/BasicDemo.vue'
-import basicSource from '../../demos/search-bar/BasicDemo.vue?raw'
-import SlotsDemo from '../../demos/search-bar/SlotsDemo.vue'
-import slotsSource from '../../demos/search-bar/SlotsDemo.vue?raw'
+import { nextTick, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
-const propsRows = [
-  ['modelValue', '搜索模型，支持 v-model', 'GaSearchModel', '必填'],
-  ['fields', '搜索字段定义', 'GaSearchField[]', '必填'],
-  ['labelMode', '默认标签模式', "GaSearchLabelMode", "'label'"],
-  ['labelPosition', '标签位置，透传给 ElForm', "'left' | 'right' | 'top'", "'right'"],
-  ['labelWidth', '表单标签宽度', 'string | number', "'auto'"],
-  ['size', '搜索栏表单控件尺寸', "'large' | 'default' | 'small'", "'default'"],
-  ['gutter', '字段栅格间距', 'number', '16'],
-  ['collapsed', '是否折叠，支持 v-model:collapsed', 'boolean', 'true'],
-  ['collapsedCount', '折叠时显示的字段数量', 'number', '3'],
-  ['disabled', '是否禁用搜索字段，不影响操作区', 'boolean', 'false'],
-  ['actionsLoading', '是否显示查询按钮加载状态，并阻止重复查询', 'boolean', 'false'],
-  ['actionsDisabled', '是否禁用操作区按钮，不影响搜索字段', 'boolean', 'false'],
-  ['rules', 'Element Plus 表单校验规则', 'FormRules', '—'],
-  ['validateOnSearch', '搜索前是否校验表单', 'boolean', 'false'],
-  ['actionsShowSearch', '是否显示搜索按钮', 'boolean', 'true'],
-  ['actionsShowReset', '是否显示重置按钮', 'boolean', 'true'],
-  ['actionsShowCollapse', '是否显示折叠按钮', 'boolean', 'true'],
+import DocsApiTable from '../../DocsApiTable.vue'
+import DocsCodeBlock from '../../DocsCodeBlock.vue'
+import SearchBarBasicDemo from './SearchBarBasicDemo.vue'
+import basicSource from './SearchBarBasicDemo.vue?raw'
+import SearchBarValidationDemo from './SearchBarValidationDemo.vue'
+import validationSource from './SearchBarValidationDemo.vue?raw'
+import SearchBarSlotsDemo from './SearchBarSlotsDemo.vue'
+import slotsSource from './SearchBarSlotsDemo.vue?raw'
+import SearchBarStyleDemo from './SearchBarStyleDemo.vue'
+import styleSource from './SearchBarStyleDemo.vue?raw'
+import {
+  eventsRows,
+  exposeRows,
+  fieldRows,
+  fieldTypeRows,
+  optionRows,
+  propsRows,
+  slotsRows,
+} from './SearchBarApi'
+
+const route = useRoute()
+const importCode = `import { GaSearchBar, type GaSearchField, type GaSearchModel } from 'ga-ui-plus/business'`
+
+const tocItems = [
+  { id: 'search-bar-usage', title: '如何使用' },
+  { id: 'search-bar-basic', title: '基础查询' },
+  { id: 'search-bar-validation', title: '校验与重置' },
+  { id: 'search-bar-slots', title: '自定义字段与操作' },
+  { id: 'search-bar-style', title: '样式风格' },
+  { id: 'search-bar-behavior', title: '交互与状态' },
+  { id: 'search-bar-props', title: 'Props' },
+  { id: 'search-bar-fields', title: 'GaSearchField' },
+  { id: 'search-bar-events', title: 'Events' },
+  { id: 'search-bar-slots-api', title: 'Slots' },
+  { id: 'search-bar-expose', title: 'Expose' },
 ]
 
-const fieldRows = [
-  ['key', '字段键，必填', 'string'],
-  ['type', "字段类型，必填", "'input' | 'textarea' | 'select' | 'date' | 'datetime' | 'daterange' | 'datetimerange' | 'custom'"],
-  ['label', '字段标签', 'string'],
-  ['labelMode', '当前字段的标签模式', 'GaSearchLabelMode'],
-  ['labelWidth', '当前字段的标签宽度，优先于搜索栏全局值', 'string | number'],
-  ['placeholder', '占位提示', 'string'],
-  ['ariaLabel', '无可见标签时的无障碍标签', 'string'],
-  ['defaultValue', '重置时优先使用的默认值', 'unknown'],
-  ['disabled', '是否禁用当前字段', 'boolean'],
-  ['hidden', '是否隐藏当前字段', 'boolean'],
-  ['span', '默认栅格占比', 'number（默认 6）'],
-  ['xs / sm / md / lg / xl', '各断点栅格占比，无默认值', 'number'],
-  ['componentProps', '透传给内置字段组件的属性', 'Record<string, unknown>'],
-]
-
-const fieldTypeRows = [
-  ['input', '—', '单行输入'],
-  ['textarea', '—', '多行输入'],
-  ['select', 'options?: GaSearchOption[]', '选择项；异步更新由消费方维护'],
-  ['date / datetime / daterange / datetimerange', 'format、valueFormat', '日期显示格式和值格式'],
-  ['custom', '—', '通过 field-{key} 插槽自定义内容'],
-]
-
-const eventsRows = [
-  ['update:modelValue', '搜索模型变化', '(model: GaSearchModel)'],
-  ['update:collapsed', '折叠状态变化', '(collapsed: boolean)'],
-  ['search', '执行搜索', '(model: GaSearchModel)'],
-  ['reset', '执行重置', '(model: GaSearchModel)'],
-  ['change', '字段值变化', '(payload: GaSearchChangePayload)，含 key、value、model、field'],
-  ['invalid', '校验失败；参数为 Element Plus 返回的校验字段信息', '(fields: unknown)'],
-]
-
-const slotsRows = [
-  ['field-{key}', '自定义指定字段的渲染；update(value) 更新字段值', '{ field, value, disabled, update }'],
-  ['prepend', '搜索栏内容前置区域', '—'],
-  ['append', '搜索栏内容后置区域', '—'],
-  ['actions', '替换整个操作区域（优先级最高）', '操作作用域'],
-  ['actions-prepend', '在默认操作按钮之前追加内容', '操作作用域'],
-  ['action-search', '只替换查询按钮', '操作作用域'],
-  ['action-reset', '只替换重置按钮', '操作作用域'],
-  ['action-collapse', '只替换展开/收起按钮', '操作作用域'],
-  ['actions-append', '在默认操作按钮之后追加内容', '操作作用域'],
-]
-
-const exposesRows = [
-  ['formRef', '内部 Element Plus 表单实例', 'FormInstance | undefined'],
-  ['search', '执行搜索流程并返回是否成功', '() => Promise<boolean>'],
-  ['reset', '按重置规则恢复模型', '() => void'],
-  ['validate', '校验表单并返回是否通过', '() => Promise<boolean>'],
-  ['clearValidate', '清除表单校验状态', '() => void'],
-  ['toggle', '切换折叠状态', '() => void'],
-]
+watch(
+  () => route.hash,
+  async (hash) => {
+    if (!hash) return
+    await nextTick()
+    document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start' })
+  },
+  { immediate: true },
+)
 </script>
+
+<style scoped>
+.search-bar-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 170px;
+  gap: 60px;
+  margin-top: 48px;
+}
+
+.search-bar-content { min-width: 0; }
+
+.search-bar-page .doc-section h3 {
+  margin: 36px 0 18px;
+  color: #303133;
+  font-size: 18px;
+  scroll-margin-top: 24px;
+}
+
+.search-bar-page .doc-section h4 {
+  margin: 28px 0 14px;
+  color: #303133;
+  font-size: 15px;
+}
+
+.search-bar-page .doc-section a { color: var(--docs-primary); text-decoration: none; }
+.search-bar-page .doc-section a:hover { text-decoration: underline; }
+
+.search-bar-preview {
+  margin-top: 22px;
+  padding: 20px 24px 24px;
+  border: 1px solid var(--docs-border);
+  border-radius: 6px;
+}
+
+.search-bar-preview__label {
+  display: block;
+  margin-bottom: 20px;
+  color: #909399;
+  font-size: 12px;
+}
+
+.search-bar-toc {
+  position: sticky;
+  top: 36px;
+  display: flex;
+  height: max-content;
+  max-height: calc(100dvh - 72px);
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  padding-left: 18px;
+  border-left: 1px solid var(--docs-border);
+  font-size: 13px;
+}
+
+.search-bar-toc > span { color: #909399; font-size: 12px; font-weight: 700; }
+.search-bar-toc a { color: var(--docs-text-secondary); text-decoration: none; }
+.search-bar-toc a:hover, .search-bar-toc a.is-active { color: var(--docs-primary); }
+
+@media (max-width: 1000px) {
+  .search-bar-layout { grid-template-columns: minmax(0, 1fr); }
+  .search-bar-toc { display: none; }
+}
+
+@media (max-width: 720px) {
+  .search-bar-layout { margin-top: 40px; }
+  .search-bar-preview { padding: 18px 16px 20px; }
+}
+</style>

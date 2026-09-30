@@ -1,230 +1,302 @@
 <template>
-  <div class="doc-page">
-    <h1>MegaMenu 大型菜单</h1>
-    <p class="doc-lead">
-      <code>GaMegaMenu</code> 是面向 PC 端头部导航的大型菜单组件。一级菜单使用原生按钮渲染，
-      包含分组数据的菜单可以通过 <code>click</code> 或 <code>hover</code> 打开 Teleport 到
-      <code>body</code> 的二级面板。一级菜单和二级面板使用完全独立的主题字段。从
-      <code>ga-ui-plus/base</code> 导入。
-    </p>
+  <div class="doc-page mega-page">
+    <header class="doc-intro">
+      <p class="doc-eyebrow">基础组件 / MegaMenu 大型菜单</p>
+      <h1>MegaMenu 大型菜单</h1>
+      <p class="doc-lead">
+        <code>GaMegaMenu</code> 用于头部的多级导航。一级菜单可直接选择，带分组的菜单可展开二级面板。
+        面板宽度可配置；组件还支持点击或悬停触发、内容插槽以及导航与面板独立配色。
+      </p>
+    </header>
 
-    <h2>基础用法</h2>
-    <p>
-      <code>menus</code> 中没有 <code>groups</code> 的一级菜单会直接触发选择；包含 <code>groups</code>
-      的菜单用于打开面板。<code>select</code> 事件统一返回
-      <code>{ key, source, menu, group?, item?, nativeEvent }</code>，其中 <code>source</code> 为
-      <code>menu</code> 或 <code>panel</code>。
-    </p>
-    <DemoBlock :source="basicSource">
-      <BasicDemo />
-    </DemoBlock>
+    <div class="mega-layout">
+      <article class="mega-content">
+        <section id="mega-usage" class="doc-section">
+          <h2>如何使用</h2>
+          <p>
+            安装并配置样式后，从 <code>ga-ui-plus/base</code> 导入组件和数据类型。
+            使用 <code>GaUiResolver</code> 自动解析模板组件时可直接写
+            <code>&lt;GaMegaMenu /&gt;</code>；手动导入时请按
+            <RouterLink to="/guide/usage">接入指南</RouterLink>配置样式。
+          </p>
+          <DocsCodeBlock language="Vue" :code="importCode" />
+          <p>
+            <code>menus</code> 提供一级菜单。导航根节点高度为 <code>100%</code>，
+            父容器需设置明确高度；面板通过 Teleport 挂载到 <code>body</code>，默认宽度跟随整个一级菜单导航区域。
+          </p>
+        </section>
 
-    <h2>分区主题</h2>
-    <p>
-      一级菜单使用 <code>menu*</code>、<code>menuItem*</code> 字段，二级面板使用 <code>panel*</code>、
-      <code>panelGroupTitle*</code>、<code>panelItem*</code>、<code>panelEmpty*</code> 字段。
-      两部分不会互相回退，可以组合成深色导航与浅色面板。所有主题字段均为可选；尺寸、间距、圆角和行高字段接收
-      <code>string | number</code>，数字会转换为 <code>px</code>。
-    </p>
-    <DemoBlock :source="themeSource">
-      <ThemeDemo />
-    </DemoBlock>
-    <p>
-      二级面板通过 Teleport 渲染到 <code>body</code>，组件会把当前实例解析后的完整主题变量同时绑定到导航根节点和弹出面板，
-      因此不需要在全局样式中重复声明变量，多个 <code>GaMegaMenu</code> 实例也可以使用不同主题。
-    </p>
+        <section id="mega-basic" class="doc-section">
+          <h2>基础用法</h2>
+          <p>
+            没有 <code>groups</code> 的一级菜单会直接触发 <code>select</code>；
+            有 <code>groups</code> 的菜单点击后展开面板。通过
+            <code>v-model:active-key</code> 和 <code>v-model:open-key</code>
+            管理状态，也可以通过组件实例调用 <code>open()</code>、<code>close()</code>。
+          </p>
+          <div class="mega-preview">
+            <span class="mega-preview__label">预览</span>
+            <div class="mega-preview__scroll"><div class="mega-preview__canvas"><MegaMenuBasicDemo /></div></div>
+          </div>
+          <DocsCodeBlock language="MegaMenuBasicDemo.vue" :code="basicSource" />
+        </section>
 
-    <h2>API</h2>
+        <section id="mega-width" class="doc-section">
+          <h2>面板宽度</h2>
+          <p>
+            <code>panelWidth</code> 默认是 <code>'menu'</code>，跟随整个一级菜单导航区域，
+            而不是当前触发按钮。传入数字时按 px 处理；字符串支持
+            <code>50%</code>、<code>720px</code>、<code>60vw</code> 等 CSS 宽度值。
+            面板使用固定定位，因此百分比相对于视口宽度计算。
+            面板左边缘对齐导航区域，空间不足时会移动并限制在视口内。
+          </p>
+          <div class="mega-preview">
+            <span class="mega-preview__label">预览</span>
+            <div class="mega-preview__scroll"><div class="mega-preview__canvas"><MegaMenuWidthDemo /></div></div>
+          </div>
+          <DocsCodeBlock language="MegaMenuWidthDemo.vue" :code="widthSource" />
+        </section>
 
-    <h3>Props</h3>
-    <ApiTable :headers="['属性名', '说明', '类型', '默认值']" :rows="propsRows" />
+        <section id="mega-hover" class="doc-section">
+          <h2>悬停展开</h2>
+          <p>
+            设置 <code>trigger="hover"</code> 后，鼠标进入带分组的一级菜单会延时展开；
+            <code>openDelay</code> 与 <code>closeDelay</code> 的单位均为毫秒。
+            键盘聚焦菜单项时立即展开，按 Escape 或点击外部可关闭面板。
+          </p>
+          <div class="mega-preview">
+            <span class="mega-preview__label">预览</span>
+            <div class="mega-preview__scroll"><div class="mega-preview__canvas"><MegaMenuHoverDemo /></div></div>
+          </div>
+          <DocsCodeBlock language="MegaMenuHoverDemo.vue" :code="hoverSource" />
+        </section>
 
-    <h3>数据结构</h3>
-    <h4>GaMegaMenuNavItem（一级菜单）</h4>
-    <ApiTable :headers="['字段', '说明', '类型']" :rows="navItemRows" />
-    <h4>GaMegaMenuGroup（分组）</h4>
-    <ApiTable :headers="['字段', '说明', '类型']" :rows="groupRows" />
-    <h4>GaMegaMenuItem（二级菜单项）</h4>
-    <ApiTable :headers="['字段', '说明', '类型']" :rows="itemRows" />
+        <section id="mega-slots-demo" class="doc-section">
+          <h2>自定义内容</h2>
+          <p>
+            使用 <code>menu-item</code>、<code>group-title</code>、<code>panel-item</code>
+            和 <code>empty</code> 插槽替换对应内容。示例中的“工具”提供空分组，
+            <code>close-on-select="false"</code> 让选择面板项后继续保持展开。
+          </p>
+          <div class="mega-preview">
+            <span class="mega-preview__label">预览</span>
+            <div class="mega-preview__scroll"><div class="mega-preview__canvas"><MegaMenuSlotsDemo /></div></div>
+          </div>
+          <DocsCodeBlock language="MegaMenuSlotsDemo.vue" :code="slotsSource" />
+        </section>
 
-    <h3>Events</h3>
-    <ApiTable :headers="['事件名', '说明', '回调参数']" :rows="eventsRows" />
+        <section id="mega-style" class="doc-section">
+          <h2>样式风格</h2>
+          <p>
+            默认主题为深蓝色。<code>theme</code> 支持部分覆盖，一级导航的
+            <code>menu*</code>/<code>menuItem*</code> 字段与弹出面板的
+            <code>panel*</code> 字段独立，可组合浅色导航或深色导航配浅色面板。
+          </p>
+          <div class="mega-preview">
+            <span class="mega-preview__label">预览</span>
+            <div class="mega-preview__scroll"><div class="mega-preview__canvas"><MegaMenuThemeDemo /></div></div>
+          </div>
+          <DocsCodeBlock language="MegaMenuThemeDemo.vue" :code="themeSource" />
+          <p>
+            面板虽挂载到 <code>body</code>，仍会使用当前组件实例的完整主题变量。
+            尺寸、间距和圆角字段可传数字或 CSS 字符串；数字转换为 <code>px</code>。
+          </p>
+        </section>
 
-    <h3>Slots</h3>
-    <ApiTable :headers="['插槽名', '说明', '作用域']" :rows="slotsRows" />
+        <section id="mega-behavior" class="doc-section">
+          <h2>交互与状态</h2>
+          <p>
+            <code>select</code> 会返回来源为 <code>menu</code> 或 <code>panel</code> 的统一数据；
+            选择二级项时默认先关闭面板，再触发 <code>select</code>。
+            禁用项不可触发选择。<code>groups: []</code> 仍属于可展开菜单，打开后显示空状态。
+          </p>
+          <p>
+            不传 <code>activeKey</code>/<code>openKey</code> 时组件自行维护状态；
+            一旦传入这些属性或对应的 <code>v-model</code>，父组件应同步更新绑定值。
+            <code>maxHeight</code> 控制面板内容的滚动高度，默认 <code>auto</code>。
+          </p>
+        </section>
 
-    <h3>Exposes</h3>
-    <ApiTable :headers="['名称', '说明', '类型']" :rows="exposesRows" />
+        <section id="mega-api" class="doc-section">
+          <h2>API</h2>
 
-    <h2>样式配置</h2>
-    <p><code>GaMegaMenuTheme</code> 全部字段可选，按区域分组如下：</p>
+          <h3 id="mega-props">Props</h3>
+          <DocsApiTable :headers="['属性', '类型', '默认值', '说明']" :rows="propsRows" />
 
-    <h4>一级菜单容器</h4>
-    <ApiTable :headers="['字段', '说明', '类型', '默认值']" :rows="menuThemeRows" />
+          <h3 id="mega-data">数据结构</h3>
+          <h4>GaMegaMenuNavItem</h4>
+          <DocsApiTable :headers="['字段', '类型', '说明']" :rows="navItemRows" />
+          <h4>GaMegaMenuGroup</h4>
+          <DocsApiTable :headers="['字段', '类型', '说明']" :rows="groupRows" />
+          <h4>GaMegaMenuItem</h4>
+          <DocsApiTable :headers="['字段', '类型', '说明']" :rows="itemRows" />
+          <p>
+            <code>GaMegaMenuKey</code> 为 <code>string | number</code>。
+            <code>GaMegaMenuIcon</code> 可直接传 Vue 组件，或传
+            <code>{ component, props? }</code> 图标配置。
+          </p>
 
-    <h4>一级菜单项</h4>
-    <ApiTable :headers="['字段', '说明', '类型', '默认值']" :rows="menuItemThemeRows" />
+          <h3 id="mega-events">Events</h3>
+          <DocsApiTable :headers="['事件', '参数', '说明']" :rows="eventsRows" />
+          <h4>GaMegaMenuSelectPayload</h4>
+          <DocsApiTable :headers="['字段', '类型', '说明']" :rows="selectPayloadRows" />
 
-    <h4>二级面板容器</h4>
-    <ApiTable :headers="['字段', '说明', '类型', '默认值']" :rows="panelThemeRows" />
+          <h3 id="mega-slots">Slots</h3>
+          <DocsApiTable :headers="['插槽', '作用域', '说明']" :rows="slotsRows" />
 
-    <h4>二级分组标题</h4>
-    <ApiTable :headers="['字段', '说明', '类型', '默认值']" :rows="groupTitleThemeRows" />
+          <h3 id="mega-expose">Expose</h3>
+          <DocsApiTable :headers="['方法', '类型', '说明']" :rows="exposeRows" />
 
-    <h4>二级菜单项</h4>
-    <ApiTable :headers="['字段', '说明', '类型', '默认值']" :rows="panelItemThemeRows" />
+          <h3 id="mega-theme">GaMegaMenuTheme</h3>
+          <p>主题字段均可部分覆盖，未传字段使用组件默认值；导航与面板互不借用对方的颜色。</p>
+          <template v-for="section in themeSections" :key="section.title">
+            <h4>{{ section.title }}</h4>
+            <DocsApiTable :headers="['字段', '类型', '默认值', '说明']" :rows="section.rows" />
+          </template>
+        </section>
+      </article>
 
-    <h4>空状态</h4>
-    <ApiTable :headers="['字段', '说明', '类型', '默认值']" :rows="emptyThemeRows" />
+      <aside class="mega-toc" aria-label="本页目录">
+        <span>本页目录</span>
+        <RouterLink
+          v-for="item in tocItems"
+          :key="item.id"
+          :to="{ path: route.path, hash: `#${item.id}` }"
+          :class="{ 'is-active': route.hash === `#${item.id}` }"
+        >
+          {{ item.title }}
+        </RouterLink>
+      </aside>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import ApiTable from '../../components/ApiTable.vue'
-import DemoBlock from '../../components/DemoBlock.vue'
-import BasicDemo from '../../demos/mega-menu/BasicDemo.vue'
-import basicSource from '../../demos/mega-menu/BasicDemo.vue?raw'
-import ThemeDemo from '../../demos/mega-menu/ThemeDemo.vue'
-import themeSource from '../../demos/mega-menu/ThemeDemo.vue?raw'
+import { nextTick, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
-const propsRows = [
-  ['menus', '一级菜单数据', 'GaMegaMenuNavItem[]', '[]'],
-  ['activeKey', '当前激活项 key，支持 v-model:active-key', 'GaMegaMenuKey', '—'],
-  ['openKey', '当前展开面板的一级菜单 key，支持 v-model:open-key', 'GaMegaMenuKey', '—'],
-  ['trigger', '面板打开触发方式', "'click' | 'hover'", "'click'"],
-  ['openDelay', 'hover 触发时的打开延时（ms）', 'number', '100'],
-  ['closeDelay', 'hover 触发时的关闭延时（ms）', 'number', '180'],
-  ['minColumnWidth', '面板分组列最小宽度（px）', 'number', '240'],
-  ['maxColumnWidth', '面板分组列最大宽度（px）', 'number', '420'],
-  ['maxHeight', '面板最大高度', 'string | number', "'auto'"],
-  ['closeOnSelect', '选择面板菜单项后是否关闭面板', 'boolean', 'true'],
-  ['theme', '分区主题配置，支持部分覆盖', 'GaMegaMenuTheme', '{}'],
-  ['ariaLabel', '导航容器无障碍标签', 'string', "'大型菜单导航'"],
+import DocsApiTable from '../../DocsApiTable.vue'
+import DocsCodeBlock from '../../DocsCodeBlock.vue'
+import MegaMenuBasicDemo from './MegaMenuBasicDemo.vue'
+import basicSource from './MegaMenuBasicDemo.vue?raw'
+import MegaMenuWidthDemo from './MegaMenuWidthDemo.vue'
+import widthSource from './MegaMenuWidthDemo.vue?raw'
+import MegaMenuHoverDemo from './MegaMenuHoverDemo.vue'
+import hoverSource from './MegaMenuHoverDemo.vue?raw'
+import MegaMenuSlotsDemo from './MegaMenuSlotsDemo.vue'
+import slotsSource from './MegaMenuSlotsDemo.vue?raw'
+import MegaMenuThemeDemo from './MegaMenuThemeDemo.vue'
+import themeSource from './MegaMenuThemeDemo.vue?raw'
+import {
+  eventsRows,
+  exposeRows,
+  groupRows,
+  itemRows,
+  navItemRows,
+  propsRows,
+  selectPayloadRows,
+  slotsRows,
+  themeSections,
+} from './MegaMenuApi'
+
+const route = useRoute()
+const importCode = `import { GaMegaMenu, type GaMegaMenuNavItem } from 'ga-ui-plus/base'`
+
+const tocItems = [
+  { id: 'mega-usage', title: '如何使用' },
+  { id: 'mega-basic', title: '基础用法' },
+  { id: 'mega-width', title: '面板宽度' },
+  { id: 'mega-hover', title: '悬停展开' },
+  { id: 'mega-slots-demo', title: '自定义内容' },
+  { id: 'mega-style', title: '样式风格' },
+  { id: 'mega-behavior', title: '交互与状态' },
+  { id: 'mega-props', title: 'Props' },
+  { id: 'mega-data', title: '数据结构' },
+  { id: 'mega-events', title: 'Events' },
+  { id: 'mega-slots', title: 'Slots' },
+  { id: 'mega-expose', title: 'Expose' },
+  { id: 'mega-theme', title: 'GaMegaMenuTheme' },
 ]
 
-const navItemRows = [
-  ['key', '菜单唯一标识', 'GaMegaMenuKey'],
-  ['label', '菜单文案', 'string'],
-  ['icon', '图标，可传组件或 { component, props } 配置', 'GaMegaMenuIcon'],
-  ['disabled', '是否禁用', 'boolean'],
-  ['groups', '分组数据；存在时该菜单用于打开二级面板', 'GaMegaMenuGroup[]'],
-]
-
-const groupRows = [
-  ['key', '分组唯一标识', 'GaMegaMenuKey'],
-  ['title', '分组标题', 'string'],
-  ['items', '分组内菜单项', 'GaMegaMenuItem[]'],
-]
-
-const itemRows = [
-  ['key', '菜单项唯一标识', 'GaMegaMenuKey'],
-  ['label', '菜单项文案', 'string'],
-  ['description', '描述文字', 'string'],
-  ['icon', '图标，可传组件或 { component, props } 配置', 'GaMegaMenuIcon'],
-  ['disabled', '是否禁用', 'boolean'],
-]
-
-const eventsRows = [
-  ['update:activeKey', '激活项变化；用于 v-model:active-key', '(key: GaMegaMenuKey)'],
-  ['update:openKey', '展开面板变化；用于 v-model:open-key', '(key: GaMegaMenuKey | undefined)'],
-  ['select', '菜单选择，统一返回菜单或面板来源', '(payload: GaMegaMenuSelectPayload)'],
-  ['open', '面板展开', '(key: GaMegaMenuKey, menu: GaMegaMenuNavItem)'],
-  ['close', '面板关闭', '(key: GaMegaMenuKey, menu: GaMegaMenuNavItem)'],
-]
-
-const slotsRows = [
-  ['menu-item', '自定义一级菜单项内容', '{ menu, active, open }'],
-  ['group-title', '自定义面板分组标题', '{ menu, group }'],
-  ['panel-item', '自定义面板菜单项内容', '{ menu, group, item, active }'],
-  ['empty', '自定义面板空状态', '{ menu }'],
-]
-
-const exposesRows = [
-  ['open', '展开指定一级菜单的面板', '(key: GaMegaMenuKey) => void'],
-  ['close', '关闭当前面板', '() => void'],
-  ['toggle', '切换指定一级菜单的面板', '(key: GaMegaMenuKey) => void'],
-]
-
-const menuThemeRows = [
-  ['menuBackgroundColor', '一级菜单容器背景色', 'string', "'#2f436b'"],
-  ['menuGap', '一级菜单项之间的间距', 'string | number', "'8px'"],
-]
-
-const menuItemThemeRows = [
-  ['menuItemTextColor', '默认文字颜色', 'string', "'#ffffff'"],
-  ['menuItemBackgroundColor', '默认背景色', 'string', "'#3d527c'"],
-  ['menuItemBorderColor', '默认边框颜色', 'string', "'transparent'"],
-  ['menuItemHoverTextColor', '悬停文字颜色', 'string', "'#ffffff'"],
-  ['menuItemHoverBackgroundColor', '悬停背景色', 'string', "'#465d89'"],
-  ['menuItemHoverBorderColor', '悬停边框颜色', 'string', "'rgb(255 255 255 / 12%)'"],
-  ['menuItemActiveTextColor', '激活文字颜色', 'string', "'#ffffff'"],
-  ['menuItemActiveBackgroundColor', '激活背景色', 'string', "'#315c96'"],
-  ['menuItemActiveBorderColor', '激活边框颜色', 'string', "'#4c78b1'"],
-  ['menuItemDisabledTextColor', '禁用文字颜色', 'string', "'rgb(255 255 255 / 45%)'"],
-  ['menuItemDisabledBackgroundColor', '禁用背景色', 'string', "'rgb(255 255 255 / 8%)'"],
-  ['menuItemDisabledBorderColor', '禁用边框颜色', 'string', "'transparent'"],
-  ['menuItemFocusOutlineColor', '键盘聚焦轮廓颜色', 'string', "'#8db7f0'"],
-  ['menuItemFontSize', '字体大小', 'string | number', "'20px'"],
-  ['menuItemFontWeight', '字重', 'string | number', '700'],
-  ['menuItemIconSize', '图标大小', 'string | number', "'26px'"],
-  ['menuItemGap', '图标与文字间距', 'string | number', "'10px'"],
-  ['menuItemHorizontalPadding', '水平内边距', 'string | number', "'24px'"],
-  ['menuItemVerticalSpace', '菜单项相对容器高度预留的垂直空间', 'string | number', "'32px'"],
-  ['menuItemBorderRadius', '圆角', 'string | number', "'14px'"],
-  ['menuItemShadow', '默认阴影', 'string', "'0 1px 1px rgb(15 31 58 / 18%)'"],
-  ['menuItemActiveShadow', '激活阴影', 'string', "'inset 0 1px 0 rgb(255 255 255 / 6%), 0 1px 2px rgb(13 29 55 / 22%)'"],
-]
-
-const panelThemeRows = [
-  ['panelBackgroundColor', '面板背景色', 'string', "'#2f436b'"],
-  ['panelBorderColor', '面板边框颜色', 'string', "'#415a86'"],
-  ['panelTopBorderColor', '面板顶部边框颜色', 'string', "'rgb(255 255 255 / 8%)'"],
-  ['panelShadow', '面板阴影', 'string', "'0 18px 40px rgb(15 31 58 / 28%)'"],
-  ['panelPadding', '面板内容内边距', 'string | number', "'24px'"],
-  ['panelGap', '分组列之间的间距', 'string | number', "'24px'"],
-]
-
-const groupTitleThemeRows = [
-  ['panelGroupTitleColor', '分组标题颜色', 'string', "'#b7c4da'"],
-  ['panelGroupTitleFontSize', '分组标题字体大小', 'string | number', "'13px'"],
-  ['panelGroupTitleFontWeight', '分组标题字重', 'string | number', '600'],
-  ['panelGroupTitleMarginBottom', '分组标题下外边距', 'string | number', "'10px'"],
-  ['panelGroupTitleHorizontalPadding', '分组标题水平内边距', 'string | number', "'12px'"],
-]
-
-const panelItemThemeRows = [
-  ['panelItemTextColor', '默认文字颜色', 'string', "'#ffffff'"],
-  ['panelItemBackgroundColor', '默认背景色', 'string', "'#3d527c'"],
-  ['panelItemBorderColor', '默认边框颜色', 'string', "'transparent'"],
-  ['panelItemHoverTextColor', '悬停文字颜色', 'string', "'#ffffff'"],
-  ['panelItemHoverBackgroundColor', '悬停背景色', 'string', "'#465d89'"],
-  ['panelItemHoverBorderColor', '悬停边框颜色', 'string', "'rgb(255 255 255 / 12%)'"],
-  ['panelItemActiveTextColor', '激活文字颜色', 'string', "'#ffffff'"],
-  ['panelItemActiveBackgroundColor', '激活背景色', 'string', "'#315c96'"],
-  ['panelItemActiveBorderColor', '激活边框颜色', 'string', "'#4c78b1'"],
-  ['panelItemDisabledTextColor', '禁用文字颜色', 'string', "'rgb(255 255 255 / 42%)'"],
-  ['panelItemDisabledBackgroundColor', '禁用背景色', 'string', "'rgb(255 255 255 / 6%)'"],
-  ['panelItemDisabledBorderColor', '禁用边框颜色', 'string', "'transparent'"],
-  ['panelItemFocusOutlineColor', '键盘聚焦轮廓颜色', 'string', "'#8db7f0'"],
-  ['panelItemBorderRadius', '菜单项圆角', 'string | number', "'10px'"],
-  ['panelItemMinHeight', '菜单项最小高度', 'string | number', "'64px'"],
-  ['panelItemPadding', '菜单项内边距', 'string | number', "'12px'"],
-  ['panelItemGap', '图标与内容间距', 'string | number', "'12px'"],
-  ['panelItemListGap', '同一分组内菜单项间距', 'string | number', "'8px'"],
-  ['panelItemLabelFontSize', '标签字体大小', 'string | number', "'14px'"],
-  ['panelItemLabelFontWeight', '标签字重', 'string | number', '700'],
-  ['panelItemDescriptionColor', '描述文字颜色', 'string', "'#b7c4da'"],
-  ['panelItemDescriptionFontSize', '描述字体大小', 'string | number', "'12px'"],
-  ['panelItemDescriptionLineHeight', '描述行高', 'string | number', "'18px'"],
-  ['panelItemIconColor', '图标颜色', 'string', "'#ffffff'"],
-  ['panelItemIconSize', '图标大小', 'string | number', "'20px'"],
-  ['panelItemIconBoxSize', '图标容器宽高', 'string | number', "'38px'"],
-  ['panelItemIconBackgroundColor', '图标容器背景色', 'string', "'rgb(255 255 255 / 8%)'"],
-  ['panelItemIconBorderRadius', '图标容器圆角', 'string | number', "'8px'"],
-]
-
-const emptyThemeRows = [
-  ['panelEmptyTextColor', '空状态文字颜色', 'string', "'#b7c4da'"],
-  ['panelEmptyPadding', '空状态内边距', 'string | number', "'48px 24px'"],
-]
+watch(
+  () => route.hash,
+  async (hash) => {
+    if (!hash) return
+    await nextTick()
+    document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start' })
+  },
+  { immediate: true },
+)
 </script>
+
+<style scoped>
+.mega-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 170px;
+  gap: 60px;
+  margin-top: 48px;
+}
+
+.mega-content { min-width: 0; }
+
+.mega-page .doc-section h3 {
+  margin: 36px 0 18px;
+  color: #303133;
+  font-size: 18px;
+  scroll-margin-top: 24px;
+}
+
+.mega-page .doc-section h4 {
+  margin: 28px 0 14px;
+  color: #303133;
+  font-size: 15px;
+}
+
+.mega-page .doc-section a { color: var(--docs-primary); text-decoration: none; }
+.mega-page .doc-section a:hover { text-decoration: underline; }
+
+.mega-preview {
+  margin-top: 22px;
+  padding: 20px 24px 24px;
+  border: 1px solid var(--docs-border);
+  border-radius: 6px;
+}
+
+.mega-preview__label {
+  display: block;
+  margin-bottom: 20px;
+  color: #909399;
+  font-size: 12px;
+}
+
+.mega-preview__scroll { overflow-x: auto; }
+.mega-preview__canvas { min-width: 560px; }
+
+.mega-toc {
+  position: sticky;
+  top: 36px;
+  display: flex;
+  height: max-content;
+  max-height: calc(100dvh - 72px);
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  padding-left: 18px;
+  border-left: 1px solid var(--docs-border);
+  font-size: 13px;
+}
+
+.mega-toc > span { color: #909399; font-size: 12px; font-weight: 700; }
+.mega-toc a { color: var(--docs-text-secondary); text-decoration: none; }
+.mega-toc a:hover, .mega-toc a.is-active { color: var(--docs-primary); }
+
+@media (max-width: 1000px) {
+  .mega-layout { grid-template-columns: minmax(0, 1fr); }
+  .mega-toc { display: none; }
+}
+
+@media (max-width: 720px) {
+  .mega-layout { margin-top: 40px; }
+  .mega-preview { padding: 18px 16px 20px; }
+}
+</style>

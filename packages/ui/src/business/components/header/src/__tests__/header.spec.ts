@@ -111,6 +111,7 @@ const GaMegaMenuStub = defineComponent({
     minColumnWidth: Number,
     maxColumnWidth: Number,
     maxHeight: [String, Number] as PropType<string | number>,
+    panelWidth: [String, Number] as PropType<string | number>,
     closeOnSelect: {
       type: Boolean,
       default: true,
@@ -315,6 +316,7 @@ describe('GaHeader', () => {
         minColumnWidth: 280,
         maxColumnWidth: 520,
         maxHeight: 640,
+        panelWidth: 640,
         closeOnSelect: false,
         theme,
         ariaLabel: 'Primary business navigation',
@@ -329,6 +331,7 @@ describe('GaHeader', () => {
       minColumnWidth: 280,
       maxColumnWidth: 520,
       maxHeight: 640,
+      panelWidth: 640,
       closeOnSelect: false,
       theme,
       ariaLabel: 'Primary business navigation',

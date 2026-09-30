@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { GaMegaMenu } from 'ga-ui-plus/base'
-import { computed, markRaw, ref } from 'vue'
+import { markRaw, ref } from 'vue'
 import {
   Bell,
   DataAnalysis,
@@ -22,19 +22,11 @@ import {
   Tickets,
   User,
 } from '@element-plus/icons-vue'
-import {
-  ElAvatar,
-  ElButton,
-  ElSegmented,
-  ElSlider,
-} from 'element-plus'
 import type {
-  GaMegaMenuExpose,
   GaMegaMenuKey,
   GaMegaMenuNavItem,
   GaMegaMenuSelectPayload,
   GaMegaMenuTheme,
-  GaMegaMenuTrigger,
 } from 'ga-ui-plus/base'
 
 const activeKey = ref<GaMegaMenuKey>('overview')

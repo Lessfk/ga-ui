@@ -1,121 +1,300 @@
 <template>
-  <div class="doc-page">
-    <h1>Dialog 对话框</h1>
-    <p class="doc-lead">
-      <code>GaDialog</code> 是一个由 <code>v-model</code> 控制的 <code>ElDialog</code> 包装器。
-      组件关闭了 Element Plus 原生关闭按钮，并在默认标题栏中渲染自己的全屏/还原按钮和关闭按钮；
-      确认、取消等 footer 业务按钮由使用方提供。从 <code>ga-ui-plus/base</code> 导入。
-    </p>
+  <div class="doc-page dialog-page">
+    <header class="doc-intro">
+      <p class="doc-eyebrow">基础组件 / Dialog 对话框</p>
+      <h1>Dialog 对话框</h1>
+      <p class="doc-lead">
+        <code>GaDialog</code> 基于 Element Plus Dialog，提供默认的全屏与关闭操作。
+        使用 <code>v-model</code> 控制显隐，业务内容和底部按钮由插槽提供。
+      </p>
+    </header>
 
-    <h2>基础用法</h2>
-    <p>通过 <code>v-model</code> 控制显隐，<code>title</code>、<code>width</code> 配置标题与宽度，<code>footer</code> 插槽放置业务按钮。</p>
-    <DemoBlock :source="basicSource">
-      <BasicDemo />
-    </DemoBlock>
+    <div class="dialog-layout">
+      <article class="dialog-content">
+        <section id="dialog-usage" class="doc-section">
+          <h2>如何使用</h2>
+          <p>
+            安装并配置样式后，从 <code>ga-ui-plus/base</code> 导入组件。
+            如果项目使用 <code>GaUiResolver</code> 自动解析模板组件，可以直接在模板中使用
+            <code>&lt;GaDialog /&gt;</code>；手动导入时请按
+            <RouterLink to="/guide/usage">接入指南</RouterLink>配置样式。
+          </p>
+          <DocsCodeBlock language="Vue" :code="importCode" />
+          <p>
+            对话框关闭了 Element Plus 的原生关闭按钮，默认标题栏提供全屏和关闭操作。
+            <code>footer</code> 不内置确认、取消等业务按钮。
+          </p>
+        </section>
 
-    <h2>全屏切换</h2>
-    <p>
-      默认标题栏会显示全屏/还原按钮，无需绑定即可使用，组件会在内部维护全屏状态；
-      需要读取或主动控制该状态时，使用 <code>v-model:fullscreen</code>。
-      传 <code>:show-fullscreen="false"</code> 可隐藏全屏按钮。
-    </p>
-    <DemoBlock :source="fullscreenSource">
-      <FullscreenDemo />
-    </DemoBlock>
+        <section id="dialog-basic" class="doc-section">
+          <h2>基础用法</h2>
+          <p>
+            通过 <code>v-model</code> 控制显隐，<code>title</code> 和 <code>width</code>
+            设置标题与宽度。示例使用 <code>footer</code> 插槽处理取消和保存。
+          </p>
+          <div class="dialog-preview">
+            <span class="dialog-preview__label">预览</span>
+            <DialogBasicDemo />
+          </div>
+          <DocsCodeBlock language="DialogBasicDemo.vue" :code="basicSource" />
+        </section>
 
-    <h2>自定义标题和底部操作</h2>
-    <p>
-      <code>header</code> 插槽提供 <code>close</code>、<code>titleId</code> 和 <code>titleClass</code>。
-      使用 <code>titleId</code> 与 <code>titleClass</code> 可保留 Element Plus 为标题建立的可访问性关联。
-      传入 <code>header</code> 插槽后，默认标题栏会被完整替换，默认的全屏按钮和关闭按钮也不会渲染，
-      需要由使用方自行提供。
-    </p>
-    <DemoBlock :source="customHeaderSource">
-      <CustomHeaderDemo />
-    </DemoBlock>
+        <section id="dialog-fullscreen" class="doc-section">
+          <h2>全屏切换</h2>
+          <p>
+            默认标题栏会显示全屏按钮。组件可以自行维护全屏状态；需要读取或控制状态时，
+            使用 <code>v-model:fullscreen</code>。传入 <code>:show-fullscreen="false"</code>
+            可隐藏按钮。
+          </p>
+          <div class="dialog-preview">
+            <span class="dialog-preview__label">预览</span>
+            <DialogFullscreenDemo />
+          </div>
+          <DocsCodeBlock language="DialogFullscreenDemo.vue" :code="fullscreenSource" />
+        </section>
 
-    <h2>关闭行为与属性透传</h2>
-    <p>
-      <code>GaDialog</code> 将未声明的 <code>$attrs</code> 绑定到内部 <code>ElDialog</code>，因此可以继续使用
-      <code>lock-scroll</code>、<code>modal-class</code> 等 Element Plus 属性，<code>before-close</code>
-      也会原样传给 Element Plus。
-    </p>
-    <ul>
-      <li>默认标题栏中的关闭按钮、<code>header</code> 插槽作用域中的 <code>close()</code>、暴露实例的 <code>dialogRef.handleClose()</code>、点击遮罩和按 Escape 都会进入 Element Plus 的关闭流程，因此会执行 <code>beforeClose(done)</code>。</li>
-      <li>直接将 <code>v-model</code> 修改为 <code>false</code> 属于外部状态同步，不会执行 <code>beforeClose</code>；需要在业务按钮中触发关闭确认时，请调用 <code>dialogRef.handleClose()</code>。</li>
-    </ul>
+        <section id="dialog-custom" class="doc-section">
+          <h2>自定义标题与关闭确认</h2>
+          <p>
+            <code>header</code> 插槽会完整替换默认标题栏。作用域提供
+            <code>close</code>、<code>titleId</code>、<code>titleClass</code>；
+            自定义标题应保留后两者，让对话框继续关联到标题。
+          </p>
+          <p>
+            示例通过 <code>beforeClose(done)</code> 确认关闭。标题栏的
+            <code>close()</code> 和底部通过 <code>dialogRef.handleClose()</code>
+            发起的关闭会执行它。
+          </p>
+          <div class="dialog-preview">
+            <span class="dialog-preview__label">预览</span>
+            <DialogCustomDemo />
+          </div>
+          <DocsCodeBlock language="DialogCustomDemo.vue" :code="customSource" />
+        </section>
 
-    <h2>API</h2>
+        <section id="dialog-behavior" class="doc-section">
+          <h2>关闭行为与属性透传</h2>
+          <p>
+            默认情况下，点击遮罩和按 Escape 不会关闭对话框。分别设置
+            <code>close-on-click-modal</code> 和 <code>close-on-press-escape</code>
+            为 <code>true</code> 后，这两种关闭请求也会进入 Element Plus 的
+            <code>beforeClose</code> 流程。
+          </p>
+          <p>
+            直接把 <code>v-model</code> 设为 <code>false</code> 是外部状态同步，
+            不会执行 <code>beforeClose</code>。需要在业务按钮上做关闭确认时，
+            请调用 <code>dialogRef.handleClose()</code>。
+          </p>
+          <p>
+            未声明的属性和监听器会透传给内部 <code>ElDialog</code>，例如
+            <code>lock-scroll</code>、<code>modal-class</code>。更多底层能力参见
+            <a href="https://element-plus.org/zh-CN/component/dialog.html" target="_blank" rel="noopener noreferrer">Element Plus Dialog 文档</a>。
+          </p>
+        </section>
 
-    <h3>Props</h3>
-    <p>
-      <code>GaDialogProps</code> 只声明下表中的常用属性，不表示继承完整的 Element Plus DialogProps；
-      其他受底层支持的属性可以通过 <code>$attrs</code> 透传。
-    </p>
-    <ApiTable :headers="['属性名', '说明', '类型', '默认值']" :rows="propsRows" />
+        <section id="dialog-api" class="doc-section">
+          <h2>API</h2>
+          <p>
+            <code>GaDialogProps</code> 仅声明下表中的属性；其余受 Element Plus Dialog
+            支持的属性可通过 <code>$attrs</code> 透传。
+          </p>
 
-    <h3>Events</h3>
-    <ApiTable :headers="['事件名', '说明', '回调参数']" :rows="eventsRows" />
+          <h3 id="dialog-props">Props</h3>
+          <DocsApiTable :headers="['属性', '类型', '默认值', '说明']" :rows="propsRows" />
 
-    <h3>Slots</h3>
-    <ApiTable :headers="['插槽名', '说明', '作用域']" :rows="slotsRows" />
+          <h3 id="dialog-events">Events</h3>
+          <DocsApiTable :headers="['事件', '参数', '说明']" :rows="eventsRows" />
 
-    <h3>Exposes</h3>
-    <ApiTable :headers="['名称', '说明', '类型']" :rows="exposesRows" />
+          <h3 id="dialog-slots">Slots</h3>
+          <DocsApiTable :headers="['插槽', '作用域', '说明']" :rows="slotsRows" />
 
-    <p>
-      更多底层行为与透传属性请参见
-      <a href="https://element-plus.org/zh-CN/component/dialog.html" target="_blank" rel="noreferrer">Element Plus Dialog 文档</a>。
-    </p>
+          <h3 id="dialog-expose">Expose</h3>
+          <DocsApiTable :headers="['名称', '类型', '说明']" :rows="exposeRows" />
+        </section>
+      </article>
+
+      <aside class="dialog-toc" aria-label="本页目录">
+        <span>本页目录</span>
+        <RouterLink
+          v-for="item in tocItems"
+          :key="item.id"
+          :to="{ path: route.path, hash: `#${item.id}` }"
+          :class="{ 'is-active': route.hash === `#${item.id}` }"
+        >
+          {{ item.title }}
+        </RouterLink>
+      </aside>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import ApiTable from '../../components/ApiTable.vue'
-import DemoBlock from '../../components/DemoBlock.vue'
-import BasicDemo from '../../demos/dialog/BasicDemo.vue'
-import basicSource from '../../demos/dialog/BasicDemo.vue?raw'
-import CustomHeaderDemo from '../../demos/dialog/CustomHeaderDemo.vue'
-import customHeaderSource from '../../demos/dialog/CustomHeaderDemo.vue?raw'
-import FullscreenDemo from '../../demos/dialog/FullscreenDemo.vue'
-import fullscreenSource from '../../demos/dialog/FullscreenDemo.vue?raw'
+import { nextTick, watch } from 'vue'
+import { useRoute } from 'vue-router'
+
+import DocsApiTable from '../../DocsApiTable.vue'
+import DocsCodeBlock from '../../DocsCodeBlock.vue'
+import DialogBasicDemo from './DialogBasicDemo.vue'
+import basicSource from './DialogBasicDemo.vue?raw'
+import DialogCustomDemo from './DialogCustomDemo.vue'
+import customSource from './DialogCustomDemo.vue?raw'
+import DialogFullscreenDemo from './DialogFullscreenDemo.vue'
+import fullscreenSource from './DialogFullscreenDemo.vue?raw'
+
+const route = useRoute()
+
+const tocItems = [
+  { id: 'dialog-usage', title: '如何使用' },
+  { id: 'dialog-basic', title: '基础用法' },
+  { id: 'dialog-fullscreen', title: '全屏切换' },
+  { id: 'dialog-custom', title: '自定义标题' },
+  { id: 'dialog-behavior', title: '关闭行为' },
+  { id: 'dialog-props', title: 'Props' },
+  { id: 'dialog-events', title: 'Events' },
+  { id: 'dialog-slots', title: 'Slots' },
+  { id: 'dialog-expose', title: 'Expose' },
+]
+
+watch(
+  () => route.hash,
+  async (hash) => {
+    if (!hash) return
+    await nextTick()
+    document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start' })
+  },
+  { immediate: true },
+)
+
+const importCode = `import { GaDialog } from 'ga-ui-plus/base'`
 
 const propsRows = [
-  ['modelValue', '对话框是否可见；支持 v-model', 'boolean', 'false'],
-  ['title', '对话框标题', 'string', "''"],
-  ['width', '对话框宽度', 'string | number', 'Element Plus 默认（50%）'],
-  ['top', '对话框上边距', 'string', 'Element Plus 默认（15vh）'],
-  ['fullscreen', '是否全屏显示；支持 v-model:fullscreen', 'boolean', 'false'],
-  ['showFullscreen', '是否显示右上角全屏/还原按钮', 'boolean', 'true'],
-  ['appendToBody', '是否将对话框挂载到 body', 'boolean', 'true'],
-  ['destroyOnClose', '关闭时是否销毁插槽内容', 'boolean', 'true'],
-  ['center', '是否让标题和底部区域居中', 'boolean', 'false'],
-  ['alignCenter', '是否让对话框水平、垂直居中', 'boolean', 'true'],
-  ['draggable', '是否允许拖动对话框', 'boolean', 'true'],
-  ['showClose', '是否显示默认标题栏中的自定义关闭按钮；底层原生关闭按钮始终关闭', 'boolean', 'true'],
-  ['closeOnClickModal', '是否允许点击遮罩关闭', 'boolean', 'false'],
-  ['closeOnPressEscape', '是否允许按 Escape 关闭', 'boolean', 'false'],
-  ['beforeClose', '传给底层 Element Plus 的关闭前回调；默认关闭按钮会触发，直接修改 v-model 不触发', 'DialogBeforeCloseFn', '—'],
+  ['modelValue', 'boolean', 'false', '是否显示对话框；支持 v-model'],
+  ['title', 'string', "''", '默认标题栏中的标题'],
+  ['width', 'string | number', 'Element Plus 默认（50%）', '对话框宽度'],
+  ['top', 'string', 'Element Plus 默认（15vh）', '顶部距离；alignCenter=false 时生效'],
+  ['fullscreen', 'boolean', 'false', '是否全屏；支持 v-model:fullscreen'],
+  ['showFullscreen', 'boolean', 'true', '是否显示默认标题栏的全屏按钮'],
+  ['appendToBody', 'boolean', 'true', '是否将对话框挂载到 body'],
+  ['destroyOnClose', 'boolean', 'true', '关闭时销毁插槽内容'],
+  ['center', 'boolean', 'false', '是否让标题和底部区域居中'],
+  ['alignCenter', 'boolean', 'true', '是否让对话框在视口中居中'],
+  ['draggable', 'boolean', 'true', '是否允许拖动'],
+  ['showClose', 'boolean', 'true', '是否显示默认标题栏的关闭按钮'],
+  ['closeOnClickModal', 'boolean', 'false', '是否允许点击遮罩关闭'],
+  ['closeOnPressEscape', 'boolean', 'false', '是否允许按 Escape 关闭'],
+  ['beforeClose', 'DialogBeforeCloseFn', 'undefined', '关闭请求执行前的回调；调用 done() 才会关闭'],
 ]
 
 const eventsRows = [
-  ['update:modelValue', '底层模型变化时触发；用于 v-model', '(value: boolean)'],
-  ['update:fullscreen', '点击全屏/还原按钮，或关闭时恢复内部全屏状态；用于 v-model:fullscreen', '(value: boolean)'],
-  ['open', '对话框开始打开', '—'],
-  ['opened', '对话框打开动画结束', '—'],
-  ['close', '对话框开始关闭', '—'],
-  ['closed', '底层关闭动画结束后触发', '—'],
-  ['open-auto-focus', '打开后完成自动聚焦', '—'],
-  ['close-auto-focus', '关闭后完成自动聚焦恢复', '—'],
+  ['update:modelValue', '(value: boolean)', '显隐状态变化，用于 v-model'],
+  ['update:fullscreen', '(value: boolean)', '全屏状态变化，用于 v-model:fullscreen'],
+  ['open', '—', '开始打开'],
+  ['opened', '—', '打开动画结束'],
+  ['close', '—', '开始关闭'],
+  ['closed', '—', '关闭动画结束'],
+  ['open-auto-focus', '—', '打开后完成自动聚焦'],
+  ['close-auto-focus', '—', '关闭后恢复聚焦'],
 ]
 
 const slotsRows = [
-  ['default', '对话框主体内容', '—'],
-  ['header', '完整替换默认标题栏；可调用 close() 并复用标题的可访问性属性，但需要自行提供全屏与关闭操作', '{ close, titleId, titleClass }'],
-  ['footer', '自定义底部内容；组件不提供默认确认、取消等 footer 业务按钮', '—'],
+  ['default', '—', '对话框主体内容'],
+  ['header', '{ close, titleId, titleClass }', '完整替换默认标题栏；需要自行提供操作按钮'],
+  ['footer', '—', '自定义底部内容；组件不提供默认业务按钮'],
 ]
 
-const exposesRows = [
-  ['dialogRef', '底层 ElDialog 实例，挂载后可调用 handleClose()、resetPosition() 等方法', 'DialogInstance | undefined'],
+const exposeRows = [
+  ['dialogRef', 'DialogInstance | undefined', '底层 ElDialog 实例；可调用 handleClose()、resetPosition() 等方法'],
 ]
 </script>
+
+<style scoped>
+.dialog-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 170px;
+  gap: 60px;
+  margin-top: 48px;
+}
+
+.dialog-content {
+  min-width: 0;
+}
+
+.dialog-page .doc-section h3 {
+  margin: 36px 0 18px;
+  color: #303133;
+  font-size: 18px;
+  scroll-margin-top: 24px;
+}
+
+.dialog-page .doc-section a {
+  color: var(--docs-primary);
+  text-decoration: none;
+}
+
+.dialog-page .doc-section a:hover {
+  text-decoration: underline;
+}
+
+.dialog-preview {
+  min-height: 132px;
+  margin-top: 22px;
+  padding: 20px 24px 28px;
+  border: 1px solid var(--docs-border);
+  border-radius: 6px;
+}
+
+.dialog-preview__label {
+  display: block;
+  margin-bottom: 22px;
+  color: #909399;
+  font-size: 12px;
+}
+
+.dialog-toc {
+  position: sticky;
+  top: 36px;
+  display: flex;
+  height: max-content;
+  flex-direction: column;
+  gap: 16px;
+  padding-left: 18px;
+  border-left: 1px solid var(--docs-border);
+  font-size: 13px;
+}
+
+.dialog-toc > span {
+  color: #909399;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dialog-toc a {
+  color: var(--docs-text-secondary);
+  text-decoration: none;
+}
+
+.dialog-toc a:hover,
+.dialog-toc a.is-active {
+  color: var(--docs-primary);
+}
+
+@media (max-width: 1000px) {
+  .dialog-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dialog-toc {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .dialog-layout {
+    margin-top: 40px;
+  }
+
+  .dialog-preview {
+    padding: 18px 16px 24px;
+  }
+}
+</style>

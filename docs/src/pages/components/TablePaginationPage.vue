@@ -1,102 +1,249 @@
 <template>
-  <div class="doc-page">
-    <h1>TablePagination 表格分页</h1>
-    <p class="doc-lead">
-      <code>GaTablePagination</code> 将 <code>GaTable</code> 与 <code>GaPagination</code> 组合为一个两行
-      Grid。它使用扁平 Props：排除 <code>height</code>、<code>maxHeight</code> 与两侧 <code>theme</code>
-      后组合表格和分页 Props，并通过 <code>tableTheme</code>、<code>paginationTheme</code>
-      分别配置内部组件，不需要 <code>tableProps</code> 或 <code>paginationProps</code> 对象。从
-      <code>ga-ui-plus/business</code> 导入。
-    </p>
+  <div class="doc-page table-pagination-page">
+    <header class="doc-intro">
+      <p class="doc-eyebrow">业务组件 / TablePagination 表格分页</p>
+      <h1>TablePagination 表格分页</h1>
+      <p class="doc-lead">
+        <code>GaTablePagination</code> 将表格与分页组合在同一个固定高度容器中，
+        适合需要列表展示、翻页、加载状态和独立配色的业务页面。
+      </p>
+    </header>
 
-    <h2>基础用法</h2>
-    <p>
-      父容器需要提供明确高度，组件才能将剩余空间分配给内部表格。插槽会原样转发给内部
-      <code>GaTable</code>，因此 <code>column-prepend</code>、配置列命名插槽、默认插槽等都可用。
-    </p>
-    <DemoBlock :source="basicSource">
-      <BasicDemo />
-    </DemoBlock>
+    <div class="table-pagination-layout">
+      <article class="table-pagination-content">
+        <section id="table-pagination-usage" class="doc-section">
+          <h2>如何使用</h2>
+          <p>
+            安装并配置样式后，从 <code>ga-ui-plus/business</code> 导入组件，
+            列类型从 <code>ga-ui-plus/base</code> 导入。使用 <code>GaUiResolver</code>
+            自动解析模板组件时可直接写 <code>&lt;GaTablePagination /&gt;</code>；手动导入请参阅
+            <RouterLink to="/guide/usage">接入指南</RouterLink>。
+          </p>
+          <DocsCodeBlock language="Vue" :code="importCode" />
+          <p>
+            容器必须有明确高度，例如 <code>height: 360px</code>。组件使用两行 Grid：
+            表格占据剩余空间，分页栏固定 <code>50px</code>；在 Flex 或 Grid 中使用时，
+            父级收缩链路还应设置 <code>min-height: 0</code>。
+          </p>
+        </section>
 
-    <h2>分别配置表格与分页主题</h2>
-    <p>
-      通过 <code>table-theme</code> 与 <code>pagination-theme</code> 分别配置内部组件颜色，
-      两个主题都支持部分覆盖。
-    </p>
-    <DemoBlock :source="themeSource">
-      <ThemeDemo />
-    </DemoBlock>
+        <section id="table-pagination-basic" class="doc-section">
+          <h2>基础分页</h2>
+          <p>
+            <code>data</code> 应传入当前页的数据，<code>total</code> 是完整数据集的总条数。
+            组件不会自动截取数据，也不会自动发请求。示例用 <code>currentPage</code> 与
+            <code>pageSize</code> 从本地数组截取数据，切换每页条数时返回第一页。
+          </p>
+          <div class="table-pagination-preview">
+            <span class="table-pagination-preview__label">预览</span>
+            <div class="table-pagination-preview__scroll">
+              <div class="table-pagination-preview__canvas"><TablePaginationBasicDemo /></div>
+            </div>
+          </div>
+          <DocsCodeBlock language="TablePaginationBasicDemo.vue" :code="basicSource" />
+        </section>
 
-    <h2>布局与高度要求</h2>
-    <p>
-      组件根节点使用两行 Grid：第一行 <code>minmax(0, 1fr)</code> 放置表格，第二行固定为
-      <code>50px</code> 放置分页。内部 <code>GaTable</code> 固定使用 <code>height="100%"</code>，
-      组合组件自身也使用 <code>height: 100%</code>。因此父容器必须有明确高度（例如
-      <code>height: 600px</code>），并建议在 Flex 或 Grid 收缩链路上设置 <code>min-height: 0</code>。
-    </p>
+        <section id="table-pagination-slots" class="doc-section">
+          <h2>自定义列与状态</h2>
+          <p>
+            在 <code>columns</code> 中为列设置 <code>slot</code>，再提供同名插槽即可自定义单元格。
+            <code>empty</code> 插槽可替换空表格内容；设置 <code>loading</code> 时表格显示加载层，
+            分页交互同时禁用。下方开关可预览这两种状态。
+          </p>
+          <div class="table-pagination-preview">
+            <span class="table-pagination-preview__label">预览</span>
+            <div class="table-pagination-preview__scroll">
+              <div class="table-pagination-preview__canvas"><TablePaginationSlotsDemo /></div>
+            </div>
+          </div>
+          <DocsCodeBlock language="TablePaginationSlotsDemo.vue" :code="slotsSource" />
+        </section>
 
-    <h2>当前限制</h2>
-    <ul>
-      <li>只转发明确声明的四个分页事件；<code>selection-change</code>、<code>row-click</code>、<code>sort-change</code> 等表格事件不会从内部 <code>GaTable</code> 透传。选择列可以显示并交互，但业务无法读取选择结果。</li>
-      <li>当前不暴露底层 <code>tableRef</code>。</li>
-      <li>不接受 <code>height</code>、<code>maxHeight</code>、<code>tableProps</code> 或 <code>paginationProps</code>；普通 <code>$attrs</code> 绑定在根元素，不会自动分发给内部表格或分页。</li>
-      <li>需要上述能力时，请使用 <code>GaTable</code> 与 <code>GaPagination</code> 自行组合。</li>
-    </ul>
+        <section id="table-pagination-style" class="doc-section">
+          <h2>样式风格</h2>
+          <p>
+            表格与分页分别使用 <code>tableTheme</code> 和 <code>paginationTheme</code>，
+            均支持部分覆盖。<code>size</code> 会同时作用于两者；<code>border</code>、
+            <code>stripe</code>、<code>background</code> 和 <code>position</code> 可分别调整边框、
+            斑马纹、页码背景和分页对齐方式。
+          </p>
+          <div class="table-pagination-preview">
+            <span class="table-pagination-preview__label">预览</span>
+            <div class="table-pagination-preview__scroll">
+              <div class="table-pagination-preview__canvas"><TablePaginationThemeDemo /></div>
+            </div>
+          </div>
+          <DocsCodeBlock language="TablePaginationThemeDemo.vue" :code="themeSource" />
+        </section>
 
-    <h2>API</h2>
+        <section id="table-pagination-behavior" class="doc-section">
+          <h2>组合边界</h2>
+          <p>
+            组件使用扁平 Props，不接受 <code>height</code>、<code>maxHeight</code>、
+            <code>disabled</code> 或通用 <code>theme</code>。未声明的属性绑定在组合组件根节点，
+            不会自动传给内部表格或分页。
+          </p>
+          <p>
+            当前只对外触发四个分页事件；<code>row-click</code>、<code>selection-change</code>、
+            <code>sort-change</code> 等内部表格事件不会透传，也不暴露底层
+            <code>tableRef</code>。需要这些能力时，可分别使用
+            <RouterLink to="/components/table">GaTable</RouterLink> 与
+            <RouterLink to="/components/pagination">GaPagination</RouterLink> 自行组合。
+          </p>
+        </section>
 
-    <h3>Props</h3>
-    <p>
-      <code>GaTablePaginationProps&lt;Row&gt;</code> 是
-      <code>Omit&lt;GaTableProps&lt;Row&gt;, 'height' | 'maxHeight' | 'theme'&gt; &amp;
-      Omit&lt;GaPaginationProps, 'theme' | 'disabled'&gt;</code>，并另外提供
-      <code>tableTheme</code> 与 <code>paginationTheme</code>。表格和分页共享同一个
-      <code>size</code>；<code>loading</code> 同时控制表格加载状态和分页禁用状态。
-    </p>
-    <ApiTable :headers="['属性组', '属性', '默认行为']" :rows="propsRows" />
-    <p>
-      迁移提示：组合组件不接受含义不明确的 <code>theme</code>。原来的
-      <code>:theme="paginationTheme"</code> 需要改为 <code>:pagination-theme="paginationTheme"</code>；
-      表格主题使用 <code>:table-theme="tableTheme"</code>。
-    </p>
+        <section id="table-pagination-api" class="doc-section">
+          <h2>API</h2>
+          <p>
+            <code>GaTablePaginationProps&lt;Row&gt;</code> 由表格和分页 Props 合并而来；
+            <code>data</code> 与 <code>columns</code> 的行类型可通过 <code>Row</code> 指定。
+          </p>
 
-    <h3>Events</h3>
-    <ApiTable :headers="['事件名', '说明', '回调参数']" :rows="eventsRows" />
+          <h3 id="table-pagination-props">Props</h3>
+          <DocsApiTable :headers="['属性', '类型', '默认值', '说明']" :rows="propsRows" />
 
-    <h3>Slots</h3>
-    <p>
-      组合组件会把收到的所有插槽及其作用域转发给内部 <code>GaTable</code>，可使用
-      <code>column-prepend</code>、默认插槽、配置列命名插槽、<code>empty</code> 和
-      <code>append</code>。这些插槽不会转发给分页组件。详见
-      <a href="#/components/table">Table 表格</a> 的 Slots 说明。
-    </p>
+          <h3 id="table-pagination-events">Events</h3>
+          <DocsApiTable :headers="['事件', '参数', '说明']" :rows="eventsRows" />
+
+          <h3 id="table-pagination-slots-api">Slots</h3>
+          <p>所有插槽及其作用域转发给内部 <code>GaTable</code>，不会传给分页组件。</p>
+          <DocsApiTable :headers="['插槽', '作用域', '说明']" :rows="slotsRows" />
+
+          <h3 id="table-pagination-table-theme">GaTableTheme</h3>
+          <p><code>tableTheme</code> 只控制表格颜色；未设置的字段沿用默认值。</p>
+          <DocsApiTable :headers="['字段', '默认值', '说明']" :rows="tableThemeRows" />
+
+          <h3 id="table-pagination-pagination-theme">GaPaginationTheme</h3>
+          <p><code>paginationTheme</code> 只控制分页颜色；未设置的字段沿用默认值。</p>
+          <DocsApiTable :headers="['字段', '默认值', '说明']" :rows="paginationThemeRows" />
+        </section>
+      </article>
+
+      <aside class="table-pagination-toc" aria-label="本页目录">
+        <span>本页目录</span>
+        <RouterLink
+          v-for="item in tocItems"
+          :key="item.id"
+          :to="{ path: route.path, hash: `#${item.id}` }"
+          :class="{ 'is-active': route.hash === `#${item.id}` }"
+        >
+          {{ item.title }}
+        </RouterLink>
+      </aside>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import ApiTable from '../../components/ApiTable.vue'
-import DemoBlock from '../../components/DemoBlock.vue'
-import BasicDemo from '../../demos/table-pagination/BasicDemo.vue'
-import basicSource from '../../demos/table-pagination/BasicDemo.vue?raw'
-import ThemeDemo from '../../demos/table-pagination/ThemeDemo.vue'
-import themeSource from '../../demos/table-pagination/ThemeDemo.vue?raw'
+import { nextTick, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
-const propsRows = [
-  ['表格数据与列', 'data、columns、rowKey', '与 GaTable 相同：[]、[]、—'],
-  ['表格外观', 'border、stripe、fit、showHeader', '均为 true'],
-  ['表格状态', 'highlightCurrentRow、emptyText、loading、loadingText', "false、'暂无数据'、false、'加载中...'；loading=true 时分页同时禁用"],
-  ['主题配置', 'tableTheme', '传给内部 GaTable 的实例级颜色主题，支持部分覆盖'],
-  ['主题配置', 'paginationTheme', '传给内部 GaPagination 的实例级颜色主题，支持部分覆盖'],
-  ['共享尺寸', 'size', '同时传给 GaTable 与 GaPagination；未传时使用子组件默认行为'],
-  ['分页模型', 'currentPage、pageSize', '与 GaPagination 相同：1、10'],
-  ['分页数据', 'total、pageSizes', '与 GaPagination 相同：0、[10, 20, 30, 40, 50]'],
-  ['分页外观', 'layout、background、position', 'layout、position 与 GaPagination 相同；background 默认为 true'],
+import DocsApiTable from '../../DocsApiTable.vue'
+import DocsCodeBlock from '../../DocsCodeBlock.vue'
+import TablePaginationBasicDemo from './TablePaginationBasicDemo.vue'
+import basicSource from './TablePaginationBasicDemo.vue?raw'
+import TablePaginationSlotsDemo from './TablePaginationSlotsDemo.vue'
+import slotsSource from './TablePaginationSlotsDemo.vue?raw'
+import TablePaginationThemeDemo from './TablePaginationThemeDemo.vue'
+import themeSource from './TablePaginationThemeDemo.vue?raw'
+import {
+  eventsRows,
+  paginationThemeRows,
+  propsRows,
+  slotsRows,
+  tableThemeRows,
+} from './TablePaginationApi'
+
+const route = useRoute()
+const importCode = `import { GaTablePagination } from 'ga-ui-plus/business'
+import type { GaTableColumn } from 'ga-ui-plus/base'`
+
+const tocItems = [
+  { id: 'table-pagination-usage', title: '如何使用' },
+  { id: 'table-pagination-basic', title: '基础分页' },
+  { id: 'table-pagination-slots', title: '自定义列与状态' },
+  { id: 'table-pagination-style', title: '样式风格' },
+  { id: 'table-pagination-behavior', title: '组合边界' },
+  { id: 'table-pagination-props', title: 'Props' },
+  { id: 'table-pagination-events', title: 'Events' },
+  { id: 'table-pagination-slots-api', title: 'Slots' },
+  { id: 'table-pagination-table-theme', title: 'GaTableTheme' },
+  { id: 'table-pagination-pagination-theme', title: 'GaPaginationTheme' },
 ]
 
-const eventsRows = [
-  ['update:current-page', '转发页码模型更新', '(currentPage: number)'],
-  ['update:page-size', '转发页大小模型更新', '(pageSize: number)'],
-  ['current-change', '当前页变化事件', '(currentPage: number)'],
-  ['size-change', '每页条数变化事件', '(pageSize: number)'],
-]
+watch(
+  () => route.hash,
+  async (hash) => {
+    if (!hash) return
+    await nextTick()
+    document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start' })
+  },
+  { immediate: true },
+)
 </script>
+
+<style scoped>
+.table-pagination-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 170px;
+  gap: 60px;
+  margin-top: 48px;
+}
+
+.table-pagination-content { min-width: 0; }
+
+.table-pagination-page .doc-section h3 {
+  margin: 36px 0 18px;
+  color: #303133;
+  font-size: 18px;
+  scroll-margin-top: 24px;
+}
+
+.table-pagination-page .doc-section a { color: var(--docs-primary); text-decoration: none; }
+.table-pagination-page .doc-section a:hover { text-decoration: underline; }
+
+.table-pagination-preview {
+  margin-top: 22px;
+  padding: 20px 24px 24px;
+  border: 1px solid var(--docs-border);
+  border-radius: 6px;
+}
+
+.table-pagination-preview__label {
+  display: block;
+  margin-bottom: 20px;
+  color: #909399;
+  font-size: 12px;
+}
+
+.table-pagination-preview__scroll { overflow-x: auto; }
+.table-pagination-preview__canvas { min-width: 600px; }
+
+.table-pagination-toc {
+  position: sticky;
+  top: 36px;
+  display: flex;
+  height: max-content;
+  max-height: calc(100dvh - 72px);
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  padding-left: 18px;
+  border-left: 1px solid var(--docs-border);
+  font-size: 13px;
+}
+
+.table-pagination-toc > span { color: #909399; font-size: 12px; font-weight: 700; }
+.table-pagination-toc a { color: var(--docs-text-secondary); text-decoration: none; }
+.table-pagination-toc a:hover, .table-pagination-toc a.is-active { color: var(--docs-primary); }
+
+@media (max-width: 1000px) {
+  .table-pagination-layout { grid-template-columns: minmax(0, 1fr); }
+  .table-pagination-toc { display: none; }
+}
+
+@media (max-width: 720px) {
+  .table-pagination-layout { margin-top: 40px; }
+  .table-pagination-preview { padding: 18px 16px 20px; }
+}
+</style>

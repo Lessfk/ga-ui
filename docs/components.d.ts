@@ -11,9 +11,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    ApiTable: typeof import('./src/components/ApiTable.vue')['default']
-    CodeBlock: typeof import('./src/components/CodeBlock.vue')['default']
-    DemoBlock: typeof import('./src/components/DemoBlock.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

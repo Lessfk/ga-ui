@@ -1316,7 +1316,7 @@ const fields: GaSearchField[] = [
 
 ## GaMegaMenu
 
-`GaMegaMenu` 是面向 PC 端头部导航的大型菜单组件。一级菜单使用原生按钮渲染，包含分组数据的菜单可以通过 `click` 或 `hover` 打开 Teleport 到 `body` 的二级面板。一级菜单和二级面板使用完全独立的主题字段，未传入的字段会继续使用组件默认的深海蓝样式。
+`GaMegaMenu` 是面向 PC 端头部导航的大型菜单组件。一级菜单使用原生按钮渲染，包含分组数据的菜单可以通过 `click` 或 `hover` 打开 Teleport 到 `body` 的二级面板。面板默认跟随整个一级菜单导航区域的宽度，也可自行指定宽度。一级菜单和二级面板使用完全独立的主题字段，未传入的字段会继续使用组件默认的深海蓝样式。
 
 ### 基础用法
 
@@ -1367,6 +1367,26 @@ function handleSelect(payload: GaMegaMenuSelectPayload) {
 ```
 
 `menus` 中没有 `groups` 的一级菜单会直接触发选择；包含 `groups` 的菜单用于打开面板。`select` 事件统一返回 `{ key, source, menu, group?, item?, nativeEvent }`，其中 `source` 为 `menu` 或 `panel`。
+
+### 面板宽度
+
+`panelWidth` 默认为 `'menu'`，表示二级面板跟随整个一级菜单导航区域的宽度，而非当前触发按钮。可传数字（单位为 px）或 CSS 宽度字符串（如 `50%`、`720px`、`60vw`）；显式传入 `'menu'` 可切回跟随模式。面板使用固定定位，百分比相对于视口宽度计算。面板左边缘默认对齐导航区域，靠近视口边缘时会移动并限制在可视范围内。
+
+```vue
+<GaMegaMenu :menus="menus" />
+<GaMegaMenu :menus="menus" :panel-width="720" />
+<GaMegaMenu :menus="menus" panel-width="50%" />
+<GaMegaMenu :menus="menus" panel-width="720px" />
+<GaMegaMenu :menus="menus" panel-width="60vw" />
+<GaMegaMenu :menus="menus" panel-width="min(48rem, 90vw)" />
+<GaMegaMenu :menus="menus" panel-width="menu" />
+```
+
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `panelWidth` | `'menu' \| string \| number` | `'menu'` | 二级面板宽度；`'menu'` 跟随整个一级导航区域，数字按 px 处理 |
+
+`GaHeader` 继承 MegaMenu 的菜单参数，因此也可以直接传入 `panelWidth`。
 
 ### 分区主题
 

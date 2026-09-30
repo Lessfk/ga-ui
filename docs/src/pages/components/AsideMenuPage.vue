@@ -1,125 +1,238 @@
 <template>
-  <div class="doc-page">
-    <h1>AsideMenu 侧边栏菜单</h1>
-    <p class="doc-lead">
-      <code>GaAsideMenu</code> 由 Element Plus 的 <code>ElAside</code>、<code>ElScrollbar</code> 与
-      <code>ElMenu</code> 组合而成。菜单固定为纵向模式，默认插槽可以直接放置原生
-      <code>ElSubMenu</code>、<code>ElMenuItem</code> 与 <code>ElMenuItemGroup</code>；<code>theme</code>
-      可统一配置侧栏、菜单项及折叠弹出层的主题颜色。从 <code>ga-ui-plus/business</code> 导入。
-    </p>
+  <div class="doc-page aside-menu-page">
+    <header class="doc-intro">
+      <p class="doc-eyebrow">业务组件 / AsideMenu 侧边栏菜单</p>
+      <h1>AsideMenu 侧边栏菜单</h1>
+      <p class="doc-lead">
+        <code>GaAsideMenu</code> 将 Element Plus 的侧栏、滚动容器和纵向菜单组合在一起，
+        提供宽度联动的折叠控制、头部与底部插槽，以及可传递到子菜单弹层的主题。
+      </p>
+    </header>
 
-    <h2>基础用法</h2>
-    <p>
-      <code>collapse</code> 驱动内部 <code>ElMenu</code> 和外层 <code>ElAside</code> 同步折叠，支持
-      <code>v-model:collapse</code>。<code>width</code> 控制展开宽度，<code>collapse-width</code>
-      控制折叠宽度，默认分别为 <code>240px</code> 和 <code>64px</code>。
-      父容器需要提供明确高度，内部 <code>ElScrollbar</code> 才能正确滚动。
-    </p>
-    <DemoBlock :source="basicSource">
-      <BasicDemo />
-    </DemoBlock>
+    <div class="aside-menu-layout">
+      <article class="aside-menu-content">
+        <section id="aside-menu-usage" class="doc-section">
+          <h2>如何使用</h2>
+          <p>
+            安装并配置样式后，从 <code>ga-ui-plus/business</code> 导入组件；
+            默认插槽直接使用 Element Plus 的 <code>ElMenuItem</code>、<code>ElSubMenu</code>
+            和 <code>ElMenuItemGroup</code>。使用 <code>GaUiResolver</code> 自动解析时可直接写
+            <code>&lt;GaAsideMenu /&gt;</code>；手动导入参阅
+            <RouterLink to="/guide/usage">接入指南</RouterLink>。
+          </p>
+          <DocsCodeBlock language="Vue" :code="importCode" />
+          <p>
+            组件高度为 <code>100%</code>，父容器须提供明确高度；菜单区域会在剩余空间内滚动。
+            <code>width</code> 和 <code>collapseWidth</code> 分别控制展开与折叠宽度，
+            默认是 <code>240px</code> 与 <code>64px</code>。
+          </p>
+        </section>
 
-    <h2>主题配置</h2>
-    <p>
-      通过 <code>theme</code> 设置背景、文字、激活态、悬停态与边框颜色，支持局部覆盖默认值。
-      主题会同步应用到折叠后 Teleport 到 <code>body</code> 的子菜单弹层，并与传入的
-      <code>popper-class</code>、<code>popper-style</code> 合并。
-    </p>
-    <DemoBlock :source="themeSource">
-      <ThemeDemo />
-    </DemoBlock>
+        <section id="aside-menu-basic" class="doc-section">
+          <h2>基础导航</h2>
+          <p>
+            通过 <code>v-model:collapse</code> 同步折叠状态，使用
+            <code>defaultActive</code> 和 <code>defaultOpeneds</code> 设置初始激活项与展开项。
+            <code>select</code> 返回菜单 <code>index</code>、<code>indexPath</code> 及原生菜单项参数；
+            <code>open</code> 和 <code>close</code> 报告子菜单状态。
+          </p>
+          <div class="aside-menu-preview">
+            <span class="aside-menu-preview__label">预览</span>
+            <div class="aside-menu-preview__scroll"><div class="aside-menu-preview__canvas"><AsideMenuBasicDemo /></div></div>
+          </div>
+          <DocsCodeBlock language="AsideMenuBasicDemo.vue" :code="basicSource" />
+        </section>
 
-    <h2>API</h2>
+        <section id="aside-menu-slots" class="doc-section">
+          <h2>自定义区域</h2>
+          <p>
+            <code>header</code> 和 <code>footer</code> 插槽可放品牌及账户信息；
+            <code>collapse</code> 插槽可替换内置按钮，并通过作用域中的
+            <code>toggle()</code> 切换状态。组件实例也暴露 <code>toggle()</code>，
+            可从侧栏外部控制。
+          </p>
+          <div class="aside-menu-preview">
+            <span class="aside-menu-preview__label">预览</span>
+            <div class="aside-menu-preview__scroll"><div class="aside-menu-preview__canvas"><AsideMenuSlotsDemo /></div></div>
+          </div>
+          <DocsCodeBlock language="AsideMenuSlotsDemo.vue" :code="slotsSource" />
+        </section>
 
-    <h3>Props</h3>
-    <p>
-      <code>GaAsideMenuProps</code> 在 Element Plus Menu Props 基础上增加了 <code>collapse</code>、
-      <code>width</code>、<code>collapseWidth</code> 与 <code>theme</code>；<code>mode</code> 固定为
-      <code>vertical</code>，<code>collapse</code> 由组件接管用于宽度联动。
-    </p>
-    <ApiTable :headers="['属性名', '说明', '类型', '默认值']" :rows="propsRows" />
+        <section id="aside-menu-style" class="doc-section">
+          <h2>样式风格</h2>
+          <p>
+            <code>theme</code> 可部分覆盖背景、文字、激活态、悬停态和分隔线颜色。
+            折叠后子菜单弹层会获得同一实例的主题变量；传入的
+            <code>popperClass</code> 与 <code>popperStyle</code> 也会保留。
+            内置折叠按钮默认使用白色，浅色主题可覆盖按钮颜色或使用 <code>collapse</code> 插槽。
+            切换下面的主题并折叠侧栏，可查看弹层配色。
+          </p>
+          <div class="aside-menu-preview">
+            <span class="aside-menu-preview__label">预览</span>
+            <div class="aside-menu-preview__scroll"><div class="aside-menu-preview__canvas"><AsideMenuThemeDemo /></div></div>
+          </div>
+          <DocsCodeBlock language="AsideMenuThemeDemo.vue" :code="themeSource" />
+        </section>
 
-    <h3>Events</h3>
-    <ApiTable :headers="['事件名', '说明', '回调参数']" :rows="eventsRows" />
+        <section id="aside-menu-behavior" class="doc-section">
+          <h2>交互与路由</h2>
+          <p>
+            <code>mode</code> 固定为 <code>vertical</code>；<code>collapse</code> 会同步作用于
+            <code>ElAside</code> 宽度与 <code>ElMenu</code> 折叠状态。传入
+            <code>router</code> 时，需在消费项目安装并配置 Vue Router；若仅根据菜单选择更新页面，
+            监听 <code>select</code> 即可。
+          </p>
+          <p>
+            未声明的属性会绑定在外层 <code>ElAside</code>，菜单相关 Props 会传给内部
+            <code>ElMenu</code>。菜单的更多交互细节参阅
+            <a href="https://element-plus.org/zh-CN/component/menu.html" target="_blank" rel="noopener noreferrer">Element Plus Menu 文档</a>。
+          </p>
+        </section>
 
-    <h3>Slots</h3>
-    <ApiTable :headers="['插槽名', '说明', '作用域']" :rows="slotsRows" />
+        <section id="aside-menu-api" class="doc-section">
+          <h2>API</h2>
 
-    <h3>Exposes</h3>
-    <ApiTable :headers="['名称', '说明', '类型']" :rows="exposesRows" />
+          <h3 id="aside-menu-props">Props</h3>
+          <p>
+            <code>GaAsideMenuProps</code> 在 Element Plus Menu Props 基础上增加侧栏宽度与主题；
+            <code>mode</code> 由组件固定，不能传入。
+          </p>
+          <DocsApiTable :headers="['属性', '类型', '默认值', '说明']" :rows="propsRows" />
 
-    <h2>样式配置</h2>
-    <p><code>GaAsideMenuTheme</code> 支持以下字段，均可部分覆盖：</p>
-    <ApiTable :headers="['字段', '说明', '类型']" :rows="themeRows" />
+          <h3 id="aside-menu-events">Events</h3>
+          <DocsApiTable :headers="['事件', '参数', '说明']" :rows="eventsRows" />
 
-    <p>
-      完整行为以
-      <a href="https://element-plus.org/zh-CN/component/menu.html" target="_blank" rel="noreferrer">Element Plus Menu 文档</a>
-      为准。
-    </p>
+          <h3 id="aside-menu-slots-api">Slots</h3>
+          <DocsApiTable :headers="['插槽', '作用域', '说明']" :rows="slotsRows" />
+
+          <h3 id="aside-menu-expose">Expose</h3>
+          <DocsApiTable :headers="['属性 / 方法', '类型', '说明']" :rows="exposeRows" />
+
+          <h3 id="aside-menu-theme">GaAsideMenuTheme</h3>
+          <p>未传入的字段沿用默认主题。<code>backgroundColor</code> 与 <code>activeBackgroundColor</code> 支持 CSS 渐变；其余字段应使用颜色值。</p>
+          <DocsApiTable :headers="['字段', '默认值', '说明']" :rows="themeRows" />
+        </section>
+      </article>
+
+      <aside class="aside-menu-toc" aria-label="本页目录">
+        <span>本页目录</span>
+        <RouterLink
+          v-for="item in tocItems"
+          :key="item.id"
+          :to="{ path: route.path, hash: `#${item.id}` }"
+          :class="{ 'is-active': route.hash === `#${item.id}` }"
+        >
+          {{ item.title }}
+        </RouterLink>
+      </aside>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import ApiTable from '../../components/ApiTable.vue'
-import DemoBlock from '../../components/DemoBlock.vue'
-import BasicDemo from '../../demos/aside-menu/BasicDemo.vue'
-import basicSource from '../../demos/aside-menu/BasicDemo.vue?raw'
-import ThemeDemo from '../../demos/aside-menu/ThemeDemo.vue'
-import themeSource from '../../demos/aside-menu/ThemeDemo.vue?raw'
+import { nextTick, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
-const propsRows = [
-  ['collapse', '是否折叠，支持 v-model:collapse', 'boolean', 'false'],
-  ['width', '展开时侧边栏宽度', 'string', "'240px'"],
-  ['collapseWidth', '折叠时侧边栏宽度', 'string', "'64px'"],
-  ['theme', '侧栏、菜单项与折叠弹层的主题颜色，支持局部覆盖', 'GaAsideMenuTheme', '内置蓝色渐变主题'],
-  ['defaultActive', '默认激活菜单 index', 'string', "''"],
-  ['defaultOpeneds', '默认展开的 SubMenu index 集合', 'string[]', '[]'],
-  ['uniqueOpened', '是否只保持一个子菜单展开', 'boolean', 'false'],
-  ['router', '是否启用路由模式；需要应用实际安装 Vue Router 才会执行跳转', 'boolean', 'false'],
-  ['menuTrigger', '子菜单触发方式', "'hover' | 'click'", "'hover'"],
-  ['backgroundColor', '菜单背景色', 'string', '—'],
-  ['textColor', '菜单文字颜色', 'string', '—'],
-  ['activeTextColor', '激活菜单文字颜色', 'string', '—'],
-  ['collapseTransition', '是否开启折叠动画', 'boolean', 'true'],
-  ['ellipsis', '文字溢出时是否省略', 'boolean', 'true'],
-  ['popperOffset', '弹出层偏移', 'number', '6'],
-  ['popperEffect', '弹出层主题', 'PopperEffect', "'dark'"],
-  ['popperClass', '弹出层自定义类名', 'string', '—'],
-  ['popperStyle', '弹出层自定义样式', 'string | CSSProperties', '—'],
-  ['showTimeout', '子菜单展开延时', 'number', '300'],
-  ['hideTimeout', '子菜单收起延时', 'number', '300'],
-  ['closeOnClickOutside', '点击外部是否收起弹出菜单', 'boolean', 'false'],
-  ['ellipsisIcon', '省略图标', 'string | Component', 'Element Plus 默认图标'],
-  ['persistent', '菜单收起时是否保留弹出层 DOM', 'boolean', 'true'],
+import DocsApiTable from '../../DocsApiTable.vue'
+import DocsCodeBlock from '../../DocsCodeBlock.vue'
+import AsideMenuBasicDemo from './AsideMenuBasicDemo.vue'
+import basicSource from './AsideMenuBasicDemo.vue?raw'
+import AsideMenuSlotsDemo from './AsideMenuSlotsDemo.vue'
+import slotsSource from './AsideMenuSlotsDemo.vue?raw'
+import AsideMenuThemeDemo from './AsideMenuThemeDemo.vue'
+import themeSource from './AsideMenuThemeDemo.vue?raw'
+import { eventsRows, exposeRows, propsRows, slotsRows, themeRows } from './AsideMenuApi'
+
+const route = useRoute()
+const importCode = `import { GaAsideMenu } from 'ga-ui-plus/business'
+import { ElIcon, ElMenuItem, ElSubMenu } from 'element-plus'`
+
+const tocItems = [
+  { id: 'aside-menu-usage', title: '如何使用' },
+  { id: 'aside-menu-basic', title: '基础导航' },
+  { id: 'aside-menu-slots', title: '自定义区域' },
+  { id: 'aside-menu-style', title: '样式风格' },
+  { id: 'aside-menu-behavior', title: '交互与路由' },
+  { id: 'aside-menu-props', title: 'Props' },
+  { id: 'aside-menu-events', title: 'Events' },
+  { id: 'aside-menu-slots-api', title: 'Slots' },
+  { id: 'aside-menu-expose', title: 'Expose' },
+  { id: 'aside-menu-theme', title: 'GaAsideMenuTheme' },
 ]
 
-const eventsRows = [
-  ['update:collapse', '折叠状态变化；用于 v-model:collapse', '(collapse: boolean)'],
-  ['toggle', '折叠/展开切换动作执行后触发', '(collapse: boolean)'],
-  ['select', '原样转发 Element Plus 菜单选择事件', '(index: string, indexPath: string[], item: MenuItemClicked, routerResult?: Promise<unknown>)'],
-  ['open', '子菜单展开', '(index: string, indexPath: string[])'],
-  ['close', '子菜单收起', '(index: string, indexPath: string[])'],
-]
-
-const slotsRows = [
-  ['header', '侧边栏头部区域，通常放 logo 或产品名；未提供时不渲染', '{ collapse }'],
-  ['default', '原生菜单内容，可直接使用 ElSubMenu、ElMenuItem、ElMenuItemGroup', '—'],
-  ['footer', '侧边栏底部区域；未提供时不渲染', '{ collapse }'],
-  ['collapse', '折叠/展开控制区域；未提供时使用内置按钮', '{ collapse, toggle }'],
-]
-
-const exposesRows = [
-  ['menuRef', "底层 ElMenu 实例，可调用 open(index)、close(index)、handleResize()、updateActiveIndex(index)", 'MenuInstance | undefined'],
-  ['toggle', '组件外触发与内置切换一致的折叠/展开动作', '() => void'],
-]
-
-const themeRows = [
-  ['backgroundColor', '侧栏、菜单与折叠弹层背景色', 'string'],
-  ['textColor', '默认文字与图标颜色', 'string'],
-  ['activeTextColor', '激活菜单项文字与图标颜色', 'string'],
-  ['activeBackgroundColor', '激活菜单项背景色', 'string'],
-  ['hoverBackgroundColor', '菜单项和折叠按钮悬停背景色', 'string'],
-  ['borderColor', '侧栏分隔线和折叠弹层边框颜色', 'string'],
-]
+watch(
+  () => route.hash,
+  async (hash) => {
+    if (!hash) return
+    await nextTick()
+    document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start' })
+  },
+  { immediate: true },
+)
 </script>
+
+<style scoped>
+.aside-menu-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 170px;
+  gap: 60px;
+  margin-top: 48px;
+}
+
+.aside-menu-content { min-width: 0; }
+
+.aside-menu-page .doc-section h3 {
+  margin: 36px 0 18px;
+  color: #303133;
+  font-size: 18px;
+  scroll-margin-top: 24px;
+}
+
+.aside-menu-page .doc-section a { color: var(--docs-primary); text-decoration: none; }
+.aside-menu-page .doc-section a:hover { text-decoration: underline; }
+
+.aside-menu-preview {
+  margin-top: 22px;
+  padding: 20px 24px 24px;
+  border: 1px solid var(--docs-border);
+  border-radius: 6px;
+}
+
+.aside-menu-preview__label {
+  display: block;
+  margin-bottom: 20px;
+  color: #909399;
+  font-size: 12px;
+}
+
+.aside-menu-preview__scroll { overflow-x: auto; }
+.aside-menu-preview__canvas { min-width: 560px; }
+
+.aside-menu-toc {
+  position: sticky;
+  top: 36px;
+  display: flex;
+  height: max-content;
+  max-height: calc(100dvh - 72px);
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  padding-left: 18px;
+  border-left: 1px solid var(--docs-border);
+  font-size: 13px;
+}
+
+.aside-menu-toc > span { color: #909399; font-size: 12px; font-weight: 700; }
+.aside-menu-toc a { color: var(--docs-text-secondary); text-decoration: none; }
+.aside-menu-toc a:hover, .aside-menu-toc a.is-active { color: var(--docs-primary); }
+
+@media (max-width: 1000px) {
+  .aside-menu-layout { grid-template-columns: minmax(0, 1fr); }
+  .aside-menu-toc { display: none; }
+}
+
+@media (max-width: 720px) {
+  .aside-menu-layout { margin-top: 40px; }
+  .aside-menu-preview { padding: 18px 16px 20px; }
+}
+</style>

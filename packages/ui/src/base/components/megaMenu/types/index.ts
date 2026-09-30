@@ -110,6 +110,7 @@ export interface GaMegaMenuProps {
   minColumnWidth?: number
   maxColumnWidth?: number
   maxHeight?: string | number
+  panelWidth?: string | number
   closeOnSelect?: boolean
   theme?: GaMegaMenuTheme
   ariaLabel?: string

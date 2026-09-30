@@ -58,10 +58,7 @@ import {
   type GaSearchBarExpose,
   type GaSearchChangePayload,
   type GaSearchField,
-  type GaSearchLabelMode,
-  type GaSearchLabelPosition,
   type GaSearchModel,
-  type GaSearchOption,
 } from "ga-ui-plus/business";
 import { ref, computed } from "vue";
 
@@ -137,20 +134,6 @@ const handleReset = (model: GaSearchModel) => {
 
 const handleChange = (payload: GaSearchChangePayload) => {
   console.log(payload, "payloadpayload");
-};
-
-const mySearch = async (search: () => Promise<boolean>) => {
-  console.log(123);
-  let asd = await search();
-
-  console.log(asd, "search");
-  //   alert("123");
-};
-
-const myReset = async (reset: () => void) => {
-  let asd = reset();
-  console.log(asd, "reset");
-  //   alert("123");
 };
 
 const handleExport = () => {

@@ -6,7 +6,7 @@
 
 - `packages/ui`：`ga-ui-plus` npm 包的源码、测试、构建与发布配置。
 - `playground`：用于本地联调的 Vue 3 应用。
-- `docs`：设计说明和实施计划；当前仅作为文档目录，不是独立 package。
+- `docs`：基于 Vue 3 和 Vite 的 ga-ui-plus 组件文档站。
 
 `pnpm-workspace.yaml` 覆盖 `packages/*`、`playground` 和 `docs`。
 

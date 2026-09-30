@@ -314,6 +314,75 @@ describe('GaMegaMenu', () => {
     )
   })
 
+  it('follows the navigation region width and left edge by default', async () => {
+    const wrapper = await mountMegaMenu({ props: { openKey: 'system' } })
+    if (!wrapper) return
+
+    vi.spyOn(wrapper.get('.ga-mega-menu').element, 'getBoundingClientRect')
+      .mockReturnValue({ left: 120, width: 480, bottom: 72 } as DOMRect)
+
+    window.dispatchEvent(new Event('resize'))
+    await wrapper.vm.$nextTick()
+
+    const style = wrapper.get('.ga-mega-menu__panel').attributes('style')
+    expect(style).toContain('--ga-mega-menu-panel-width: 480px')
+    expect(style).toContain('--ga-mega-menu-panel-left: 120px')
+  })
+
+  it('supports numeric and CSS panel widths and switches back to follow mode', async () => {
+    const wrapper = await mountMegaMenu({
+      props: { openKey: 'system', panelWidth: 520 },
+    })
+    if (!wrapper) return
+
+    expect(wrapper.get('.ga-mega-menu__panel').attributes('style'))
+      .toContain('--ga-mega-menu-panel-width: 520px')
+
+    await wrapper.setProps({ panelWidth: 'min(48rem, 90vw)' })
+    expect(wrapper.get('.ga-mega-menu__panel').attributes('style'))
+      .toContain('--ga-mega-menu-panel-width: min(48rem, 90vw)')
+
+    vi.spyOn(wrapper.get('.ga-mega-menu').element, 'getBoundingClientRect')
+      .mockReturnValue({ left: 80, width: 360, bottom: 72 } as DOMRect)
+    await wrapper.setProps({ panelWidth: 'menu' })
+    window.dispatchEvent(new Event('resize'))
+    await wrapper.vm.$nextTick()
+    expect(wrapper.get('.ga-mega-menu__panel').attributes('style'))
+      .toContain('--ga-mega-menu-panel-width: 360px')
+  })
+
+  it.each(['50%', '720px', '60vw'])(
+    'accepts the CSS panel width %s',
+    async (panelWidth) => {
+      const wrapper = await mountMegaMenu({
+        props: { openKey: 'system', panelWidth },
+      })
+      if (!wrapper) return
+
+      expect(wrapper.get('.ga-mega-menu__panel').attributes('style'))
+        .toContain(`--ga-mega-menu-panel-width: ${panelWidth}`)
+    },
+  )
+
+  it('shifts a wide panel left to keep it within the viewport', async () => {
+    const wrapper = await mountMegaMenu({
+      props: { openKey: 'system', panelWidth: 400 },
+    })
+    if (!wrapper) return
+
+    const viewportWidth = window.innerWidth
+    vi.spyOn(wrapper.get('.ga-mega-menu').element, 'getBoundingClientRect')
+      .mockReturnValue({ left: viewportWidth - 100, width: 200, bottom: 72 } as DOMRect)
+    vi.spyOn(wrapper.get('.ga-mega-menu__panel').element, 'getBoundingClientRect')
+      .mockReturnValue({ width: 400 } as DOMRect)
+
+    window.dispatchEvent(new Event('resize'))
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.get('.ga-mega-menu__panel').attributes('style'))
+      .toContain(`--ga-mega-menu-panel-left: ${viewportWidth - 400}px`)
+  })
+
   it('applies theme and column variables directly to the teleported panel', async () => {
     const wrapper = await mountMegaMenu({
       props: {
@@ -807,17 +876,17 @@ describe('GaMegaMenu', () => {
     expect(megaMenuStyles).not.toContain('--ga-mega-menu-panel-text-color')
   })
 
-  it('uses a fixed full-viewport panel without a panelWidth prop', async () => {
+  it('uses a fixed panel sized by its width variable', async () => {
     const component = await loadMegaMenu()
     const runtimeProps =
       (component as { props?: Record<string, unknown> } | undefined)?.props ??
       {}
 
-    expect(runtimeProps).not.toHaveProperty('panelWidth')
+    expect(runtimeProps).toHaveProperty('panelWidth')
     expect(megaMenuStyles).toMatch(
-      /&__panel\s*\{[\s\S]*?position:\s*fixed;[\s\S]*?width:\s*100vw;/,
+      /&__panel\s*\{[\s\S]*?position:\s*fixed;[\s\S]*?width:\s*var\(--ga-mega-menu-panel-width/,
     )
-    expect(megaMenuStyles).not.toContain('--ga-mega-menu-panel-left')
+    expect(megaMenuStyles).toContain('--ga-mega-menu-panel-left')
   })
 
   it('inherits root and menu height without fixed 64px minimums', () => {
