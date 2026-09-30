@@ -84,6 +84,7 @@
 
 <script setup lang="ts">
 import DocsCodeBlock from '../../DocsCodeBlock.vue'
+import resolverCode from './ResolverConfigExample.txt?raw'
 import { nextTick, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -98,21 +99,6 @@ watch(
   },
   { immediate: true },
 )
-
-const resolverCode = `import vue from '@vitejs/plugin-vue'
-import { defineConfig } from 'vite'
-import Components from 'unplugin-vue-components/vite'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-import { GaUiResolver } from 'ga-ui-plus/resolver'
-
-export default defineConfig({
-  plugins: [
-    vue(),
-    Components({
-      resolvers: [ElementPlusResolver(), GaUiResolver()],
-    }),
-  ],
-})`
 
 const manualStyleCode = `import { createApp } from 'vue'
 import App from './App.vue'
